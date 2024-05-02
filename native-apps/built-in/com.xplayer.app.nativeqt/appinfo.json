@@ -1,0 +1,11 @@
+{
+    "id": "com.xplayer.app.nativeqt",
+    "version": "0.0.1",
+    "vendor": "My Company",
+    "type": "native",
+    "main": "xplayer",
+    "title": "Xplayer App",
+    "icon": "icon.png",
+    "requiredPermissions" : ["application.operation"],
+    "nativeLifeCycleInterfaceVersion": 2
+}

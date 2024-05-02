@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/resources/qmls/Windown.qml</file>
+        <file>src/resources/icons/SpeakerIcon.svg</file>
+        <file>src/resources/icons/SpeakerIcon.svg</file>
+    </qresource>
+</RCC>
