@@ -64,6 +64,7 @@ AppMain::AppMain(QObject *parent)
 
 AppMain::~AppMain()
 {
+    PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("x", "delete AppMain"),  " ");
     if (m_service != nullptr) {
         delete m_service;
     }
@@ -92,17 +93,19 @@ void AppMain::onCreateWindow()
 {
     PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "onCreateWindow"),  " ");
     if (m_windown == nullptr) {
-        m_windown = new QQuickView();
+        m_windown = new QQuickView(QUrl(QStringLiteral("/Windown.qml")));
     }
 
-    m_windown->setSource(QUrl(QStringLiteral("qrc:/src/resources/qmls/Windown.qml")));
     m_windown->setProperty("appId", "com.xplayer.app.nativeqt");    
-    m_windown->setProperty("displayAffinity", "0");  
+    m_windown->setProperty("displayAffinity", 0);  
     m_windown->setResizeMode(QQuickView::SizeRootObjectToView);
-    m_windown->setColor(Qt::transparent);
+    m_windown->setColor(Qt::white);
+    // m_windown->setColor(Qt::gray);
     m_windown->setPersistentGraphics(false);
     m_windown->setGeometry(0,0, 1080,720);
+    m_windown->setSource(QUrl(QStringLiteral("qrc:/src/resources/qmls/Windown.qml")));
     m_windown->show();
+    PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "done onCreateWindow"),  " ");
 }
 
 void AppMain::connectSignalSlots() {

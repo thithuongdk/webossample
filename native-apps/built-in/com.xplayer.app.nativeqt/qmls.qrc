@@ -1,7 +1,33 @@
-<RCC>
-    <qresource prefix="/">
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
         <file>src/resources/qmls/Windown.qml</file>
-        <file>src/resources/icons/SpeakerIcon.svg</file>
-        <file>src/resources/icons/SpeakerIcon.svg</file>
+    </qresource>
+    <qresource>
+        <file>src/resources/icons/png/back.png</file>
+        <file>src/resources/icons/png/help.png</file>
+        <file>src/resources/icons/png/info.png</file>
+        <file>src/resources/icons/png/menu.png</file>
+        <file>src/resources/icons/png/minus.png</file>
+        <file>src/resources/icons/png/music.png</file>
+        <file>src/resources/icons/png/next.png</file>
+        <file>src/resources/icons/png/pause.png</file>
+        <file>src/resources/icons/png/play.png</file>
+        <file>src/resources/icons/png/plus.png</file>
+        <file>src/resources/icons/png/quit.png</file>
+        <file>src/resources/icons/png/repeat.png</file>
+        <file>src/resources/icons/png/rewind.png</file>
+        <file>src/resources/icons/png/share.png</file>
+        <file>src/resources/icons/png/shuffle.png</file>
+        <file>src/resources/icons/png/skip.png</file>
+        <file>src/resources/icons/png/speaker_0.png</file>
+        <file>src/resources/icons/png/speaker_1.png</file>
+        <file>src/resources/icons/png/speaker_2.png</file>
+        <file>src/resources/icons/png/speaker_3.png</file>
+        <file>src/resources/icons/png/speaker_x.png</file>
+        <file>src/resources/icons/png/stop.png</file>
+        <file>src/resources/icons/png/switch_0.png</file>
+        <file>src/resources/icons/png/switch_1.png</file>
+        <file>src/resources/icons/png/time.png</file>
     </qresource>
 </RCC>

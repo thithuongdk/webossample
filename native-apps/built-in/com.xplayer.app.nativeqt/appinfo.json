@@ -4,8 +4,8 @@
     "vendor": "My Company",
     "type": "native",
     "main": "xplayer",
-    "title": "Xplayer App",
-    "icon": "icon.png",
+    "title": "Aplayer App",
+    "icon": "music.svg",
     "requiredPermissions" : ["application.operation"],
     "nativeLifeCycleInterfaceVersion": 2
 }

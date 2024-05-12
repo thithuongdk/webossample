@@ -80,6 +80,6 @@ private:
 private:
     AppService* m_service;
     QQuickView* m_windown;
-    QQuickView* m_player;
+    // QQuickView* m_player;
 };
 #endif

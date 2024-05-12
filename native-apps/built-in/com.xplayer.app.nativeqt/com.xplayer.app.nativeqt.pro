@@ -17,12 +17,11 @@
 TARGET = xplayer
 
 CONFIG += qt
-QT += core gui-private qml quick
-# if you use QT 6.x , you should include opengl. because opengl is not included by default.
-# but if you use QT 5.x under, opengl is included by default so you do not include opengl.
-greaterThan(QT_MAJOR_VERSION, 5) {
-    QT += opengl
-}
+QT += \
+        core \
+        gui-private \
+        qml \
+        quick \
 
 CONFIG += link_pkgconfig
 PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib
@@ -31,16 +30,18 @@ SOURCES += \
             main.cpp \
             src/common/Log.cpp \
             src/interfaces/AppMain.cpp \
-            src/services/AppService.cpp
+            src/services/AppService.cpp \
+
 HEADERS += \
             src/common/Log.h \
             src/interfaces/AppMain.h \
-            src/services/AppService.h
+            src/services/AppService.h \
+
 
 INCLUDEPATH += \
             src/common \
             src/interfaces \
-            src/services
+            src/services \
 
 RESOURCES += qmls.qrc
 
@@ -49,7 +50,7 @@ INSTALL_APPDIR = $${WEBOS_INSTALL_WEBOS_APPLICATIONSDIR}/com.xplayer.app.nativeq
 target.path = $${INSTALL_APPDIR}
 
 icon.path = $${INSTALL_APPDIR}
-icon.files = icon.png
+icon.files = music.svg
 
 appinfo.path = $${INSTALL_APPDIR}
 appinfo.files = appinfo.json
