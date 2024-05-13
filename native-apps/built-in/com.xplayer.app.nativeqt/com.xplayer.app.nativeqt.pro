@@ -23,6 +23,7 @@ QT += \
         qml \
         quick \
         quickcontrols2 \
+        quickdialogs2 \
 
 
 CONFIG += link_pkgconfig

@@ -1,6 +1,7 @@
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Dialogs
 
 Item {
     Rectangle {
@@ -8,6 +9,7 @@ Item {
         width: 280
         height: 720
         border.width: 2
+        property string music_path: "/media/internal/downloads/"
         Item {
             x: 0
             y: 100
@@ -19,13 +21,29 @@ Item {
                     y: 0
                     width: parent.width
                     font.family: "Helvetica"
-                    font.pointSize: 50
+                    font.pointSize: 10
                     color: "black"
-                    text: "./sdf/sdf"
+                    text: music_path
                 }
             }
         }
-
+        Button {
+            text: "Open Folder Picker"
+            onClicked: {
+                // pathinfo.text = mediaplayer.current_duration.toFixed(0).toString()
+                folderDialog.open()
+                // music_path = "/media/internal/downloads/"
+            }
+        }
+        FolderDialog {
+            id: folderDialog
+            currentFolder: "/media/internal/downloads/"
+            // selectedFolder: viewer.folder
+        }
+        // MyViewer {
+        //     id: viewer
+        //     folder: folderDialog.selectedFolder
+        // }
     }
     Rectangle {
         id: mediaplayer
@@ -86,7 +104,7 @@ Item {
         Rectangle {
             x: 0
             y: 500
-            width: 800
+            width: parent.width
             height: 200
             border.width: 2
             color: "lightgray"
@@ -95,7 +113,7 @@ Item {
                 id: durationSlider
                 x: 40
                 y: 0
-                width: 720
+                width: parent.width-x*2
                 height: 100
                 from: 0
                 value: 50
@@ -158,12 +176,12 @@ Item {
 
             Slider {
                 id: speedSlider
-                x: 40
+                x: durationSlider.x
                 y: 100
                 width: 150
                 height: 100
-                from: 10
-                value: 50
+                from: 0
+                value: 1
                 to: mediaplayer.max_speed
                 snapMode: Slider.SnapOnRelease
                 stepSize: 0.1
@@ -223,11 +241,11 @@ Item {
 
             Slider {
                 id: volumeSlider
-                x: parent.width-40-width
+                x: durationSlider.x + durationSlider.width - width
                 y: 100
                 width: 150
                 height: 100
-                from: 10
+                from: 0
                 value: 50
                 to: mediaplayer.max_volume
                 snapMode: Slider.SnapOnRelease
@@ -236,8 +254,10 @@ Item {
                 background: Item{
                     Image {
                         id: volumeImage
-                        source: current_volume==0? "qrc:/src/resources/icons/png/speaker_x.png"
-                                    :"qrc:/src/resources/icons/png/speaker_" + (current_volume*3/max_volume).toFixed(0).toString() + ".png"
+                        source: mediaplayer.current_volume==0? "qrc:/src/resources/icons/png/speaker_x.png"
+                                    :"qrc:/src/resources/icons/png/speaker_"
+                                    + (mediaplayer.current_volume*3/mediaplayer.max_volume).toFixed(0).toString()
+                                    + ".png"
                         x: volumeSlider.availableWidth - width
                         y: 0
                         width: 30
@@ -289,9 +309,10 @@ Item {
             }
 
             Item {
-                x: 0
+                // x: 0
                 y: 100
-                width: 800
+                // width: 800
+                anchors.horizontalCenter: parent.horizontalCenter
                 height: 100
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
