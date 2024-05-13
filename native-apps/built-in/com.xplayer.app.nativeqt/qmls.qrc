@@ -30,4 +30,31 @@
         <file>src/resources/icons/png/switch_1.png</file>
         <file>src/resources/icons/png/time.png</file>
     </qresource>
+    <qresource>
+        <file>src/resources/icons/svg/back.svg</file>
+        <file>src/resources/icons/svg/help.svg</file>
+        <file>src/resources/icons/svg/info.svg</file>
+        <file>src/resources/icons/svg/menu.svg</file>
+        <file>src/resources/icons/svg/minus.svg</file>
+        <file>src/resources/icons/svg/music.svg</file>
+        <file>src/resources/icons/svg/next.svg</file>
+        <file>src/resources/icons/svg/pause.svg</file>
+        <file>src/resources/icons/svg/play.svg</file>
+        <file>src/resources/icons/svg/plus.svg</file>
+        <file>src/resources/icons/svg/quit.svg</file>
+        <file>src/resources/icons/svg/repeat.svg</file>
+        <file>src/resources/icons/svg/rewind.svg</file>
+        <file>src/resources/icons/svg/share.svg</file>
+        <file>src/resources/icons/svg/shuffle.svg</file>
+        <file>src/resources/icons/svg/skip.svg</file>
+        <file>src/resources/icons/svg/speaker_0.svg</file>
+        <file>src/resources/icons/svg/speaker_1.svg</file>
+        <file>src/resources/icons/svg/speaker_2.svg</file>
+        <file>src/resources/icons/svg/speaker_3.svg</file>
+        <file>src/resources/icons/svg/speaker_x.svg</file>
+        <file>src/resources/icons/svg/stop.svg</file>
+        <file>src/resources/icons/svg/switch_0.svg</file>
+        <file>src/resources/icons/svg/switch_1.svg</file>
+        <file>src/resources/icons/svg/time.svg</file>
+    </qresource>
 </RCC>

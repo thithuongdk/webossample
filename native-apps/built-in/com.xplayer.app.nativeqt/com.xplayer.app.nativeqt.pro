@@ -22,6 +22,8 @@ QT += \
         gui-private \
         qml \
         quick \
+        quickcontrols2 \
+
 
 CONFIG += link_pkgconfig
 PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib
