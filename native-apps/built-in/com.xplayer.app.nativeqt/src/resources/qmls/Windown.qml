@@ -2,6 +2,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
+import "iconButton.qml"
 
 Item {
     Rectangle {
@@ -63,15 +64,15 @@ Item {
         states: [
             State {
                 name: "stop"
-                PropertyChanges { target: playbutton; source: "qrc:/src/resources/icons/png/stop.png" }
+                PropertyChanges { target: playbutton; source: "qrc:/png/stop" }
             },
             State {
                 name: "play"
-                PropertyChanges { target: playbutton; source: "qrc:/src/resources/icons/png/play.png" }
+                PropertyChanges { target: playbutton; source: "qrc:/png/play" }
             },
             State {
                 name: "pause"
-                PropertyChanges { target: playbutton; source: "qrc:/src/resources/icons/png/pause.png" }
+                PropertyChanges { target: playbutton; source: "qrc:/png/pause" }
             }
         ]
         Item {
@@ -189,7 +190,7 @@ Item {
                 background: Item{
                     Image {
                         id: speedImage
-                        source: "qrc:/src/resources/icons/png/time.png"
+                        source: "qrc:/png/time"
                         x: 0
                         y: 0
                         width: 30
@@ -254,10 +255,9 @@ Item {
                 background: Item{
                     Image {
                         id: volumeImage
-                        source: mediaplayer.current_volume==0? "qrc:/src/resources/icons/png/speaker_x.png"
-                                    :"qrc:/src/resources/icons/png/speaker_"
+                        source: mediaplayer.current_volume==0? "qrc:/png/speaker_x"
+                                    :"qrc:/png/speaker_"
                                     + (mediaplayer.current_volume*3/mediaplayer.max_volume).toFixed(0).toString()
-                                    + ".png"
                         x: volumeSlider.availableWidth - width
                         y: 0
                         width: 30
@@ -322,7 +322,7 @@ Item {
                         Image {
                             property bool pressed: false
                             id: rewindbutton
-                            source: "qrc:/src/resources/icons/png/rewind.png"
+                            source: "qrc:/png/rewind"
                             width: 50
                             height: 50
                             anchors.centerIn: parent
@@ -345,7 +345,7 @@ Item {
                         Image {
                             property bool pressed: false
                             id: backbutton
-                            source: "qrc:/src/resources/icons/png/back.png"
+                            source: "qrc:/png/back"
                             width: 50
                             height: 50
                             smooth: true
@@ -369,7 +369,7 @@ Item {
                         Image {
                             property bool pressed: false
                             id: playbutton
-                            source: "qrc:/src/resources/icons/png/stop.png"
+                            source: "qrc:/png/stop"
                             width: 50
                             height: 50
                             anchors.centerIn: parent
@@ -393,7 +393,7 @@ Item {
                         Image {
                             property bool pressed: false
                             id: nextbutton
-                            source: "qrc:/src/resources/icons/png/next.png"
+                            source: "qrc:/png/next"
                             width: 50
                             height: 50
                             anchors.centerIn: parent
@@ -416,7 +416,7 @@ Item {
                         Image {
                             property bool pressed: false
                             id: skipbutton
-                            source: "qrc:/src/resources/icons/png/skip.png"
+                            source: "qrc:/png/skip"
                             width: 50
                             height: 50
                             anchors.centerIn: parent
@@ -432,6 +432,13 @@ Item {
                                 }
                             }
                         }
+                    }
+                    IconButton {
+                        buttonSize: 80
+                        source: "qrc:/png/skip"
+                        // clickAction: {
+                        //     mediaplayer.state = stop;
+                        // }
                     }
                 }
             }
