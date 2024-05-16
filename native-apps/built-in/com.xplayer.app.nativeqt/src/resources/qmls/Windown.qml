@@ -2,7 +2,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
-import "iconButton.qml"
 
 Item {
     Rectangle {
@@ -433,13 +432,14 @@ Item {
                             }
                         }
                     }
-                    IconButton {
-                        buttonSize: 80
-                        source: "qrc:/png/skip"
-                        // clickAction: {
-                        //     mediaplayer.state = stop;
-                        // }
-                    }
+                    // IconButton {
+                    //     width: 80
+                    //     height: 80
+                    //     // source: "qrc:/png/skip"
+                    //     // clickAction: {
+                    //     //     mediaplayer.state = stop;
+                    //     // }
+                    // }
                 }
             }
         }
