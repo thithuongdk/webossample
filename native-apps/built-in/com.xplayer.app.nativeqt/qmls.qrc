@@ -1,8 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
-        <file>src/resources/qmls/Windown.qml</file>
-        <file>src/resources/qmls/IconButton.qml</file>
+        <file alias="Windown">src/resources/qmls/Windown.qml</file>
+        <file alias="IconButton">src/resources/qmls/IconButton.qml</file>
     </qresource>
     <qresource prefix="/png">
         <file alias="back">src/resources/icons/png/back.png</file>
