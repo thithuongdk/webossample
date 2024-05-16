@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ -z "$1" ]; then
     # Gán giá trị "worker" cho biến USER_VBEE_NAME
     USER_VBEE_NAME="worker"
@@ -31,6 +32,7 @@ NEW_LINE="WEBOS_VERSION = \"$VERSION\""
 
 # đường dẫn file ipk output
 IPK_FILE_PATH="/home/$USER_VBEE_NAME/build-webos/BUILD/work/qemux86_64-webos-linux/$APP_NAME/$VERSION-r0.local0/deploy-ipks/qemux86_64/${APP_NAME}_$VERSION-r0.local0_qemux86_64.ipk"
+
 IPK_NEW_FILE_PATH="${IPK_FILE_PATH/_$VERSION-r0.local0_qemux86_64/}"
 
 # Chỉnh sửa dòng trong file sử dụng sed
