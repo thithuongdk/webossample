@@ -53,25 +53,25 @@ Item {
         border.width: 2
 
         property real max_duration: 1000
-        property real current_duration: 200
-        property real max_speed: 4
-        property real current_speed: 1
+        property alias current_duration: durationSlider.value
+        property real max_speed: 4.0
+        property alias current_speed: speedSlider.value
         property real max_volume: 100
-        property real current_volume: 50
+        property alias current_volume: volumeSlider.value
 
         state: "stop"
         states: [
             State {
                 name: "stop"
-                PropertyChanges { target: playbutton; source: "qrc:/png/stop" }
+                PropertyChanges { target: playButton; source: "qrc:/png/stop" }
             },
             State {
                 name: "play"
-                PropertyChanges { target: playbutton; source: "qrc:/png/play" }
+                PropertyChanges { target: playButton; source: "qrc:/png/play" }
             },
             State {
                 name: "pause"
-                PropertyChanges { target: playbutton; source: "qrc:/png/pause" }
+                PropertyChanges { target: playButton; source: "qrc:/png/pause" }
             }
         ]
         Item {
@@ -116,7 +116,6 @@ Item {
                 width: parent.width-x*2
                 height: 100
                 from: 0
-                value: 50
                 to: mediaplayer.max_duration
                 snapMode: Slider.SnapOnRelease
                 stepSize: 0.1
@@ -315,131 +314,46 @@ Item {
                 height: 100
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    Item {
-                        width: 80
-                        height: 80
-                        Image {
-                            property bool pressed: false
-                            id: rewindbutton
-                            source: "qrc:/png/rewind"
-                            width: 50
-                            height: 50
-                            anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            opacity: pressed ? 0.5 : 0.9
-                            scale: pressed ? 1.2 : 1
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                }
-                                onPressedChanged: {
-                                    parent.pressed = pressed;
-                                }
-                            }
+                    IconButton {
+                        id: rewindButton
+                        pointSize: 80
+                        source: "qrc:/png/rewind"
+                        onClicked: {
+                            mediaplayer.current_duration = Math.max(0,mediaplayer.current_duration - 10);
                         }
                     }
-                    Item {
-                        width: 80
-                        height: 80
-                        Image {
-                            property bool pressed: false
-                            id: backbutton
-                            source: "qrc:/png/back"
-                            width: 50
-                            height: 50
-                            smooth: true
-                            anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            opacity: pressed ? 0.5 : 0.9
-                            scale: pressed ? 1.2 : 1
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                }
-                                onPressedChanged: {
-                                    parent.pressed = pressed;
-                                }
-                            }
+                    IconButton {
+                        id: backButton
+                        pointSize: 80
+                        source: "qrc:/png/back"
+                        onClicked: {
+                            mediaplayer.current_duration = 0;
                         }
                     }
-                    Item {
-                        width: 80
-                        height: 80
-                        Image {
-                            property bool pressed: false
-                            id: playbutton
-                            source: "qrc:/png/stop"
-                            width: 50
-                            height: 50
-                            anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            opacity: pressed ? 0.5 : 0.9
-                            scale: pressed ? 1.2 : 1
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    mediaplayer.state = (mediaplayer.state==="play") ? "pause":"play";
-                                }
-                                onPressedChanged: {
-                                    parent.pressed = pressed;
-                                }
-                            }
+                    IconButton {
+                        id: playButton
+                        pointSize: 80
+                        source: "qrc:/png/stop"
+                        onClicked: {
+                            mediaplayer.state = (mediaplayer.state==="play") ? "pause":"play";
                         }
                     }
-                    Item {
-                        width: 80
-                        height: 80
-                        Image {
-                            property bool pressed: false
-                            id: nextbutton
-                            source: "qrc:/png/next"
-                            width: 50
-                            height: 50
-                            anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            opacity: pressed ? 0.5 : 0.9
-                            scale: pressed ? 1.2 : 1
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                }
-                                onPressedChanged: {
-                                    parent.pressed = pressed;
-                                }
-                            }
+                    IconButton {
+                        id: nextButton
+                        pointSize: 80
+                        source: "qrc:/png/next"
+                        onClicked: {
+                            mediaplayer.current_duration = mediaplayer.max_duration;
                         }
                     }
-                    Item {
-                        width: 80
-                        height: 80
-                        Image {
-                            property bool pressed: false
-                            id: skipbutton
-                            source: "qrc:/png/skip"
-                            width: 50
-                            height: 50
-                            anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            opacity: pressed ? 0.5 : 0.9
-                            scale: pressed ? 1.2 : 1
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                }
-                                onPressedChanged: {
-                                    parent.pressed = pressed;
-                                }
-                            }
+                    IconButton {
+                        id: skipButton
+                        pointSize: 80
+                        source: "qrc:/png/skip"
+                        onClicked: {
+                            mediaplayer.current_duration = Math.min(mediaplayer.max_duration,mediaplayer.current_duration + 10);
                         }
                     }
-                    // IconButton {
-                    //     width: 80
-                    //     height: 80
-                    //     // source: "qrc:/png/skip"
-                    //     // clickAction: {
-                    //     //     mediaplayer.state = stop;
-                    //     // }
-                    // }
                 }
             }
         }
