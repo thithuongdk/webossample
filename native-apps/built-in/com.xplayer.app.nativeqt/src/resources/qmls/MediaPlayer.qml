@@ -2,6 +2,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
+// import app.mediaplayer 1.0
 
 
 Rectangle {
@@ -13,9 +14,9 @@ Rectangle {
 
     property real max_duration: 1000
     property alias current_duration: durationSlider.value
-    property real max_speed: 4.0
+    readonly property real max_speed: 4.0
     property alias current_speed: speedSlider.value
-    property real max_volume: 100
+    readonly property real max_volume: 100
     property alias current_volume: volumeSlider.value
 
     state: "stop"

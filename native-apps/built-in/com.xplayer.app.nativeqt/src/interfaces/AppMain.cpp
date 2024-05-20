@@ -58,7 +58,7 @@ AppMain* AppMain::m_instance = nullptr;
 AppMain::AppMain(QObject *parent)
     : QObject(parent)
     , m_service(nullptr)
-    , m_windown(nullptr)
+    , m_engine(nullptr)
 {
 }
 
@@ -68,8 +68,8 @@ AppMain::~AppMain()
     if (m_service != nullptr) {
         delete m_service;
     }
-    if (m_windown != nullptr) {
-        delete m_windown;
+    if (m_engine != nullptr) {
+        delete m_engine;
     }
 }
 
@@ -84,30 +84,22 @@ AppMain *AppMain::instance(QObject* parent)
 void AppMain::initApplication()
 {
     m_service = AppService::instance(this);
-
     connectSignalSlots();
+    qmlRegister();
     m_service->registerApp();
 }
 
 void AppMain::onCreateWindow()
 {
     PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "onCreateWindow"),  " ");
-    if (m_windown == nullptr) {
-        m_windown = new QQuickView(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
-    }
-
-    m_windown->setProperty("appId", "com.xplayer.app.nativeqt");    
-    m_windown->setProperty("displayAffinity", 0);  
-    m_windown->setResizeMode(QQuickView::SizeRootObjectToView);
-    m_windown->setColor(Qt::white);
-    // m_windown->setColor(Qt::gray);
-    m_windown->setPersistentGraphics(false);
-    m_windown->setGeometry(0,0, 1080,720);
-    m_windown->setSource(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
-    m_windown->show();
+    m_engine.load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
     PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "done onCreateWindow"),  " ");
 }
 
 void AppMain::connectSignalSlots() {
     connect(m_service, &AppService::createWindow,                 this, &AppMain::onCreateWindow);
 }
+
+// void AppMain::qmlRegister() {
+//     qmlRegisterType<AppMediaPlayer>("app.mediaplayer", 1, 0, "AppMediaPlayer");
+// }

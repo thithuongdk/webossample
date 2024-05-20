@@ -54,6 +54,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QQuickView>
+#include <QQmlApplicationEngine>
 #include "AppService.h"
 #include "Log.h"
 
@@ -76,10 +77,12 @@ public slots:
 
 private:
     void connectSignalSlots();
+    // void qmlRegister();
 
 private:
     AppService* m_service;
-    QQuickView* m_windown;
+    // QQuickView* m_windown;
+    QQmlApplicationEngine m_engine
     // QQuickView* m_player;
 };
 #endif

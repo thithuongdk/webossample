@@ -1,8 +1,9 @@
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Window
 
-Item {
+Window {
+    visible: true
     MediaPath {
         id: mediapath
         width: 280
