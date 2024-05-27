@@ -42,7 +42,7 @@ sed -i 's/^WEBOS_VERSION.*/'"$NEW_LINE"'/' "$FILE_PATH"
 
 # Kiểm tra lỗi sau khi chỉnh sửa
 if [ $? -ne 0 ]; then
-    echo "Có lỗi xảy ra khi chỉnh sửa file."
+    echo "Co loi xay ra khi chih sua file."
     exit 1
 fi
 
@@ -52,12 +52,13 @@ cd /home/$USER_VBEE_NAME/build-webos
 source /home/$USER_VBEE_NAME/build-webos/oe-init-build-env
 export BBPATH=/home/$USER_VBEE_NAME/build-webos
 /home/$USER_VBEE_NAME/build-webos/bitbake/bin/bitbake com.xplayer.app.nativeqt
-cp "$IPK_FILE_PATH" "$IPK_NEW_FILE_PATH"
 
-# Kiểm tra lỗi sau khi chạy bitbake
 if [ $? -ne 0 ]; then
-    echo "Có lỗi xảy ra khi chạy bitbake."
+    echo "Co loi xay ra khi bitbake."
     exit 1
 fi
 
-echo "Chỉnh sửa file và chạy bitbake thành công."
+# copy output
+cp "$IPK_FILE_PATH" "$IPK_NEW_FILE_PATH"
+
+echo "Chinh sua file va chay bitbake thanh cong"

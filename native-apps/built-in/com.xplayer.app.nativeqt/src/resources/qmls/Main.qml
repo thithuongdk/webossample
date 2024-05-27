@@ -3,7 +3,10 @@ import QtQuick
 import QtQuick.Window
 
 Window {
+    id: mediaWindow
     visible: true
+    width: 1080
+    height: 720
     MediaPath {
         id: mediapath
         width: 280

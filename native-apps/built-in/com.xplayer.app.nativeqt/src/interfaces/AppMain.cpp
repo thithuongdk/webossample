@@ -83,6 +83,7 @@ AppMain *AppMain::instance(QObject* parent)
 
 void AppMain::initApplication()
 {
+    m_engine = new QQmlApplicationEngine();
     m_service = AppService::instance(this);
     connectSignalSlots();
     qmlRegister();
@@ -92,7 +93,7 @@ void AppMain::initApplication()
 void AppMain::onCreateWindow()
 {
     PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "onCreateWindow"),  " ");
-    m_engine.load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
+    m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
     PmLogInfo(Log::getPmLogContext(), "APPMAIN", 1, PMLOGKS("funcall", "done onCreateWindow"),  " ");
 }
 
@@ -100,6 +101,6 @@ void AppMain::connectSignalSlots() {
     connect(m_service, &AppService::createWindow,                 this, &AppMain::onCreateWindow);
 }
 
-// void AppMain::qmlRegister() {
-//     qmlRegisterType<AppMediaPlayer>("app.mediaplayer", 1, 0, "AppMediaPlayer");
-// }
+void AppMain::qmlRegister() {
+    // qmlRegisterType<AppMediaPlayer>("app.mediaplayer", 1, 0, "AppMediaPlayer");
+}

@@ -9,6 +9,11 @@ WEBOS_PATH_IPK="/media/internal/downloads/$APP_NAME.ipk"
 
 # Chạy câu lệnh bitbake
 echo "chạy lệnh run.sh"
+if [ $? -ne 0 ]; then
+    echo "FAIL."
+    exit 1
+fi
+
 # /home/$USER_VBEE_NAME/webossample/native-apps/built-in/$APP_NAME/src/script/run.sh thuong com.xplayer.app.nativeqt
 echo "copy file ipk "
 scp -O -P 6622 \

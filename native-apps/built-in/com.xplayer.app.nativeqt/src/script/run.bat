@@ -1,4 +1,4 @@
-echo hello world
+echo off
 
 set USER_VBEE_NAME=worker
 set VBEE_PATH=thuong3nguyen-webos.vbee.lge.com
@@ -16,6 +16,11 @@ echo build ipk
 ::    /home/worker/samples/native-apps/built-in/com.xplayer.app.nativeqt/src/script/run.sh 
 ::    /home/worker/samples/native-apps/built-in/com.xplayer.app.nativeqt/src/script/run.sh worker com.xplayer.app.nativeqt
 plink -batch -ssh -i %KEY_SSH% -P 40750 %USER_VBEE_NAME%@%VBEE_PATH% %SCRIPT_PATH% %USER_VBEE_NAME% %APP_NAME%
+
+if %errorlevel% neq 0 (
+    echo loi xay ra khi build ipk! Thoat khoi tap tin .bat.
+    exit /b %errorlevel%
+)
 
 echo copy ipk to local
 :: scp -P 40750 worker@thuong3nguyen-webos.vbee.lge.com:

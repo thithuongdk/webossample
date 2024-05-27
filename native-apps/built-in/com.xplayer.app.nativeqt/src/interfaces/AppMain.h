@@ -77,12 +77,10 @@ public slots:
 
 private:
     void connectSignalSlots();
-    // void qmlRegister();
+    void qmlRegister();
 
 private:
     AppService* m_service;
-    // QQuickView* m_windown;
-    QQmlApplicationEngine m_engine
-    // QQuickView* m_player;
+    QQmlApplicationEngine* m_engine;
 };
 #endif
