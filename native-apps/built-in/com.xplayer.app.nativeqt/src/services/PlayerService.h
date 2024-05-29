@@ -1,5 +1,5 @@
-#ifndef APPSERVICES_H
-#define APPSERVICES_H
+#ifndef PLAYERSERVICES_H
+#define PLAYERSERVICES_H
 
 #include <QObject>
 #include <glib.h>
@@ -8,23 +8,23 @@
 #include "Log.h"
 #include "JsonConvert.h"
 
-class AppService: public QObject
+class PlayerService: public QObject
 {
     Q_OBJECT
 
 private:
-    static AppService* m_instance;
-    explicit AppService(QObject* parent = nullptr);
+    static PlayerService* m_instance;
+    explicit PlayerService(QObject* parent = nullptr);
 
 public:
-    static AppService* instance(QObject* parent = nullptr);
-    virtual ~AppService() override;
+    static PlayerService* instance(QObject* parent = nullptr);
+    virtual ~PlayerService() override;
     LSHandle* getHandle() const { return m_serviceHandle; }
     bool registerApp();
     static bool registerAppCallback(LSHandle* sh, LSMessage* msg, void* context);
 
 signals :
-    // Signals to Service
+    // Signals to GUI thread
     void createWindow();
 
 protected:
@@ -32,7 +32,6 @@ protected:
     void clearHandle();
 
 private:
-    GMainLoop* m_mainLoop;
     LSHandle* m_serviceHandle;
     std::string m_appId;
 };

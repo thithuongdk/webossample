@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(true);
-    PmLogInfo(Log::getPmLogContext(), "MAIN_ARGV1", 1, PMLOGKFV("argv", "%s", argv[1]),  " ");
+    PmLogInfo(getPmLogContext(), "MAIN_ARGV1", 1, PMLOGKFV("argv", "%s", argv[1]),  " ");
     AppMain::instance()->initApplication();
     return app.exec();
 }

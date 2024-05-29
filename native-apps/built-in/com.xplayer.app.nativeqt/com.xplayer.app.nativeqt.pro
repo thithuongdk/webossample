@@ -31,14 +31,18 @@ PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib
 
 SOURCES += \
             main.cpp \
-            src/common/Log.cpp \
             src/interfaces/AppMain.cpp \
+            src/interfaces/MediaPlayer.cpp \
             src/services/AppService.cpp \
+            src/services/PlayerService.cpp \
 
 HEADERS += \
+            src/common/JsonConvert.h \
             src/common/Log.h \
             src/interfaces/AppMain.h \
+            src/interfaces/MediaPlayer.h \
             src/services/AppService.h \
+            src/services/PlayerService.h \
 
 
 INCLUDEPATH += \
