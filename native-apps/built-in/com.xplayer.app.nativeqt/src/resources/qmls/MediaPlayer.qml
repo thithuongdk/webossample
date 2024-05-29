@@ -1,7 +1,7 @@
 
 import QtQuick
 import QtQuick.Controls
-// import app.mediaplayer 1.0
+import app.mediaplayer 1.0
 
 
 Rectangle {
@@ -22,15 +22,15 @@ Rectangle {
     states: [
         State {
             name: "stop"
-            PropertyChanges { target: playButton; source: "qrc:/png/stop" }
-        },
-        State {
-            name: "play"
             PropertyChanges { target: playButton; source: "qrc:/png/play" }
         },
         State {
-            name: "pause"
+            name: "play"
             PropertyChanges { target: playButton; source: "qrc:/png/pause" }
+        },
+        State {
+            name: "pause"
+            PropertyChanges { target: playButton; source: "qrc:/png/play" }
         }
     ]
     Item {
@@ -119,6 +119,8 @@ Rectangle {
         }
 
         Item {
+            id: controlButton
+            property real iconSize: 65
             // x: 0
             y: 100
             // width: 800
@@ -128,7 +130,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 IconButton {
                     id: rewindButton
-                    pointSize: 80
+                    pointSize: controlButton.iconSize
                     source: "qrc:/png/rewind"
                     onClicked: {
                         mediaPlayer.current_duration = Math.max(0,mediaPlayer.current_duration - 10);
@@ -136,7 +138,7 @@ Rectangle {
                 }
                 IconButton {
                     id: backButton
-                    pointSize: 80
+                    pointSize: controlButton.iconSize
                     source: "qrc:/png/back"
                     onClicked: {
                         mediaPlayer.current_duration = 0;
@@ -144,15 +146,24 @@ Rectangle {
                 }
                 IconButton {
                     id: playButton
-                    pointSize: 80
+                    pointSize: controlButton.iconSize
+                    source: "qrc:/png/play"
+                    onClicked: {
+                        // AppMediaPlayer.call
+                        mediaPlayer.state = (mediaPlayer.state!=="play") ? "play":"pause";
+                    }
+                }
+                IconButton {
+                    id: stopButton
+                    pointSize: controlButton.iconSize
                     source: "qrc:/png/stop"
                     onClicked: {
-                        mediaPlayer.state = (mediaPlayer.state==="play") ? "pause":"play";
+                        mediaPlayer.state = "stop";
                     }
                 }
                 IconButton {
                     id: nextButton
-                    pointSize: 80
+                    pointSize: controlButton.iconSize
                     source: "qrc:/png/next"
                     onClicked: {
                         mediaPlayer.current_duration = mediaPlayer.max_duration;
@@ -160,7 +171,7 @@ Rectangle {
                 }
                 IconButton {
                     id: skipButton
-                    pointSize: 80
+                    pointSize: controlButton.iconSize
                     source: "qrc:/png/skip"
                     onClicked: {
                         mediaPlayer.current_duration = Math.min(mediaPlayer.max_duration,mediaPlayer.current_duration + 10);

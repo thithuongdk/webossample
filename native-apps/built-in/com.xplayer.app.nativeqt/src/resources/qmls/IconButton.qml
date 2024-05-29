@@ -16,8 +16,8 @@ Item {
     Image {
         id: icon
         source: ""
-        width: container.width*0.6
-        height: container.height*0.6
+        width: container.width*0.7
+        height: container.height*0.7
         anchors.centerIn: parent
         fillMode: Image.PreserveAspectFit
         opacity: 1

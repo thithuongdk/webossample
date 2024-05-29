@@ -1,41 +1,6 @@
-// Copyright (c) 2020 LG Electronics, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// SPDX-License-Identifier: Apache-2.0
-
 #include "AppService.h"
-#include "AppMain.h"
-
-#define APP_MAIN AppMain::instance()
 
 AppService* AppService::m_instance = nullptr;
-
-static pbnjson::JValue convertStringToJson(const char *rawData)
-{
-    pbnjson::JInput input(rawData);
-    pbnjson::JSchema schema = pbnjson::JSchemaFragment("{}");
-    pbnjson::JDomParser parser;
-    if (!parser.parse(input, schema)) {
-        return pbnjson::JValue();
-    }
-    return parser.getDom();
-}
-
-static std::string convertJsonToString(const pbnjson::JValue json)
-{
-    return pbnjson::JGenerator::serialize(json, pbnjson::JSchemaFragment("{}"));
-}
 
 AppService* AppService::instance(QObject* parent)
 {
@@ -93,12 +58,12 @@ void AppService::clearHandle()
 bool AppService::registerAppCallback(LSHandle* sh, LSMessage* msg, void* context)
 {
     Q_UNUSED(sh);
-    PmLogInfo(Log::getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGJSON("payload", LSMessageGetPayload(msg)),  " ");
+    PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGJSON("payload", LSMessageGetPayload(msg)),  " ");
     pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
     if (!response["returnValue"].asBool()) return false;
     if (response.hasKey("event")) {
         std::string event = response["event"].asString();
-        PmLogInfo(Log::getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()),  " ");
+        PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()),  " ");
         if (!strcmp(event.c_str(),"registered")) {
             if (context != nullptr) {
                 emit ((AppService*)context)->createWindow();
