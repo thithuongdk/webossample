@@ -2,11 +2,17 @@
 #define APPSERVICES_H
 
 #include <QObject>
+#include <QVariant>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QQmlApplicationEngine>
 #include <glib.h>
 #include <string>
-#include <luna-service2/lunaservice.h>
 #include "Log.h"
 #include "JsonConvert.h"
+#include "LunaService.h"
+#include "PlayerService.h"
+
 
 class AppService: public QObject
 {
@@ -15,25 +21,30 @@ class AppService: public QObject
 private:
     static AppService* m_instance;
     explicit AppService(QObject* parent = nullptr);
+    virtual ~AppService() override;
+    void connectSignalSlots();
+    void qmlRegister();
 
 public:
     static AppService* instance(QObject* parent = nullptr);
-    virtual ~AppService() override;
-    LSHandle* getHandle() const { return m_serviceHandle; }
-    bool registerApp();
-    static bool registerAppCallback(LSHandle* sh, LSMessage* msg, void* context);
+    void init(std::string appName, GMainLoop *mainLoop);
 
-signals :
-    // Signals to Service
+public:
+    void registerApp();
+
+public:
+    static bool cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context);
+
+public:
     void createWindow();
 
-protected:
-    LSHandle* acquireHandle();
-    void clearHandle();
+// public slots:
+    // void onCreateWindow();
+// signals :
+    // void createWindow();
 
 private:
-    GMainLoop* m_mainLoop;
-    LSHandle* m_serviceHandle;
-    std::string m_appId;
+    std::string m_appName;
+    QQmlApplicationEngine *m_engine;
 };
 #endif

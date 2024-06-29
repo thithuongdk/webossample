@@ -1,4 +1,7 @@
 #include "PlayerService.h"
+#include <QQmlContext>
+#include <QQuickItem>
+#include <QQuickView>
 
 PlayerService* PlayerService::m_instance = nullptr;
 
@@ -12,32 +15,94 @@ PlayerService* PlayerService::instance(QObject* parent)
 
 PlayerService::PlayerService(QObject *parent)
     : QObject(parent)
-    , m_serviceHandle(nullptr)
 {
-    m_appId = std::string("com.xplayer.app.nativeqt");
-    m_serviceHandle = acquireHandle();
 }
 
 PlayerService::~PlayerService()
 {
-    clearHandle();
 }
 
-LSHandle* PlayerService::acquireHandle()
+void PlayerService::init(std::string appName)
 {
-    return nullptr;
+    m_appName = appName;
+    connectSignalSlots();
+    qmlRegister();
+
+    onUpdatePath("");
 }
 
-void PlayerService::clearHandle()
-{
+void PlayerService::connectSignalSlots() {
+    // connect(m_service, &AppService::createWindow,                 this, &PlayerService::onCreateWindow);
 }
 
-bool PlayerService::registerAppCallback(LSHandle* sh, LSMessage* msg, void* context)
+void PlayerService::qmlRegister() {
+}
+
+void PlayerService::onMusicLoad(std::string path)
 {
+    if(path.empty()) {
+        path = m_musicPath;
+    }
+    std::string sjson =
+        R"({
+            "uri":")" + path + R"(",
+            "type":"media",
+            "payload":{  
+                "option":{  
+                    "appId":")" + m_appName + R"(",
+                    "windowId":""
+                }
+            }
+        })";
+
+    LunaService::instance()->fLSCall("luna://com.webos.media/load",
+                                    sjson.c_str(),
+                                    [](LSHandle* sh, LSMessage* msg, void* context)->bool
+                                    {return PlayerService::instance()->updateMediaId(msg);},
+                                    this);
+}
+
+bool PlayerService::updateMediaId(LSMessage* msg)
+{
+    pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+    if (!response["returnValue"].asBool()
+        || !response.hasKey("mediaId")) {
+        return false;
+    }
+    std::string mediaId = response["mediaId"].asString();
+    if (m_mediaId != mediaId) {
+        m_mediaId = mediaId;
+    }
     return true;
 }
 
-bool PlayerService::registerApp()
+void PlayerService::onMusicPlay()
 {
-    return true;
+    std::string sjson = R"({"mediaId":")"+ m_mediaId + R"("})";
+
+    LunaService::instance()->fLSCall("luna://com.webos.media/play",
+                                    sjson.c_str(),
+                                    [](LSHandle* sh, LSMessage* msg, void* context)->bool {
+                                        pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+                                        return response["returnValue"].asBool();
+                                    },
+                                    this);
+}
+
+void PlayerService::onMusicPause()
+{
+    std::string sjson = R"({"mediaId":")"+ m_mediaId + R"("})";
+
+    LunaService::instance()->fLSCall("luna://com.webos.media/play",
+                                    sjson.c_str(),
+                                    [](LSHandle* sh, LSMessage* msg, void* context)->bool {
+                                        pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+                                        return response["returnValue"].asBool();
+                                    },
+                                    this);
+}
+
+void PlayerService::onUpdatePath(std::string path)
+{
+    m_musicPath = "storage:///media/multimedia/media/multimedia/music/cam_tu_cau.mp3";
 }

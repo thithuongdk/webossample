@@ -1,38 +1,70 @@
-#ifndef PLAYERSERVICES_H
-#define PLAYERSERVICES_H
+#ifndef PLAYERSERVICE_H
+#define PLAYERSERVICE_H
 
+#include <vector>
 #include <QObject>
-#include <glib.h>
-#include <string>
-#include <luna-service2/lunaservice.h>
+#include <QVariant>
+#include <QQuickView>
+#include <QQmlApplicationEngine>
 #include "Log.h"
-#include "JsonConvert.h"
+#include "LunaService.h"
 
-class PlayerService: public QObject
+
+class PlayerService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(pbnjson::JValue mediaData READ getMediaData WRITE setMediaData NOTIFY mediaDataChanged);
+    Q_PROPERTY(std::string musicPath READ getMusicPath WRITE setMusicPath NOTIFY musicPathChanged);
 
 private:
     static PlayerService* m_instance;
     explicit PlayerService(QObject* parent = nullptr);
-
+    ~PlayerService();
 public:
     static PlayerService* instance(QObject* parent = nullptr);
-    virtual ~PlayerService() override;
-    LSHandle* getHandle() const { return m_serviceHandle; }
-    bool registerApp();
-    static bool registerAppCallback(LSHandle* sh, LSMessage* msg, void* context);
+    void init(std::string appName);
 
-signals :
-    // Signals to GUI thread
-    void createWindow();
+    pbnjson::JValue getMediaData() const { return m_mediaData;};
+    void setMediaData(pbnjson::JValue mediaData) {
+        if (m_mediaData != mediaData) {
+            m_mediaData = mediaData;
+            emit mediaDataChanged();
+        }
+    };
 
-protected:
-    LSHandle* acquireHandle();
-    void clearHandle();
+    std::string getMusicPath() const  { return m_musicPath;};
+    void setMusicPath(std::string musicPath) {
+        if (m_musicPath != musicPath) {
+            m_musicPath = musicPath;
+            emit musicPathChanged();
+        }
+    };
+
+signals:
+    void mediaDataChanged();
+    void musicPathChanged();
 
 private:
-    LSHandle* m_serviceHandle;
-    std::string m_appId;
+    void connectSignalSlots();
+    void qmlRegister();
+
+public:
+    Q_INVOKABLE void onMusicPlay();
+    Q_INVOKABLE void onMusicPause();
+    Q_INVOKABLE void onMusicLoad(std::string path);
+    Q_INVOKABLE void onUpdatePath(std::string path);
+
+public:
+    bool updateMediaId(LSMessage* msg);
+public:
+    pbnjson::JValue m_mediaData;
+    std::string m_appName;
+    std::string m_folderPath;
+    std::string m_musicPath;
+    std::string m_mediaId;
+    int m_index;
+    int m_speed;
+    int m_volume;
+    std::vector<pbnjson::JValue> m_listMusic;
 };
 #endif

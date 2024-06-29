@@ -8,7 +8,7 @@ Rectangle {
     width: 280
     height: 720
     border.width: 2
-    property string music_path: "/media/internal/downloads/"
+    property string music_path: "/media/internal/"
     Item {
         x: 0
         y: 100
@@ -16,7 +16,7 @@ Rectangle {
         height: 200
         Column {
             Text {
-                id: pathinfo
+                id: pathInfo
                 y: 0
                 width: parent.width
                 font.family: "Helvetica"
@@ -27,20 +27,21 @@ Rectangle {
         }
     }
     Button {
+        id: openFolderButton
         text: "Open Folder Picker"
-        onClicked: {
-            // pathinfo.text = mediaplayer.current_duration.toFixed(0).toString()
-            folderDialog.open()
-            // music_path = "/media/internal/downloads/"
-        }
+        onClicked: folderDialog.open()
     }
     FolderDialog {
         id: folderDialog
-        currentFolder: "/media/internal/downloads/"
-        // selectedFolder: viewer.folder
+        currentFolder: "/media/internal/"
+        selectedFolder: "/media/internal/"
+        onAccepted: {
+            music_path = folderDialog.selectedFolder
+            pathInfo.text = music_path
+        }
+        onRejected: {
+            music_path = "cdcasdm"
+            pathInfo.text = music_path
+        }
     }
-    // MyViewer {
-    //     id: viewer
-    //     folder: folderDialog.selectedFolder
-    // }
 }

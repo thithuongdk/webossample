@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Log.h"
-#include "AppMain.h"
 #include "AppService.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -28,6 +27,8 @@ int main(int argc, char **argv)
     QGuiApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(true);
     PmLogInfo(getPmLogContext(), "MAIN_ARGV1", 1, PMLOGKFV("argv", "%s", argv[1]),  " ");
-    AppMain::instance()->initApplication();
+    GMainLoop *mainLoop = g_main_loop_new(nullptr, false);
+    AppService::instance()->init("com.xplayer.app.nativeqt", mainLoop);
+    g_main_loop_run(mainLoop);
     return app.exec();
 }

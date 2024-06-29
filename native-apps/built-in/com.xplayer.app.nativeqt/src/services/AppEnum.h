@@ -7,7 +7,8 @@ class AppEnum : public QObject
 {
     Q_OBJECT
 public:
-    AppEnum();
+    AppEnum(QObject* parent=nullptr);
+    ~AppEnum();
 
     enum E_APP_PLAYER_STATE {
             APP_PLAYER_ERROR = -1,
@@ -17,7 +18,6 @@ public:
         };
 
     Q_ENUM(E_APP_PLAYER_STATE);
-
 };
 
 #endif

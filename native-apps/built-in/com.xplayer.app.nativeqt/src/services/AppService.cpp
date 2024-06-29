@@ -12,62 +12,49 @@ AppService* AppService::instance(QObject* parent)
 
 AppService::AppService(QObject *parent)
     : QObject(parent)
-    , m_mainLoop(g_main_loop_new(nullptr, false))
-    , m_serviceHandle(nullptr)
+    , m_engine(nullptr)
+    , m_appName("")
 {
-    m_appId = std::string("com.xplayer.app.nativeqt");
-    m_serviceHandle = acquireHandle();
 }
 
 AppService::~AppService()
 {
-    clearHandle();
-    if (m_mainLoop) {
-        g_main_loop_quit(m_mainLoop); // optional!
-        g_main_loop_unref(m_mainLoop);
-        m_mainLoop = nullptr;
+    if (m_engine != nullptr) {
+        delete m_engine;
     }
 }
 
-LSHandle* AppService::acquireHandle()
+void AppService::init(const std::string appName, GMainLoop *mainLoop)
 {
-    LSError lserror;
-    LSErrorInit(&lserror);
-    LSHandle* handle = nullptr;
-    if (!LSRegister(m_appId.c_str(), &handle, &lserror)) {
-        LSErrorPrint(&lserror, stderr);
-        return nullptr;
-    }
-    if (!LSGmainAttach(handle, m_mainLoop, &lserror)) {
-        LSErrorPrint(&lserror, stderr);
-        return nullptr;
-    }
-    return handle;
+    m_appName = appName;
+    LunaService::instance()->init(appName, mainLoop);
+    PlayerService::instance()->init(m_appName);
+
+    qmlRegisterUncreatableType<PlayerService>("app.playerservice", 1, 0, "PlayerService", "");
+    m_engine = new QQmlApplicationEngine();
+    m_engine->rootContext()->setContextProperty("playerService", PlayerService::instance());
+    registerApp();
 }
 
-void AppService::clearHandle()
+void AppService::createWindow()
 {
-    LSError lserror;
-    LSErrorInit(&lserror);
-    if (m_serviceHandle) {
-        LSUnregister(m_serviceHandle, &lserror);
-        m_serviceHandle = nullptr;
-    }
+    PmLogInfo(getPmLogContext(), "onCreateWindow", 1, PMLOGKS("onCreateWindow", ""), " ");
+    m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
 }
 
-bool AppService::registerAppCallback(LSHandle* sh, LSMessage* msg, void* context)
+bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
 {
     Q_UNUSED(sh);
-    PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGJSON("payload", LSMessageGetPayload(msg)),  " ");
+    PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGJSON("payload", LSMessageGetPayload(msg)), " ");
     pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
     if (!response["returnValue"].asBool()) return false;
     if (response.hasKey("event")) {
         std::string event = response["event"].asString();
-        PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()),  " ");
+        PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()), " ");
         if (!strcmp(event.c_str(),"registered")) {
-            if (context != nullptr) {
-                emit ((AppService*)context)->createWindow();
-            }
+            PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", (AppService::instance())), " ");
+            // PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", &(AppService::instance()->createWindow)), " ");
+            AppService::instance()->createWindow();
         } else if (!strcmp(event.c_str(),"relaunch")
                 || !strcmp(event.c_str(),"pause")
                 || !strcmp(event.c_str(),"close")) {
@@ -76,15 +63,18 @@ bool AppService::registerAppCallback(LSHandle* sh, LSMessage* msg, void* context
     return true;
 }
 
-bool AppService::registerApp()
+void AppService::registerApp()
 {
-    LSError lserror;
-    LSErrorInit(&lserror);
-    LSHandle* handle = getHandle();
-    if (!LSCall(handle, "luna://com.webos.service.applicationmanager/registerApp", "{}",
-                AppService::registerAppCallback, this, NULL, &lserror)) {
-        LSErrorPrint(&lserror, stderr);
-        return false;
-    }
-    return true;
+    LunaService::instance()->fLSCall("luna://com.webos.service.applicationmanager/registerApp", "{}",
+                                    AppService::cbRegisterApp, this);
+}
+
+void AppService::connectSignalSlots() {
+    // connect(this, &AppService::createWindow, this, &AppService::onCreateWindow);
+}
+
+void AppService::qmlRegister() {
+    // qmlRegisterUncreatableType<PlayerService>("app.playerservice", 1, 0, "PlayerService", "");
+    // m_engine->rootContext()->setContextProperty("playerService",playerService::instance());
+
 }

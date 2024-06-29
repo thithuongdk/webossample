@@ -1,7 +1,7 @@
 
 import QtQuick
 import QtQuick.Controls
-import app.mediaplayer 1.0
+import app.playerservice 1.0
 
 
 Rectangle {
@@ -17,20 +17,29 @@ Rectangle {
     property alias current_speed: speedSlider.value
     readonly property real max_volume: 100
     property alias current_volume: volumeSlider.value
-
+    
     state: "stop"
     states: [
         State {
             name: "stop"
             PropertyChanges { target: playButton; source: "qrc:/png/play" }
+            // onEntered: {
+            //     playerService.onMusicPause();
+            // }
         },
         State {
             name: "play"
             PropertyChanges { target: playButton; source: "qrc:/png/pause" }
+            // onEntered: {
+            //     playerService.onMusicPlay();
+            // }
         },
         State {
             name: "pause"
             PropertyChanges { target: playButton; source: "qrc:/png/play" }
+            // onEntered: {
+            //     playerService.onMusicPause();
+            // }
         }
     ]
     Item {
