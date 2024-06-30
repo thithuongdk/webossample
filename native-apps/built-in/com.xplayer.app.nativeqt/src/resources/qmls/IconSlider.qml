@@ -14,7 +14,7 @@ Slider {
 
     snapMode: Slider.SnapOnRelease
     stepSize: 0.1
-    
+
     background: Item{
         Item{
             Text {

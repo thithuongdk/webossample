@@ -27,17 +27,18 @@ void LunaService::init(std::string appName, GMainLoop *mainloop)
 {
     m_appName = appName;
     m_mainLoop = mainloop;
-    m_handle = acquireHandle();
+    m_handle = acquireHandle(appName);
 }
 
-LSHandle* LunaService::acquireHandle()
+LSHandle* LunaService::acquireHandle(std::string appName)
 {
     LSError lserror;
     LSErrorInit(&lserror);
     LSHandle *handle = nullptr;
     int itry=5;
     while(!handle && itry--) {
-        if(!LSRegister(m_appName.c_str(), &handle, &lserror)) {
+        if(!LSRegister(appName.c_str(), &handle, &lserror)) {
+            PmLogError(getPmLogContext(), "LS_REGISTER", 0, "Unable to register to luna-bus");
             usleep(100000);
         }
     }
@@ -47,6 +48,7 @@ LSHandle* LunaService::acquireHandle()
     while (!LSGmainAttach(handle, m_mainLoop, &lserror)) {
         usleep(100000);
     }
+    PmLogInfo(getPmLogContext(), "REGISTER", 1, PMLOGKS("status", "OK"), " ");
     
     return handle;
 }
@@ -70,7 +72,10 @@ void LunaService::fLSCall(std::string luna, std::string msg, bool(*cbF)(LSHandle
 {
     LSError lserror;
     LSErrorInit(&lserror);
+    // PmLogInfo(getPmLogContext(), luna.c_str(), 1, PMLOGKS("status", msg.c_str()), " ");
+    PmLogInfo(getPmLogContext(), "LSCall", 0, luna.c_str());
     if(!LSCall(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
+        PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
         LSErrorPrint(&lserror, stderr);
     }
 }

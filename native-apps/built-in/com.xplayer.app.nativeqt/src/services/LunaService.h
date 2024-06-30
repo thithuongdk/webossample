@@ -28,7 +28,7 @@ public:
     void fLSMessageReply(LSHandle *sh, LSMessage * msg, void *ctx, std::string key);
 
 protected:
-    LSHandle* acquireHandle();
+    LSHandle* acquireHandle(std::string appName);
     void clearHandle();
 
 private:

@@ -28,18 +28,19 @@ void AppService::init(const std::string appName, GMainLoop *mainLoop)
 {
     m_appName = appName;
     LunaService::instance()->init(appName, mainLoop);
-    PlayerService::instance()->init(m_appName);
-
-    qmlRegisterUncreatableType<PlayerService>("app.playerservice", 1, 0, "PlayerService", "");
+    PlayerService::instance();
     m_engine = new QQmlApplicationEngine();
-    m_engine->rootContext()->setContextProperty("playerService", PlayerService::instance());
+
     registerApp();
+    connectSignalSlots();
+    qmlRegister();
 }
 
 void AppService::createWindow()
 {
-    PmLogInfo(getPmLogContext(), "onCreateWindow", 1, PMLOGKS("onCreateWindow", ""), " ");
+    PmLogInfo(getPmLogContext(), "AppService", 0, "onCreateWindow()");
     m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
+    PlayerService::instance()->init(m_appName);
 }
 
 bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
@@ -52,7 +53,7 @@ bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
         std::string event = response["event"].asString();
         PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()), " ");
         if (!strcmp(event.c_str(),"registered")) {
-            PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", (AppService::instance())), " ");
+            PmLogInfo(getPmLogContext(), "registered", 0, PMLOGKS("createWindow", (AppService::instance())), " ");
             // PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", &(AppService::instance()->createWindow)), " ");
             AppService::instance()->createWindow();
         } else if (!strcmp(event.c_str(),"relaunch")
@@ -74,7 +75,7 @@ void AppService::connectSignalSlots() {
 }
 
 void AppService::qmlRegister() {
-    // qmlRegisterUncreatableType<PlayerService>("app.playerservice", 1, 0, "PlayerService", "");
-    // m_engine->rootContext()->setContextProperty("playerService",playerService::instance());
+    qmlRegisterUncreatableType<PlayerService>("app.playerservice", 1, 0, "PlayerService", "");
+    m_engine->rootContext()->setContextProperty("playerService", PlayerService::instance());
 
 }

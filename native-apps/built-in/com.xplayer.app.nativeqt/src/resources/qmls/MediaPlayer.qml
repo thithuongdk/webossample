@@ -11,37 +11,8 @@ Rectangle {
     height: 720
     border.width: 2
 
-    property real max_duration: 1000
-    property alias current_duration: durationSlider.value
-    readonly property real max_speed: 4.0
-    property alias current_speed: speedSlider.value
-    readonly property real max_volume: 100
-    property alias current_volume: volumeSlider.value
-    
-    state: "stop"
-    states: [
-        State {
-            name: "stop"
-            PropertyChanges { target: playButton; source: "qrc:/png/play" }
-            // onEntered: {
-            //     playerService.onMusicPause();
-            // }
-        },
-        State {
-            name: "play"
-            PropertyChanges { target: playButton; source: "qrc:/png/pause" }
-            // onEntered: {
-            //     playerService.onMusicPlay();
-            // }
-        },
-        State {
-            name: "pause"
-            PropertyChanges { target: playButton; source: "qrc:/png/play" }
-            // onEntered: {
-            //     playerService.onMusicPause();
-            // }
-        }
-    ]
+    property real seek: playerService.seek
+
     Item {
         x: 100
         y: 100
@@ -55,7 +26,7 @@ Rectangle {
                 font.family: "Helvetica"
                 font.pointSize: 50
                 color: "black"
-                text: mediaPlayer.state
+                text: (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play")
             }
             Text {
                 id: durationinfo
@@ -64,7 +35,7 @@ Rectangle {
                 font.family: "Helvetica"
                 font.pointSize: 50
                 color: "black"
-                text: mediaPlayer.current_duration.toFixed(0).toString()
+                text: mediaPlayer.seek.toFixed(0).toString()
             }
         }
     }
@@ -85,28 +56,36 @@ Rectangle {
             height: 80
             from: 0
             value: 0
-            to: mediaPlayer.max_duration
+            to: playerService.duration
             iconSize: 30
             leftIsText: true
-            leftText: mediaPlayer.current_duration.toFixed(0).toString()
+            leftText: fmtime(value.toFixed(0))
             rightIsText: true
-            rightText: mediaPlayer.max_duration.toFixed(0).toString()
+            rightText: fmtime(playerService.duration.toFixed(0))
+            onValueChanged: playerService.seek=value.toFixed(0);
+            function  fmtime(ss) {
+                var h = Math.floor(ss/3600);
+                var m = Math.floor((ss%3600)/60);
+                var s = Math.floor(ss%60);
+                return ((h>0)?(h+":"+m+":"+s):(m+":"+s));
+            }
         }
 
         IconSlider {
-            id: speedSlider
+            id: rateSlider
             x: 40
             y: 100
             width: 150
             height: 80
             from: 0
             value: 1
-            to: mediaPlayer.max_speed
+            to: 4.0
             iconSize: 30
             leftIsText: false
             leftSrc: "qrc:/png/time"
             rightIsText: true
-            rightText: mediaPlayer.current_speed.toFixed(1).toString()
+            rightText: value.toFixed(1).toString()
+            onValueChanged: playerService.rate=value.toFixed(1);
         }
 
         IconSlider {
@@ -117,14 +96,15 @@ Rectangle {
             height: 80
             from: 0
             value: 50
-            to: mediaPlayer.max_volume
+            to: 100
             iconSize: 30
             leftIsText: true
-            leftText: mediaPlayer.current_volume.toFixed(0).toString()
+            leftText: value.toFixed(0).toString()
             rightIsText: false
-            rightSrc: mediaPlayer.current_volume==0? "qrc:/png/speaker_x"
+            rightSrc: value==0? "qrc:/png/speaker_x"
                                 :"qrc:/png/speaker_"
-                                + (mediaPlayer.current_volume*3/mediaPlayer.max_volume).toFixed(0).toString()
+                                + (value*3/100).toFixed(0).toString()
+            onValueChanged: playerService.volume=value.toFixed(0);
         }
 
         Item {
@@ -142,7 +122,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/rewind"
                     onClicked: {
-                        mediaPlayer.current_duration = Math.max(0,mediaPlayer.current_duration - 10);
+                        mediaPlayer.seek = Math.max(0,mediaPlayer.seek - 10);
                     }
                 }
                 IconButton {
@@ -150,16 +130,20 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/back"
                     onClicked: {
-                        mediaPlayer.current_duration = 0;
+                        mediaPlayer.seek = 0;
                     }
                 }
                 IconButton {
                     id: playButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/play"
+                    source: playerService.playState==2?"qrc:/png/pause":"qrc:/png/play"
                     onClicked: {
-                        // AppMediaPlayer.call
-                        mediaPlayer.state = (mediaPlayer.state!=="play") ? "play":"pause";
+                        if(playerService.playState==2) {
+                            playerService.playState = 1;
+                        } else {
+                            playerService.playState = 2;
+                        }
+                        
                     }
                 }
                 IconButton {
@@ -167,7 +151,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/stop"
                     onClicked: {
-                        mediaPlayer.state = "stop";
+                        playerService.playState = 0;
                     }
                 }
                 IconButton {
@@ -175,7 +159,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/next"
                     onClicked: {
-                        mediaPlayer.current_duration = mediaPlayer.max_duration;
+                        mediaPlayer.seek = playerService.duration;
                     }
                 }
                 IconButton {
@@ -183,7 +167,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/skip"
                     onClicked: {
-                        mediaPlayer.current_duration = Math.min(mediaPlayer.max_duration,mediaPlayer.current_duration + 10);
+                        mediaPlayer.seek = Math.min(playerService.duration,mediaPlayer.seek + 10);
                     }
                 }
             }
