@@ -57,8 +57,6 @@ void PlayerService::qmlRegister() {
 void PlayerService::callMediaPlay(std::string mediaId)
 {
     std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    PmLogInfo(getPmLogContext(), "callMediaPlay", 1,
-                PMLOGKS("mediaId", mediaId.c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/play",
         sjson.c_str(),
@@ -75,8 +73,6 @@ void PlayerService::callMediaPlay(std::string mediaId)
 void PlayerService::callMediaPause(std::string mediaId)
 {
     std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    PmLogInfo(getPmLogContext(), "callMediaPause", 1,
-                PMLOGKS("mediaId", mediaId.c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/pause",
         sjson.c_str(),
@@ -95,9 +91,6 @@ void PlayerService::callMediaLoad(std::string appName, std::string uriFile)
     std::string sjson = R"({"uri":")" + uriFile +
                         R"(", "type":"media", "payload":{"option":{"appId":")" + appName +
                         R"(", "windowId":""}}})";
-    PmLogInfo(getPmLogContext(), "callMediaLoad", 2,
-                PMLOGKS("appName", appName.c_str()),
-                PMLOGKS("uriFile", uriFile.c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/load",
         sjson.c_str(),
@@ -118,8 +111,6 @@ void PlayerService::callMediaLoad(std::string appName, std::string uriFile)
 void PlayerService::callMediaUnLoad(std::string mediaId)
 {
     std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    PmLogInfo(getPmLogContext(), "callMediaUnLoad", 1,
-                PMLOGKS("mediaId", mediaId.c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/unload",
         sjson.c_str(),
@@ -137,10 +128,6 @@ void PlayerService::callMediaSeek(std::string mediaId, int seek)
 {
     std::string sjson = R"({"mediaId":")" + mediaId +
                         R"(","position":)" + std::to_string(seek*1000) + R"(})";
-                        
-    PmLogInfo(getPmLogContext(), "callMediaSeek", 2,
-                PMLOGKS("mediaId", mediaId.c_str()),
-                PMLOGKS("seek", std::to_string(seek*1000).c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/seek",
         sjson.c_str(),
@@ -158,9 +145,6 @@ void PlayerService::callMediaSetPlayRate(std::string mediaId, double playRate)
 {
     std::string sjson = R"({"mediaId":")" + mediaId +
                         R"(","playRate":)" + std::to_string(playRate) + R"(,"audioOutput":true})";
-    PmLogInfo(getPmLogContext(), "callMediaSetPlayRate", 2,
-                PMLOGKS("mediaId", mediaId.c_str()),
-                PMLOGKS("playRate", std::to_string(playRate).c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/setPlayRate",
         sjson.c_str(),
@@ -178,9 +162,6 @@ void PlayerService::callMediaSetVolume(std::string mediaId, int volume)
 {
     std::string sjson = R"({"mediaId":")" + mediaId +
                         R"(","volume":)" + std::to_string(volume) + R"(})";
-    PmLogInfo(getPmLogContext(), "callMediaSetVolume", 2,
-                PMLOGKS("mediaId", mediaId.c_str()),
-                PMLOGKS("volume", std::to_string(volume).c_str()), " ");
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/setVolume",
         sjson.c_str(),
@@ -197,7 +178,6 @@ void PlayerService::callMediaSetVolume(std::string mediaId, int volume)
 void PlayerService::callMIndexGetAudioList(std::string uriFile)
 {
     std::string sjson = R"({"uri":")" + uriFile + R"("})";
-    PmLogInfo(getPmLogContext(), "PlayerService", 0, "callMIndexGetAudioList");
     LunaService::instance()->fLSCall(
         "luna://com.webos.service.mediaindexer/getAudioList",
         sjson.c_str(),
@@ -222,7 +202,6 @@ void PlayerService::callMIndexGetAudioList(std::string uriFile)
 void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
 {
     std::string sjson = R"({"uri":")" + uriStorage + R"("})";
-    PmLogInfo(getPmLogContext(), "PlayerService", 0, "callMIndexGetAudioMetadata");
     LunaService::instance()->fLSCall(
         "luna://com.webos.service.mediaindexer/getAudioMetadata",
         sjson.c_str(),
@@ -238,5 +217,4 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
             return true;
         },
         this);
-
 }

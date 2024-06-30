@@ -72,8 +72,7 @@ void LunaService::fLSCall(std::string luna, std::string msg, bool(*cbF)(LSHandle
 {
     LSError lserror;
     LSErrorInit(&lserror);
-    // PmLogInfo(getPmLogContext(), luna.c_str(), 1, PMLOGKS("status", msg.c_str()), " ");
-    PmLogInfo(getPmLogContext(), "LSCall", 0, luna.c_str());
+    PmLogInfo(getPmLogContext(), "LSCall", 2, PMLOGKS("luna", luna.c_str()), PMLOGJSON("msg", msg.c_str()), " ");
     if(!LSCall(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
         PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
         LSErrorPrint(&lserror, stderr);
