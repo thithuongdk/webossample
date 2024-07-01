@@ -27,7 +27,7 @@ QT += \
 
 
 CONFIG += link_pkgconfig
-PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib
+PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib umedia_api
 
 SOURCES += \
             main.cpp \
@@ -43,7 +43,6 @@ HEADERS += \
             src/services/LunaService.h \
             src/services/AppService.h \
             src/services/PlayerService.h \
-
 
 INCLUDEPATH += \
             src/common \

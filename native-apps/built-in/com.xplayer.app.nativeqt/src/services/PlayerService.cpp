@@ -27,7 +27,8 @@ PlayerService::PlayerService(QObject *parent)
     m_rate(1.0),
     m_volume(50),
     m_seek(0),
-    m_duration(0)
+    m_duration(0),
+    m_umc(nullptr)
 {
 }
 
@@ -42,6 +43,7 @@ void PlayerService::init(std::string appName)
     setRate(1);
     setVolume(50);
     setSeek(0);
+    m_umc = new uMediaServer::uMediaClient(false, UMS_CONNECTOR_PRIVATE_BUS);
 
     connectSignalSlots();
     qmlRegister();

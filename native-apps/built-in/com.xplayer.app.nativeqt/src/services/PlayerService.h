@@ -7,6 +7,7 @@
 #include <QVariant>
 #include <QQuickView>
 #include <QQmlApplicationEngine>
+#include <uMediaClient.h>
 #include "Log.h"
 #include "LunaService.h"
 
@@ -108,7 +109,10 @@ public:
     std::string getMusicPath() const  { return m_musicPath;};
     void setMusicPath(std::string musicPath) {
         if (m_musicPath != musicPath) {
-            callMediaLoad(m_appName, musicPath);
+            // callMediaLoad(m_appName, musicPath);
+            m_umc->unload();
+            m_umc->load(musicPath, "kMedia");
+            setMediaId(m_umc->getMediaId());
             m_musicPath = musicPath;
             emit musicPathChanged();
         }
@@ -117,7 +121,7 @@ public:
     std::string getMusicStoragePath() const  { return m_musicStoragePath;};
     void setMusicStoragePath(std::string musicStoragePath) {
         if (m_musicStoragePath != musicStoragePath) {
-            callMIndexGetAudioMetadata(musicStoragePath);
+            // callMIndexGetAudioMetadata(musicStoragePath);
             m_musicStoragePath = musicStoragePath;
             emit musicStoragePathChanged();
         }
@@ -126,7 +130,7 @@ public:
     std::string getMediaId() const  { return m_mediaId;};
     void setMediaId(std::string mediaId) {
         if (m_mediaId != mediaId) {
-            callMediaUnLoad(m_mediaId);
+            // callMediaUnLoad(m_mediaId);
             m_mediaId = mediaId;
             emit mediaIdChanged();
         }
@@ -145,12 +149,12 @@ public:
         // playState = 0:stop 1:pause 2:play 
         if (m_playState != playState) {
             if(playState==0) {
-                callMediaPause(m_mediaId);
-                callMediaSeek(m_mediaId,0);
+                m_umc->pause();
+                m_umc->seek(0);
             } else if(playState==1) {
-                callMediaPause(m_mediaId);
+                m_umc->pause();
             } else if(playState==2) {
-                callMediaPlay(m_mediaId);
+                m_umc->play();
             } else {
                 //
             }
@@ -162,7 +166,7 @@ public:
     int getVolume() const  { return m_volume;};
     void setVolume(int volume) {
         if (m_volume != volume) {
-            callMediaSetVolume(m_mediaId, volume);
+            m_umc->setVolume(volume, 2, "kEaseTypeLinear");
             m_volume = volume;
             emit volumeChanged();
         }
@@ -172,6 +176,7 @@ public:
     void setRate(double rate) {
         if (m_rate != rate) {
             callMediaSetPlayRate(m_mediaId, rate);
+            m_umc->setPlayRate(rate);
             m_rate = rate;
             emit rateChanged();
         }
@@ -181,7 +186,7 @@ public:
     void setSeek(int seek) {
         if (m_seek != seek) {
             if(seek<m_seek || (seek-m_seek)>3) {
-                callMediaSeek(m_mediaId, seek);
+                m_umc->seek(seek*1000);
             }
             m_seek = seek;
             emit seekChanged();
@@ -241,5 +246,6 @@ public:
     int m_volume;
     int m_seek;
     int m_duration;
+    uMediaServer::uMediaClient* m_umc;
 };
 #endif
