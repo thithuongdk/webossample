@@ -10,16 +10,44 @@ Rectangle {
     width: 800
     height: 720
     border.width: 2
-
+    
     Item {
         x: 100
         y: 100
         width: 200
         height: 200
         Column {
+            spacing: 5
             Text {
-                id: playinginfo
+                id: folderPathInfo
                 y: 0
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 50
+                color: "black"
+                text: playerService.musicPath.toString()
+            }
+            Text {
+                id: mediaIndexInfo
+                y: 60
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 50
+                color: "black"
+                text: playerService.mediaIndex.toFixed(0).toString() + "/" + (playerService.mediaCount-1).toFixed(0).toString()
+            }
+            Text {
+                id: mediaIdInfo
+                y: 120
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 50
+                color: "black"
+                text: playerService.mediaId.toString()
+            }
+            Text {
+                id: playingInfo
+                y: 180
                 width: parent.width
                 font.family: "Helvetica"
                 font.pointSize: 50
@@ -27,8 +55,8 @@ Rectangle {
                 text: (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play")
             }
             Text {
-                id: durationinfo
-                y: 100
+                id: durationInfo
+                y: 240
                 width: parent.width
                 font.family: "Helvetica"
                 font.pointSize: 50
@@ -57,16 +85,15 @@ Rectangle {
             to: (playerService.duration*1000).toFixed(0)
             iconSize: 30
             leftIsText: true
-            leftText: fmtime((value).toFixed(0))
+            leftText: fmtime((value/1000).toFixed(0))
             rightIsText: true
             rightText: fmtime((playerService.duration).toFixed(0))
             onValueChanged: playerService.seek=(value.toFixed(0));
-            function  fmtime(ms) {
-                var ws = ms/1000
-                var h = Math.floor(ws/3600);
-                var m = Math.floor((ws%3600)/60);
-                var s = Math.floor(ws%60);
-                return ((h>0)?(h+":"+m+":"+s):(m+":"+s));
+            function fmtime(ss) {
+                var h = Math.floor(ss/3600).toFixed(0);
+                var m = Math.floor((ss%3600)/60).toFixed(0);
+                var s = Math.floor(ss%60).toFixed(0);
+                return (h==0)?(m+":"+s):(h+":"+m+":"+s);
             }
         }
 
@@ -121,7 +148,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/rewind"
                     onClicked: {
-                        playerService.seek=(Math.max(0,playerService.seek + 10000))
+                        playerService.seek=(Math.max(0,playerService.seek - 10000))
                     }
                 }
                 IconButton {

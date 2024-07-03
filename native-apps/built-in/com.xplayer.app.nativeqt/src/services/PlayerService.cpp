@@ -131,6 +131,7 @@ void PlayerService::callMediaUnLoad(std::string mediaId)
                         1, PMLOGJSON("payload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
+            PlayerService::instance()->setMediaId("");             // update new media
             return true;
         },
         this);
@@ -193,7 +194,7 @@ void PlayerService::callMediaSetVolume(std::string mediaId, int volume)
 void PlayerService::callMediaSubscribe(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"(})";
+    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/subscribe",
         sjson.c_str(),
@@ -205,13 +206,13 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
             if (response.hasKey("endOfStream") && response["endOfStream"].hasKey("mediaId")) {
                 std::string mediaId = response["endOfStream"]["mediaId"].asString();
                 PlayerService::instance()->callMediaPause(mediaId);
+                PlayerService::instance()->setSeek(0);
                 if(PlayerService::instance()->getMediaCount()==1) {
-                    PlayerService::instance()->setSeek(0);
                     PlayerService::instance()->callMediaPlay(mediaId);
                 } else {
                     PlayerService::instance()->setMediaIndex(PlayerService::instance()->getMediaIndex()+1);
                 }
-            } else if (response.hasKey("currentTime") && response["endOfStream"].hasKey("mediaId")) {
+            } else if (response.hasKey("currentTime")) {
                 int currentTime = response["currentTime"].asNumber<int>();
                 PlayerService::instance()->setSeek(currentTime, true);    // pypass send data media/seek
             }
@@ -224,12 +225,12 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
 void PlayerService::callMediaUnSubscribe(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"(})";
+    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
     LunaService::instance()->fLSCall(
         "luna://com.webos.media/subscribe",
         sjson.c_str(),
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/subscribe_cb",
+            PmLogInfo(getPmLogContext(), "/unsubscribe_cb",
                         1, PMLOGJSON("payload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
