@@ -22,6 +22,7 @@ class PlayerService : public QObject
     Q_PROPERTY(std::string musicPath READ getMusicPath WRITE setMusicPath NOTIFY musicPathChanged);
     Q_PROPERTY(std::string musicStoragePath READ getMusicStoragePath WRITE setMusicStoragePath NOTIFY musicStoragePathChanged);
     Q_PROPERTY(std::string mediaId READ getMediaId WRITE setMediaId NOTIFY mediaIdChanged);
+    Q_PROPERTY(pbnjson::JValue mediaStatus READ getMediaStatus WRITE setMediaStatus NOTIFY mediaStatusChanged);
     Q_PROPERTY(pbnjson::JValue mediaData READ getMediaData WRITE setMediaData NOTIFY mediaDataChanged);
     Q_PROPERTY(int playState READ getPlayState WRITE setPlayState NOTIFY playStateChanged);
     Q_PROPERTY(int volume READ getVolume WRITE setVolume NOTIFY volumeChanged);
@@ -41,7 +42,7 @@ public:
     void setFolderPath(std::string folderPath) {
         if (m_folderPath != folderPath) {
             m_folderPath = folderPath;
-            callMIndexGetAudioList(folderPath);
+            callMIndexGetAudioList(folderPath);   //get list audio
             emit folderPathChanged();
         }
     };
@@ -56,11 +57,13 @@ public:
                 //
             } else {
                 int idex = 0;
-                for(int i=0; i<m_mediaCount; i++) {
-                    if(mediaList[i].hasKey("file_path")
-                    && m_musicPath == mediaList[i]["file_path"].asString()) {
-                        idex = i;
-                        break;
+                if(!m_musicPath.empty()) {
+                    for(int i=0; i<m_mediaCount; i++) {
+                        if(mediaList[i].hasKey("file_path")
+                        && m_musicPath == mediaList[i]["file_path"].asString()) {
+                            idex = i;
+                            break;
+                        }
                     }
                 }
                 setMediaIndex(idex);
@@ -79,26 +82,34 @@ public:
 
     int getMediaIndex() const  { return m_mediaIndex;};
     void setMediaIndex(int mediaIndex) {
-        if(mediaIndex >= m_mediaCount) {
-            mediaIndex = 0;
-        } else if(mediaIndex < 0) {
-            mediaIndex = m_mediaCount-1;
-        }
-        if(mediaIndex>=0) {
-            if(m_mediaList[mediaIndex].hasKey("file_path")) {
-                std::string musicPath = m_mediaList[mediaIndex]["file_path"].asString();
-                setMusicPath(musicPath);
+        if(mediaIndex && m_mediaCount==1 
+            && m_mediaList[0].hasKey("file_path")
+            && m_musicPath == m_mediaList[0]["file_path"].asString()) {
+            mediaIndex=0;
+            setSeek(0);
+            callMediaPlay(m_mediaId);
+        } else {
+            if(mediaIndex >= m_mediaCount) {
+                mediaIndex = 0;
+            } else if(mediaIndex < 0) {
+                mediaIndex = m_mediaCount-1;
             }
-            if(m_mediaList[mediaIndex].hasKey("uri")) {
-                std::string musicStoragePath = m_mediaList[mediaIndex]["uri"].asString();
-                setMusicStoragePath(musicStoragePath);
+            if(mediaIndex>=0) {
+                if(m_mediaList[mediaIndex].hasKey("file_path")) {
+                    std::string musicPath = m_mediaList[mediaIndex]["file_path"].asString();
+                    setMusicPath(musicPath);
+                }
+                if(m_mediaList[mediaIndex].hasKey("uri")) {
+                    std::string musicStoragePath = m_mediaList[mediaIndex]["uri"].asString();
+                    setMusicStoragePath(musicStoragePath);
+                }
+                if(m_mediaList[mediaIndex].hasKey("duration")) {
+                    int duration = m_mediaList[mediaIndex]["duration"].asNumber<int>();
+                    setDuration(duration);
+                }
+            } else { // no file
+                setPlayState(0); // stop
             }
-            if(m_mediaList[mediaIndex].hasKey("duration")) {
-                int duration = m_mediaList[mediaIndex]["duration"].asNumber<int>();
-                setDuration(duration);
-            }
-        } else { // no file
-            setPlayState(0); // stop
         }
         if (m_mediaIndex != mediaIndex) {
             m_mediaIndex = mediaIndex;
@@ -107,21 +118,22 @@ public:
     };
 
     std::string getMusicPath() const  { return m_musicPath;};
-    void setMusicPath(std::string musicPath) {
+    void setMusicPath(std::string musicPath, int countinue=false) {
         if (m_musicPath != musicPath) {
-            // callMediaLoad(m_appName, musicPath);
-            m_umc->unload();
-            m_umc->load(musicPath, "kMedia");
-            setMediaId(m_umc->getMediaId());
+            callMediaUnLoad(m_mediaId);             // unload old media
+            callMediaLoad(m_appName, musicPath);    //subscribe new mediaId      
             m_musicPath = musicPath;
             emit musicPathChanged();
+        } else {
+            callMediaSeek(m_mediaId, 0);            //set time 0
         }
+        if(countinue) callMediaPlay(m_mediaId);     //play mediaId
     };
 
     std::string getMusicStoragePath() const  { return m_musicStoragePath;};
     void setMusicStoragePath(std::string musicStoragePath) {
         if (m_musicStoragePath != musicStoragePath) {
-            // callMIndexGetAudioMetadata(musicStoragePath);
+            callMIndexGetAudioMetadata(musicStoragePath);   //get meta data
             m_musicStoragePath = musicStoragePath;
             emit musicStoragePathChanged();
         }
@@ -130,9 +142,16 @@ public:
     std::string getMediaId() const  { return m_mediaId;};
     void setMediaId(std::string mediaId) {
         if (m_mediaId != mediaId) {
-            // callMediaUnLoad(m_mediaId);
             m_mediaId = mediaId;
             emit mediaIdChanged();
+        }
+    };
+
+    pbnjson::JValue getMediaStatus() const { return m_mediaStatus;};
+    void setMediaStatus(pbnjson::JValue mediaStatus) {
+        if (m_mediaStatus != mediaStatus) {
+            m_mediaStatus = mediaStatus;
+            emit mediaStatusChanged();
         }
     };
 
@@ -149,12 +168,14 @@ public:
         // playState = 0:stop 1:pause 2:play 
         if (m_playState != playState) {
             if(playState==0) {
-                m_umc->pause();
-                m_umc->seek(0);
+                callMediaPause(m_mediaId);        //pause mediaId
+                callMediaSeek(m_mediaId, 0);      //set time of mediaId
             } else if(playState==1) {
-                m_umc->pause();
+                callMediaUnSubscribe(m_mediaId);            //subscribe new mediaId
+                callMediaPause(m_mediaId);        //pause mediaId
             } else if(playState==2) {
-                m_umc->play();
+                callMediaSubscribe(m_mediaId);            //subscribe new mediaId
+                callMediaPlay(m_mediaId);         //play mediaId
             } else {
                 //
             }
@@ -166,7 +187,7 @@ public:
     int getVolume() const  { return m_volume;};
     void setVolume(int volume) {
         if (m_volume != volume) {
-            m_umc->setVolume(volume, 2, "kEaseTypeLinear");
+            callMediaSetVolume(m_mediaId, volume);  //set volume of mediaId
             m_volume = volume;
             emit volumeChanged();
         }
@@ -175,18 +196,17 @@ public:
     double getRate() const  { return m_rate;};
     void setRate(double rate) {
         if (m_rate != rate) {
-            callMediaSetPlayRate(m_mediaId, rate);
-            m_umc->setPlayRate(rate);
+            callMediaSetPlayRate(m_mediaId, rate);  //set rate of mediaId
             m_rate = rate;
             emit rateChanged();
         }
     };
 
     int getSeek() const  { return m_seek;};
-    void setSeek(int seek) {
+    void setSeek(int seek, bool pypass=false) {
         if (m_seek != seek) {
-            if(seek<m_seek || (seek-m_seek)>3) {
-                m_umc->seek(seek*1000);
+            if(seek<m_seek || (seek-m_seek)>3000) {
+                if(!pypass) callMediaSeek(m_mediaId, seek);     //set seek(s) of mediaId
             }
             m_seek = seek;
             emit seekChanged();
@@ -209,6 +229,7 @@ signals:
     void musicPathChanged();
     void musicStoragePathChanged();
     void mediaIdChanged();
+    void mediaStatusChanged();
     void mediaDataChanged();
     void playStateChanged();
     void volumeChanged();
@@ -228,8 +249,12 @@ public:
     Q_INVOKABLE void callMediaSeek(std::string mediaId="", int seek=0);
     Q_INVOKABLE void callMediaSetPlayRate(std::string mediaId="", double playRate=1.0);
     Q_INVOKABLE void callMediaSetVolume(std::string mediaId="", int volume=50);
+    Q_INVOKABLE void callMediaSubscribe(std::string mediaId="");
+    Q_INVOKABLE void callMediaUnSubscribe(std::string mediaId="");
+    Q_INVOKABLE void callMediaStatus(std::string mediaId="");
     Q_INVOKABLE void callMIndexGetAudioList(std::string uriFile="");
     Q_INVOKABLE void callMIndexGetAudioMetadata(std::string uriStorage="");
+    Q_INVOKABLE void callMIndexRqScan();
 
 public:
     std::string m_appName;
@@ -239,6 +264,7 @@ public:
     int m_mediaIndex;                   // => m_musicPath
     std::string m_musicPath;            // luna://com.webos.media/unload | luna-send -n 1 -f luna://com.webos.media/load '{"uri":"file:///$m_musicPath","type":"media","payload":{"option":{"appId":"$m_appName","windowId":""}}}' => m_mediaId+m_mediaData
     std::string m_musicStoragePath;
+    pbnjson::JValue m_mediaStatus;
     pbnjson::JValue m_mediaData;
     int m_playState;
     std::string m_mediaId;
@@ -246,6 +272,6 @@ public:
     int m_volume;
     int m_seek;
     int m_duration;
-    uMediaServer::uMediaClient* m_umc;
+    // uMediaServer::uMediaClient* m_umc;
 };
 #endif

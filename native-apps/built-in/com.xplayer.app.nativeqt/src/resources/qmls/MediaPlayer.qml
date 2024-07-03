@@ -11,8 +11,6 @@ Rectangle {
     height: 720
     border.width: 2
 
-    property real seek: playerService.seek
-
     Item {
         x: 100
         y: 100
@@ -35,7 +33,7 @@ Rectangle {
                 font.family: "Helvetica"
                 font.pointSize: 50
                 color: "black"
-                text: mediaPlayer.seek.toFixed(0).toString()
+                text: playerService.seek.toFixed(0).toString()
             }
         }
     }
@@ -55,18 +53,19 @@ Rectangle {
             width: parent.width-x*2
             height: 80
             from: 0
-            value: 0
-            to: playerService.duration
+            value: playerService.seek
+            to: (playerService.duration*1000).toFixed(0)
             iconSize: 30
             leftIsText: true
-            leftText: fmtime(value.toFixed(0))
+            leftText: fmtime((value).toFixed(0))
             rightIsText: true
-            rightText: fmtime(playerService.duration.toFixed(0))
-            onValueChanged: playerService.seek=value.toFixed(0);
-            function  fmtime(ss) {
-                var h = Math.floor(ss/3600);
-                var m = Math.floor((ss%3600)/60);
-                var s = Math.floor(ss%60);
+            rightText: fmtime((playerService.duration).toFixed(0))
+            onValueChanged: playerService.seek=(value.toFixed(0));
+            function  fmtime(ms) {
+                var ws = ms/1000
+                var h = Math.floor(ws/3600);
+                var m = Math.floor((ws%3600)/60);
+                var s = Math.floor(ws%60);
                 return ((h>0)?(h+":"+m+":"+s):(m+":"+s));
             }
         }
@@ -78,14 +77,14 @@ Rectangle {
             width: 150
             height: 80
             from: 0
-            value: 1
+            value: playerService.rate
             to: 4.0
             iconSize: 30
             leftIsText: false
             leftSrc: "qrc:/png/time"
             rightIsText: true
             rightText: value.toFixed(1).toString()
-            onValueChanged: playerService.rate=value.toFixed(1);
+            onValueChanged: playerService.rate=(value.toFixed(1));
         }
 
         IconSlider {
@@ -95,16 +94,16 @@ Rectangle {
             width: 150
             height: 80
             from: 0
-            value: 50
+            value: playerService.volume
             to: 100
             iconSize: 30
             leftIsText: true
-            leftText: value.toFixed(0).toString()
+            leftText: playerService.volume.toString()
             rightIsText: false
-            rightSrc: value==0? "qrc:/png/speaker_x"
+            rightSrc: value.toFixed(0)==0? "qrc:/png/speaker_x"
                                 :"qrc:/png/speaker_"
                                 + (value*3/100).toFixed(0).toString()
-            onValueChanged: playerService.volume=value.toFixed(0);
+            onValueChanged: playerService.volume=(value.toFixed(0));
         }
 
         Item {
@@ -122,7 +121,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/rewind"
                     onClicked: {
-                        mediaPlayer.seek = Math.max(0,mediaPlayer.seek - 10);
+                        playerService.seek=(Math.max(0,playerService.seek + 10000))
                     }
                 }
                 IconButton {
@@ -130,18 +129,18 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/back"
                     onClicked: {
-                        mediaPlayer.seek = 0;
+                        playerService.mediaIndex=(playerService.mediaIndex-1)
                     }
                 }
                 IconButton {
                     id: playButton
                     pointSize: controlButton.iconSize
-                    source: playerService.playState==2?"qrc:/png/pause":"qrc:/png/play"
+                    source: (playerService.playState==2)?"qrc:/png/pause":"qrc:/png/play"
                     onClicked: {
                         if(playerService.playState==2) {
-                            playerService.playState = 1;
+                            playerService.playState=(1);
                         } else {
-                            playerService.playState = 2;
+                            playerService.playState=(2);
                         }
                         
                     }
@@ -151,7 +150,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/stop"
                     onClicked: {
-                        playerService.playState = 0;
+                        playerService.playState=(0);
                     }
                 }
                 IconButton {
@@ -159,7 +158,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/next"
                     onClicked: {
-                        mediaPlayer.seek = playerService.duration;
+                        playerService.mediaIndex=(playerService.mediaIndex+1)
                     }
                 }
                 IconButton {
@@ -167,7 +166,7 @@ Rectangle {
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/skip"
                     onClicked: {
-                        mediaPlayer.seek = Math.min(playerService.duration,mediaPlayer.seek + 10);
+                        playerService.seek=(Math.min(playerService.duration*1000,playerService.seek + 10000))
                     }
                 }
             }

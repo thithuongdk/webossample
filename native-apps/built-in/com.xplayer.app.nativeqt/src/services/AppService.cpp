@@ -53,8 +53,7 @@ bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
         std::string event = response["event"].asString();
         PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()), " ");
         if (!strcmp(event.c_str(),"registered")) {
-            PmLogInfo(getPmLogContext(), "registered", 0, PMLOGKS("createWindow", (AppService::instance())), " ");
-            // PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", &(AppService::instance()->createWindow)), " ");
+            PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", (AppService::instance())), " ");
             AppService::instance()->createWindow();
         } else if (!strcmp(event.c_str(),"relaunch")
                 || !strcmp(event.c_str(),"pause")

@@ -6,6 +6,6 @@
     "main": "xplayer",
     "title": "Aplayer App",
     "icon": "music.svg",
-    "requiredPermissions" : ["application.operation", "media.operation", "mediaindexer", "mediaindexer.operation", "media", "media.read", "media.write", "media.client"],
+    "requiredPermissions" : ["application.operation", "media",  "media.query", "media.operation", "mediaindexer.operation"],
     "nativeLifeCycleInterfaceVersion": 2
 }
