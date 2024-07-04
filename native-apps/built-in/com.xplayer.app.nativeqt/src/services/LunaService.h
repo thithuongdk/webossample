@@ -23,10 +23,11 @@ public:
     static LunaService* instance(QObject* parent = nullptr);
     LSHandle* getHandle() const { return m_handle; };
     void init(std::string appName, GMainLoop *mainloop);
-    void fLSCall(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata = 0);
+    void fLSCalln(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata = 0);
     void fLSSubscriptionReply(std::string key, std::string msg);
     void fLSMessageReply(LSHandle *sh, LSMessage * msg, void *ctx, std::string key);
-
+    void fLSCall1(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata = 0);
+    void fSetTimeOutLSCall(LSMessageToken token, int timeout_ms);
 protected:
     LSHandle* acquireHandle(std::string appName);
     void clearHandle();

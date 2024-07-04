@@ -68,13 +68,38 @@ void LunaService::clearHandle()
     m_mainLoop = nullptr;
 }
 
-void LunaService::fLSCall(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata)
+void LunaService::fLSCalln(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata)
 {
+    // LSCall        (LSHandle * sh, const char * uri, const char * payload, LSFilterFunc callback, void * ctx, LSMessageToken * ret_token, LSError * lserror)
     LSError lserror;
     LSErrorInit(&lserror);
     PmLogInfo(getPmLogContext(), "LSCall", 2, PMLOGKS("luna", luna.c_str()), PMLOGJSON("msg", msg.c_str()), " ");
     if(!LSCall(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
         PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
+        LSErrorPrint(&lserror, stderr);
+    }
+}
+
+void LunaService::fLSCall1(std::string luna, std::string msg, bool(*cbF)(LSHandle *sh, LSMessage *lsm, void* udata), void* udata)
+{
+    // LSCallOneReply(LSHandle * sh, const char * uri, const char * payload, LSFilterFunc callback, void * ctx, LSMessageToken * ret_token, LSError * lserror)
+    LSError lserror;
+    LSErrorInit(&lserror);
+    PmLogInfo(getPmLogContext(), "LSCallOneReply", 2, PMLOGKS("luna", luna.c_str()), PMLOGJSON("msg", msg.c_str()), " ");
+    if(!LSCallOneReply(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
+        PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
+        LSErrorPrint(&lserror, stderr);
+    }
+}
+
+void LunaService::fSetTimeOutLSCall(LSMessageToken token, int timeout_ms)
+{
+    // LSCallSetTimeout (LSHandle * sh, LSMessageToken token, int timeout_ms, LSError * lserror)
+    LSError lserror;
+    LSErrorInit(&lserror);
+    PmLogInfo(getPmLogContext(), "LSCallSetTimeout", 1, PMLOGKS("timeout_ms", timeout_ms), " ");
+    if(!LSCallSetTimeout(m_handle, token, timeout_ms, &lserror)) {
+        PmLogError(getPmLogContext(), "LSCallSetTimeoutErr", 0, "so sad");
         LSErrorPrint(&lserror, stderr);
     }
 }

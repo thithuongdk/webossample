@@ -19,49 +19,76 @@ Rectangle {
         Column {
             spacing: 5
             Text {
-                id: folderPathInfo
+                id: musicNameInfo
                 y: 0
                 width: parent.width
                 font.family: "Helvetica"
-                font.pointSize: 50
+                font.pointSize: 18
                 color: "black"
-                text: playerService.musicPath.toString()
+                text: playerService.musicPath.substring(playerService.musicPath.lastIndexOf("/") + 1)
+            }
+            Text {
+                id: musicPathInfo
+                y: 20
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 18
+                color: "black"
+                text: playerService.musicPath
             }
             Text {
                 id: mediaIndexInfo
-                y: 60
+                y: 40
                 width: parent.width
                 font.family: "Helvetica"
-                font.pointSize: 50
+                font.pointSize: 18
                 color: "black"
                 text: playerService.mediaIndex.toFixed(0).toString() + "/" + (playerService.mediaCount-1).toFixed(0).toString()
             }
             Text {
                 id: mediaIdInfo
-                y: 120
+                y: 60
                 width: parent.width
                 font.family: "Helvetica"
-                font.pointSize: 50
+                font.pointSize: 18
                 color: "black"
-                text: playerService.mediaId.toString()
+                text: playerService.mediaId
             }
             Text {
-                id: playingInfo
-                y: 180
+                id: playStateInfo
+                y: 80
                 width: parent.width
                 font.family: "Helvetica"
-                font.pointSize: 50
+                font.pointSize: 18
                 color: "black"
                 text: (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play")
             }
             Text {
-                id: durationInfo
-                y: 240
+                id: seekInfo
+                y: 100
                 width: parent.width
                 font.family: "Helvetica"
-                font.pointSize: 50
+                font.pointSize: 18
                 color: "black"
                 text: playerService.seek.toFixed(0).toString()
+            }
+            Text {
+                id: folderPathInfo
+                y: 120
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 18
+                color: "black"
+                text: playerService.folderPath
+            }
+            Text {
+                id: storagePathInfo
+                y: 140
+                width: parent.width
+                font.family: "Helvetica"
+                font.pointSize: 18
+                color: "black"
+                text: playerService.storagePath
             }
         }
     }

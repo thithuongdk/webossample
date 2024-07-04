@@ -2,18 +2,18 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
+import app.playerservice 1.0
 
 Rectangle {
     id: mediaPath
     width: 280
     height: 720
     border.width: 2
-    property string music_path: "/media/internal/"
     Item {
-        x: 0
-        y: 100
-        width: 280
-        height: 200
+        x: 30
+        y: 5
+        width: 250
+        height: 20
         Column {
             Text {
                 id: pathInfo
@@ -22,26 +22,30 @@ Rectangle {
                 font.family: "Helvetica"
                 font.pointSize: 10
                 color: "black"
-                text: music_path
+                text: "/media/multimedia"
             }
         }
     }
     Button {
+        x: 5
+        y: 5
+        width: 20
+        height: 20
         id: openFolderButton
-        text: "Open Folder Picker"
+        text: "..."
         onClicked: folderDialog.open()
     }
     FolderDialog {
         id: folderDialog
-        currentFolder: "/media/internal/"
-        selectedFolder: "/media/internal/"
+        currentFolder: "file:///media/multimedia"
         onAccepted: {
-            music_path = folderDialog.selectedFolder
-            pathInfo.text = music_path
+            playerservice.folderPath = folderDialog.selectedFolder.replace("file://", playerservice.storagePath)
+            pathInfo.text = folderDialog.selectedFolder.replace("file://", "")
+            folderDialog.currentFolder = folderDialog.selectedFolder
         }
-        onRejected: {
-            music_path = "cdcasdm"
-            pathInfo.text = music_path
-        }
+        // /onRejected: {
+            // playerservice.folderPath = "storage:///media/multimedia"
+            // pathInfo.text = playerservice.folderPath
+        // }
     }
 }

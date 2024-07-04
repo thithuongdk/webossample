@@ -53,7 +53,7 @@ bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
         std::string event = response["event"].asString();
         PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()), " ");
         if (!strcmp(event.c_str(),"registered")) {
-            PmLogInfo(getPmLogContext(), "registered", 1, PMLOGKS("createWindow", (AppService::instance())), " ");
+            PmLogInfo(getPmLogContext(), "registered", 0, "ok");
             AppService::instance()->createWindow();
         } else if (!strcmp(event.c_str(),"relaunch")
                 || !strcmp(event.c_str(),"pause")
@@ -65,7 +65,7 @@ bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
 
 void AppService::registerApp()
 {
-    LunaService::instance()->fLSCall("luna://com.webos.service.applicationmanager/registerApp", "{}",
+    LunaService::instance()->fLSCalln("luna://com.webos.service.applicationmanager/registerApp", "{}",
                                     AppService::cbRegisterApp, this);
 }
 
