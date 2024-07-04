@@ -28,7 +28,7 @@ PlayerService::PlayerService(QObject *parent)
     m_playState(0),
     m_mediaId(""),
     m_rate(1),
-    m_volume(80),
+    m_volume(90),
     m_seek(0),
     m_duration(0)
 {
@@ -41,11 +41,7 @@ PlayerService::~PlayerService()
 void PlayerService::init(std::string appName)
 {
     m_appName = appName;
-    callMIndexRqScan();
     callMIndexGetDeviceList();
-    // setRate(1);
-    // setVolume(80);
-    // setSeek(0);
 
     connectSignalSlots();
     qmlRegister();
@@ -84,7 +80,7 @@ int PlayerService::getMediaIndex() const
     return m_mediaIndex;
 }
 
-QString PlayerService::getMusicPath() const
+QUrl PlayerService::getMusicPath() const
 {
     return m_musicPath;
 }
@@ -139,7 +135,6 @@ void PlayerService::setStoragePath(QString storagePath) {
     PmLogInfo(getPmLogContext(), "setStoragePath", 1, PMLOGKS("storagePath", storagePath.toStdString().c_str()), " ");
     if (m_storagePath != storagePath) {
         m_storagePath = storagePath;
-        callMIndexGetDeviceList();   //get device list
         emit storagePathChanged();
     }
 }
@@ -148,8 +143,7 @@ void PlayerService::setFolderPath(QString folderPath) {
     PmLogInfo(getPmLogContext(), "setFolderPath", 1, PMLOGKS("folderPath", folderPath.toStdString().c_str()), " ");
     if (m_folderPath != folderPath) {
         m_folderPath = folderPath;
-        // callMIndexGetAudioList(folderPath.toStdString());   //get list audio
-        callMIndexRqScan();
+        callMIndexRqScan(); //update and get list audio
         emit folderPathChanged();
     }
 }
@@ -160,14 +154,14 @@ void PlayerService::setMediaList(pbnjson::JValue mediaList) {
         m_mediaList = mediaList;
         if(m_mediaIndex>=0 && m_mediaIndex < m_mediaCount
         && mediaList[m_mediaIndex].hasKey("file_path")
-        && m_musicPath.toStdString() == mediaList[m_mediaIndex]["file_path"].asString()) {
+        && m_musicPath.toString().toStdString() == mediaList[m_mediaIndex]["file_path"].asString()) {
             //
         } else {
             int idex = 0;
             if(!m_musicPath.isEmpty()) {
                 for(int i=0; i<m_mediaCount; i++) {
                     if(mediaList[i].hasKey("file_path")
-                    && m_musicPath.toStdString() == mediaList[i]["file_path"].asString()) {
+                    && m_musicPath.toString().toStdString() == mediaList[i]["file_path"].asString()) {
                         idex = i;
                         break;
                     }
@@ -191,7 +185,7 @@ void PlayerService::setMediaIndex(int mediaIndex) {
     PmLogInfo(getPmLogContext(), "setMediaIndex", 1, PMLOGKS("mediaIndex", std::to_string(mediaIndex).c_str()), " ");
     if(mediaIndex && m_mediaCount==1 
         && m_mediaList[0].hasKey("file_path")
-        && m_musicPath.toStdString() == m_mediaList[0]["file_path"].asString()) {
+        && m_musicPath.toString().toStdString() == m_mediaList[0]["file_path"].asString()) {
         mediaIndex=0;
         setSeek(0);
         callMediaPlay(m_mediaId.toStdString());
@@ -204,7 +198,7 @@ void PlayerService::setMediaIndex(int mediaIndex) {
         if(mediaIndex>=0) {
             if(m_mediaList[mediaIndex].hasKey("file_path")) {
                 std::string musicPath = m_mediaList[mediaIndex]["file_path"].asString();
-                setMusicPath(QString::fromStdString(musicPath));
+                setMusicPath(QUrl(QString::fromStdString(musicPath)));
             }
             if(m_mediaList[mediaIndex].hasKey("uri")) {
                 std::string musicStorage = m_mediaList[mediaIndex]["uri"].asString();
@@ -224,12 +218,12 @@ void PlayerService::setMediaIndex(int mediaIndex) {
     }
 }
 
-void PlayerService::setMusicPath(QString musicPath) {
-    PmLogInfo(getPmLogContext(), "setMusicPath", 1, PMLOGKS("musicPath", musicPath.toStdString().c_str()), " ");
+void PlayerService::setMusicPath(QUrl musicPath) {
+    PmLogInfo(getPmLogContext(), "setMusicPath", 1, PMLOGKS("musicPath", musicPath.toString().toStdString().c_str()), " ");
     if (m_musicPath != musicPath) {
         callMediaUnLoad(m_mediaId.toStdString());             // unload old media
         setMediaId("");
-        callMediaLoad(m_appName, musicPath.toStdString());    //subscribe new mediaId
+        callMediaLoad(m_appName, musicPath.toString().toStdString());    //subscribe new mediaId
         m_musicPath = musicPath;
         emit musicPathChanged();
     } else {
@@ -616,7 +610,7 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
             if (response.hasKey("metadata")) {
                 pbnjson::JValue metadata = response["metadata"];
                 if (metadata.hasKey("file_path")
-                    && PlayerService::instance()->getMusicPath().toStdString()==metadata["file_path"].asString()) {
+                    && PlayerService::instance()->getMusicPath().toString().toStdString()==metadata["file_path"].asString()) {
                     PlayerService::instance()->setMediaData(metadata);
                 }
             }
