@@ -43,7 +43,7 @@ Rectangle {
                 font.family: "Helvetica"
                 font.pointSize: 18
                 color: "black"
-                text: playerService.mediaIndex.toFixed(0).toString() + "/" + (playerService.mediaCount-1).toFixed(0).toString()
+                text: (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString()
             }
             Text {
                 id: mediaIdInfo
@@ -81,15 +81,63 @@ Rectangle {
                 color: "black"
                 text: playerService.folderPath
             }
-            Text {
-                id: storagePathInfo
-                y: 140
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.storagePath
+            // Text {
+            //     id: storagePathInfo
+            //     y: 140
+            //     width: parent.width
+            //     font.family: "Helvetica"
+            //     font.pointSize: 18
+            //     color: "black"
+            //     text: playerService.storagePath
+            // }
+        }
+        ListModel {
+            id: listMusicModel
+            ListElement {
+                name: "musicNameInfo"
+                number: "555"
             }
+            ListElement {
+                name: "musicPathInfo"
+                number: "555"
+            }
+            ListElement {
+                name: "mediaIndexInfo"
+                number: "555"
+            }
+            ListElement {
+                name: "mediaIdInfo"
+                number: "555"
+            }
+            ListElement {
+                name: "playStateInfo"
+                number: "555"
+            }
+            ListElement {
+                name: "seekInfo"
+                number: "555"
+            }
+            ListElement {
+                name: "folderPathInfo"
+                number: "555"
+            }
+            function _getStoragePath() {
+                return "storagePathInfo";
+            }
+            ListElement {
+                name: "storagePathInfo"
+                number: "555"
+            }
+        }
+        ListView {
+            width: 180; height: 200
+
+            model: listMusicModel
+            delegate: 
+                Text {
+                    color: "black"
+                    text: model.name + ": " + model.number
+                }
         }
     }
 
@@ -120,7 +168,12 @@ Rectangle {
                 var h = Math.floor(ss/3600).toFixed(0);
                 var m = Math.floor((ss%3600)/60).toFixed(0);
                 var s = Math.floor(ss%60).toFixed(0);
-                return (h==0)?(m+":"+s):(h+":"+m+":"+s);
+                var timeString = "";
+                if (h > 0) {
+                    timeString += h + ":" + (m<10 ? "0" : "");
+                }
+                timeString += m + ":" + (s<10 ? "0":"") + s;
+                return timeString;
             }
         }
 

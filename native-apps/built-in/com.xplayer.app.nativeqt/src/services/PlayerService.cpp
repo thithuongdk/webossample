@@ -195,7 +195,7 @@ void PlayerService::setMediaIndex(int mediaIndex) {
         } else if(mediaIndex < 0) {
             mediaIndex = m_mediaCount-1;
         }
-        if(mediaIndex>=0) {
+        if(mediaIndex>=0 && mediaIndex<m_mediaCount) {
             if(m_mediaList[mediaIndex].hasKey("file_path")) {
                 std::string musicPath = m_mediaList[mediaIndex]["file_path"].asString();
                 setMusicPath(QUrl(QString::fromStdString(musicPath)));
@@ -209,7 +209,10 @@ void PlayerService::setMediaIndex(int mediaIndex) {
                 setDuration(duration);
             }
         } else { // no file
+            mediaIndex = -1;
             setPlayState(0); // stop
+            setMusicPath(QUrl(""));
+            setDuration(0);
         }
     }
     if (m_mediaIndex != mediaIndex) {
@@ -267,7 +270,11 @@ void PlayerService::setMediaData(pbnjson::JValue mediaData) {
 void PlayerService::setPlayState(int playState) {
     PmLogInfo(getPmLogContext(), "setPlayState", 1, PMLOGKS("playState", std::to_string(playState).c_str()), " ");
     // playState = 0:stop 1:pause 2:play 
-    if (m_playState != playState) {
+    if(m_mediaId.isEmpty()) {
+        playState = 0;
+        m_playState = playState;
+        emit playStateChanged();
+    } else if (m_playState != playState) {
         if(playState==0) {
             callMediaPause(m_mediaId.toStdString());        //pause mediaId
             callMediaSeek(m_mediaId.toStdString(), 0);      //set time of mediaId

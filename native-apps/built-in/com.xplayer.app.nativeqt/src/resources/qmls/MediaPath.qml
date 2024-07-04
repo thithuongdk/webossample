@@ -15,7 +15,7 @@ Rectangle {
         x: 30
         y: 5
         width: 250
-        height: 20
+        height: 200
         Column {
             spacing: 5
             Text {
@@ -47,6 +47,26 @@ Rectangle {
             }
             
         }
+        // ListModel {
+        //     id: listMusicModel
+        //     ListElement {
+        //         name: "storagePathInfo"
+        //         svalue: playerService.storagePath
+        //     }
+        //     ListElement {
+        //         name: "storagePathInfo"
+        //         svalue: playerService.storagePath
+        //     }
+        // }
+        // ListView {
+        //     width: 180; height: 200
+        //     model: listMusicModel
+        //     delegate: 
+        //         Text {
+        //             color: "black"
+        //             text: name + ": " + svalue
+        //         }
+        // }
         // ListView {
         //     y: 100
         //     model: playerservice.mediaList.getArray()
@@ -73,10 +93,11 @@ Rectangle {
     }
     FolderDialog {
         id: folderDialog
-        currentFolder: playerService.folderPath.replace(playerService.storagePath, "file://")
+        currentFolder: "file:///"
         onAccepted: {
             playerService.folderPath = folderDialog.selectedFolder.toString().replace("file://", playerService.storagePath)
             currentFolderPath.text = playerService.folderPath
+            currentStoragePath.text = playerService.storagePath
         }
         // /onRejected: {
             // playerservice.folderPath = "storage:///media/multimedia"
