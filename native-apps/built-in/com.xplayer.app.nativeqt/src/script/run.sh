@@ -75,7 +75,7 @@ echo "WORKER_PATH = $WORKER_PATH "
 echo "close app $APP_NAME "
 ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/closeByAppId '\{\"id\":\"$APP_NAME\"\}'"
 if [ $? -ne 0 ]; then
-    LOCAL_HOST_WEBOS="10.220.50.149"
+    LOCAL_HOST_WEBOS="10.220.56.237"
     echo "connect ssh -p 6622 root@$LOCAL_HOST_WEBOS webos virtual."
     ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/closeByAppId '\{\"id\":\"$APP_NAME\"\}'"
     if [ $? -ne 0 ]; then

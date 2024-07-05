@@ -18,8 +18,8 @@ PlayerService::PlayerService(QObject *parent)
     m_appName(""),
     m_storagePath(""),
     m_folderPath(""),
-    m_mediaCount(0),
     m_mediaList(pbnjson::Array()),
+    m_mediaCount(0),
     m_mediaIndex(0),
     m_musicPath(""),
     m_musicStorage(""),
@@ -27,8 +27,8 @@ PlayerService::PlayerService(QObject *parent)
     m_mediaData(pbnjson::Object()),
     m_playState(0),
     m_mediaId(""),
-    m_rate(1),
     m_volume(90),
+    m_rate(1),
     m_seek(0),
     m_duration(0)
 {
@@ -135,7 +135,7 @@ void PlayerService::setStoragePath(QString storagePath) {
     PmLogInfo(getPmLogContext(), "setStoragePath", 1, PMLOGKS("storagePath", storagePath.toStdString().c_str()), " ");
     if (m_storagePath != storagePath) {
         m_storagePath = storagePath;
-        emit storagePathChanged();
+        emit storagePathChanged(storagePath);
     }
 }
 
@@ -144,7 +144,7 @@ void PlayerService::setFolderPath(QString folderPath) {
     if (m_folderPath != folderPath) {
         m_folderPath = folderPath;
         callMIndexRqScan(); //update and get list audio
-        emit folderPathChanged();
+        emit folderPathChanged(folderPath);
     }
 }
 
@@ -169,7 +169,7 @@ void PlayerService::setMediaList(pbnjson::JValue mediaList) {
             }
             setMediaIndex(idex);
         }
-        emit mediaListChanged();
+        emit mediaListChanged(mediaList);
     }
 }
 
@@ -177,7 +177,7 @@ void PlayerService::setMediaCount(int mediaCount) {
     PmLogInfo(getPmLogContext(), "setMediaCount", 1, PMLOGKS("mediaCount", std::to_string(mediaCount).c_str()), " ");
     if (m_mediaCount != mediaCount) {
         m_mediaCount = mediaCount;
-        emit mediaCountChanged();
+        emit mediaCountChanged(mediaCount);
     }
 }
 
@@ -217,7 +217,7 @@ void PlayerService::setMediaIndex(int mediaIndex) {
     }
     if (m_mediaIndex != mediaIndex) {
         m_mediaIndex = mediaIndex;
-        emit mediaIndexChanged();
+        emit mediaIndexChanged(mediaIndex);
     }
 }
 
@@ -228,7 +228,7 @@ void PlayerService::setMusicPath(QUrl musicPath) {
         setMediaId("");
         callMediaLoad(m_appName, musicPath.toString().toStdString());    //subscribe new mediaId
         m_musicPath = musicPath;
-        emit musicPathChanged();
+        emit musicPathChanged(musicPath);
     } else {
         callMediaSeek(m_mediaId.toStdString(), 0);            //set time 0
     }
@@ -239,7 +239,7 @@ void PlayerService::setMusicStorage(QString musicStorage) {
     if (m_musicStorage != musicStorage) {
         callMIndexGetAudioMetadata(musicStorage.toStdString());   //get meta data
         m_musicStorage = musicStorage;
-        emit musicStorageChanged();
+        emit musicStorageChanged(musicStorage);
     }
 }
 
@@ -247,7 +247,7 @@ void PlayerService::setMediaId(QString mediaId) {
     PmLogInfo(getPmLogContext(), "setMediaId", 1, PMLOGKS("mediaId", mediaId.toStdString().c_str()), " ");
     if (m_mediaId != mediaId) {
         m_mediaId = mediaId;
-        emit mediaIdChanged();
+        emit mediaIdChanged(mediaId);
     }
 };
 
@@ -255,7 +255,7 @@ void PlayerService::setMediaStatus(pbnjson::JValue mediaStatus) {
     PmLogInfo(getPmLogContext(), "setMediaStatus", 1, PMLOGKS("mediaStatus", "mediaStatus"), " ");
     if (m_mediaStatus != mediaStatus) {
         m_mediaStatus = mediaStatus;
-        emit mediaStatusChanged();
+        emit mediaStatusChanged(mediaStatus);
     }
 }
 
@@ -263,7 +263,7 @@ void PlayerService::setMediaData(pbnjson::JValue mediaData) {
     PmLogInfo(getPmLogContext(), "setMediaData", 1, PMLOGKS("mediaData", "mediaData"), " ");
     if (m_mediaData != mediaData) {
         m_mediaData = mediaData;
-        emit mediaDataChanged();
+        emit mediaDataChanged(mediaData);
     }
 }
 
@@ -273,7 +273,7 @@ void PlayerService::setPlayState(int playState) {
     if(m_mediaId.isEmpty()) {
         playState = 0;
         m_playState = playState;
-        emit playStateChanged();
+        emit playStateChanged(playState);
     } else if (m_playState != playState) {
         if(playState==0) {
             callMediaPause(m_mediaId.toStdString());        //pause mediaId
@@ -286,7 +286,7 @@ void PlayerService::setPlayState(int playState) {
             //
         }
         m_playState = playState;
-        emit playStateChanged();
+        emit playStateChanged(playState);
     }
 }
 
@@ -295,7 +295,7 @@ void PlayerService::setVolume(int volume) {
     if (m_volume != volume) {
         callMediaSetVolume(m_mediaId.toStdString(), volume);  //set volume of mediaId
         m_volume = volume;
-        emit volumeChanged();
+        emit volumeChanged(volume);
     }
 }
 
@@ -304,7 +304,7 @@ void PlayerService::setRate(double rate) {
     if (m_rate != rate) {
         callMediaSetPlayRate(m_mediaId.toStdString(), rate);  //set rate of mediaId
         m_rate = rate;
-        emit rateChanged();
+        emit rateChanged(rate);
     }
 }
 
@@ -315,7 +315,7 @@ void PlayerService::setSeek(int seek, bool pypass) {
             if(!pypass) callMediaSeek(m_mediaId.toStdString(), seek);     //set seek(s) of mediaId
         }
         m_seek = seek;
-        emit seekChanged();
+        emit seekChanged(seek);
     }
 }
 
@@ -323,7 +323,7 @@ void PlayerService::setDuration(int duration) {
     PmLogInfo(getPmLogContext(), "setDuration", 1, PMLOGKS("duration", std::to_string(duration).c_str()), " ");
     if (m_duration != duration) {
         m_duration = duration;
-        emit durationChanged();
+        emit durationChanged(duration);
     }
 }
 

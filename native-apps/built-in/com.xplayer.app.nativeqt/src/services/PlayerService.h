@@ -77,21 +77,21 @@ public:
     void setDuration                (int duration)                  ;
 
 signals:
-    void storagePathChanged         ();
-    void folderPathChanged          ();
-    void mediaListChanged           ();
-    void mediaCountChanged          ();
-    void mediaIndexChanged          ();
-    void musicPathChanged           ();
-    void musicStorageChanged        ();
-    void mediaIdChanged             ();
-    void mediaStatusChanged         ();
-    void mediaDataChanged           ();
-    void playStateChanged           ();
-    void volumeChanged              ();
-    void rateChanged                ();
-    void seekChanged                ();
-    void durationChanged            ();
+    void storagePathChanged         (QString storagePath = "");
+    void folderPathChanged          (QString folderPath = "");
+    void mediaListChanged           (pbnjson::JValue mediaList = pbnjson::Array());
+    void mediaCountChanged          (int mediaCount = 0);
+    void mediaIndexChanged          (int mediaIndex = 0);
+    void musicPathChanged           (QUrl musicPath = QUrl(""));
+    void musicStorageChanged        (QString musicStorage = "");
+    void mediaIdChanged             (QString mediaId = "");
+    void mediaStatusChanged         (pbnjson::JValue mediaStatus = pbnjson::Object());
+    void mediaDataChanged           (pbnjson::JValue mediaData = pbnjson::Object());
+    void playStateChanged           (int playState = 0);
+    void volumeChanged              (int volume = 90);
+    void rateChanged                (double rate = 1);
+    void seekChanged                (int seek = 0);
+    void durationChanged            (int duration = 0);
 
 private:
     void connectSignalSlots();
@@ -117,8 +117,8 @@ public:
     std::string         m_appName               ;
     QString             m_storagePath           ;
     QString             m_folderPath            ;           // luna-send -n 1 -f luna://com.webos.service.mediaindexer/getAudioList '{"uri":"storage:///media/multimedia/$m_folderPath"}' -> 1:x | 2:m_mediaList+m_mediaCount
-    int                 m_mediaCount            ;
     pbnjson::JValue     m_mediaList             ;           // m_mediaList[m_mediaIndex]!=m_musicPath => find m_musicPath in m_mediaList => m_mediaIndex | m_mediaIndex=0
+    int                 m_mediaCount            ;
     int                 m_mediaIndex            ;           // => m_musicPath
     QUrl                m_musicPath             ;           // luna://com.webos.media/unload | luna-send -n 1 -f luna://com.webos.media/load '{"uri":"file:///$m_musicPath","type":"media","payload":{"option":{"appId":"$m_appName","windowId":""}}}' => m_mediaId+m_mediaData
     QString             m_musicStorage          ;
@@ -126,8 +126,8 @@ public:
     pbnjson::JValue     m_mediaData             ;
     int                 m_playState             ;
     QString             m_mediaId               ;
-    double              m_rate                  ;
     int                 m_volume                ;
+    double              m_rate                  ;
     int                 m_seek                  ;
     int                 m_duration              ;
 };

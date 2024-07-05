@@ -16,127 +16,46 @@ Rectangle {
         y: 100
         width: 200
         height: 200
-        Column {
-            spacing: 5
-            Text {
-                id: musicNameInfo
-                y: 0
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.musicPath.substring(playerService.musicPath.lastIndexOf("/") + 1)
-            }
-            Text {
-                id: musicPathInfo
-                y: 20
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.musicPath
-            }
-            Text {
-                id: mediaIndexInfo
-                y: 40
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString()
-            }
-            Text {
-                id: mediaIdInfo
-                y: 60
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.mediaId
-            }
-            Text {
-                id: playStateInfo
-                y: 80
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play")
-            }
-            Text {
-                id: seekInfo
-                y: 100
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.seek.toFixed(0).toString()
-            }
-            Text {
-                id: folderPathInfo
-                y: 120
-                width: parent.width
-                font.family: "Helvetica"
-                font.pointSize: 18
-                color: "black"
-                text: playerService.folderPath
-            }
-            // Text {
-            //     id: storagePathInfo
-            //     y: 140
-            //     width: parent.width
-            //     font.family: "Helvetica"
-            //     font.pointSize: 18
-            //     color: "black"
-            //     text: playerService.storagePath
-            // }
-        }
         ListModel {
-            id: listMusicModel
-            ListElement {
-                name: "musicNameInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "musicPathInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "mediaIndexInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "mediaIdInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "playStateInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "seekInfo"
-                number: "555"
-            }
-            ListElement {
-                name: "folderPathInfo"
-                number: "555"
-            }
-            function _getStoragePath() {
-                return "storagePathInfo";
-            }
-            ListElement {
-                name: "storagePathInfo"
-                number: "555"
-            }
+            id: musicInfoModel
+            ListElement { name: "music Name";       svalue: "" }
+            ListElement { name: "music Path";       svalue: "" }
+            ListElement { name: "media Index";      svalue: "" }
+            ListElement { name: "media Id";         svalue: "" }
+            ListElement { name: "play State";       svalue: "" }
+            ListElement { name: "seek";             svalue: "" }
+            ListElement { name: "folder Path";      svalue: "" }
+            ListElement { name: "storage Path";     svalue: "" }
         }
+        Component.onCompleted: {
+            playerService.onMusicPathChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(0, "svalue", playerService.musicPath.fileName().toString());
+                musicInfoModel.setProperty(1, "svalue", playerService.musicPath.toString());
+            });
+            playerService.onMediaCountChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(2, "svalue", (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString());});
+            playerService.onMediaIndexChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(2, "svalue", (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString());});
+            playerService.onMediaIdChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(3, "svalue", playerService.mediaId);});
+            playerService.onPlayStateChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(4, "svalue", (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play"));});
+            playerService.onSeekChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(5, "svalue", playerService.seek);});
+            playerService.onFolderPathChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(6, "svalue", playerService.folderPath);});
+            playerService.onStoragePathChanged.connect(function(newValue) {
+                musicInfoModel.setProperty(7, "svalue", playerService.storagePath);});
+        }
+//                // text: playerService.mediaData.get("file_path").asString()  
         ListView {
             width: 180; height: 200
-
-            model: listMusicModel
+            model: musicInfoModel
             delegate: 
                 Text {
                     color: "black"
-                    text: model.name + ": " + model.number
+                    font.pointSize: 18
+                    text: model.name + ": " + model.svalue
                 }
         }
     }
@@ -274,6 +193,7 @@ Rectangle {
                     source: "qrc:/png/skip"
                     onClicked: {
                         playerService.seek=(Math.min(playerService.duration*1000,playerService.seek + 10000))
+                        listMusicModel.addListElement("c","cccc");
                     }
                 }
             }
