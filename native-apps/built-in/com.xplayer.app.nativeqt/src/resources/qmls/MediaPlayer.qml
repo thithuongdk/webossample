@@ -7,15 +7,16 @@ import app.playerservice 1.0
 Rectangle {
     id: mediaPlayer
 
-    property var boderColor: "#5C821A"
+    property var boderColor: "#ABE338"
     property var backGrColor: "#0F1B07"
-    property var textColor: "#C6D166"
+    property var textColor: "#FFD700"
+    property var text2Color: "#F8F8F2"
 
     x: 0
-    width: 800
+    width: 1000
     height: 720
     border.width: 2
-    radius: 8
+    radius: 4
     border.color: mediaPlayer.boderColor
     color: mediaPlayer.backGrColor
     Item {
@@ -109,7 +110,7 @@ Rectangle {
 
     Rectangle {
         x: 0
-        y: 500
+        y: 520
         width: parent.width
         height: 200
         border.width: 2
@@ -128,6 +129,7 @@ Rectangle {
             to: (playerService.duration*1000).toFixed(0)
             iconSize: 30
             textColor: mediaPlayer.textColor
+            text2Color: mediaPlayer.text2Color
             leftIsText: true
             leftText: fmtime((value/1000).toFixed(0))
             rightIsText: true
@@ -157,6 +159,7 @@ Rectangle {
             to: 4.0
             iconSize: 30
             textColor: mediaPlayer.textColor
+            text2Color: mediaPlayer.text2Color
             leftIsText: false
             leftSrc: "qrc:/png/time"
             rightIsText: true
@@ -175,6 +178,7 @@ Rectangle {
             to: 100
             iconSize: 30
             textColor: mediaPlayer.textColor
+            text2Color: mediaPlayer.text2Color
             leftIsText: true
             leftText: playerService.volume.toString()
             rightIsText: false

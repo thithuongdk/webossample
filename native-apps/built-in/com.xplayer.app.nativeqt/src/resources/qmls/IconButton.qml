@@ -17,18 +17,18 @@ Item {
     Image {
         id: icon
         source: ""
-        width: container.width*0.7
-        height: container.height*0.7
+        width: container.width*70
+        height: container.height*70
         anchors.centerIn: parent
         fillMode: Image.PreserveAspectFit
+        sourceSize.width: 1024
+        sourceSize.height: 1024
+        // color: "black"
         opacity: 1
-        scale: 1
+        scale: 0.01
     }
-    // ColorOverlay {
-    //     anchors.fill: icon
-    //     source: icon
-    //     color: container.iconColor
-    // }
+
+    // Text { color:"white" text: icon.status == Image.Ready ? 'Loaded' : (icon.status == Image.Error ? 'Error' : (icon.status == Image.Loading ? 'Loading' : 'Null' ))}
     MouseArea {
         id: containerArea
         anchors.fill: container
@@ -36,10 +36,10 @@ Item {
         onPressedChanged: {
             if(pressed) {
                 icon.opacity = 0.6
-                icon.scale = 1.1
+                icon.scale = 0.011
             } else {
                 icon.opacity = 1
-                icon.scale = 1
+                icon.scale = 0.01
             }
         }
     }

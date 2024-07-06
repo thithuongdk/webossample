@@ -6,6 +6,7 @@ Slider {
     id: container
     property real iconSize: 30
     property var textColor: "black"
+    property var text2Color: "brown"
     property alias leftIsText: leftIconText.visible
     property alias leftText: leftIconText.text
     property alias leftSrc: leftIconImage.source
@@ -64,7 +65,7 @@ Slider {
             height: 4
             width: container.width
             radius: 2
-            color: "brown"
+            color: container.text2Color
 
             Rectangle {
                 x: 0

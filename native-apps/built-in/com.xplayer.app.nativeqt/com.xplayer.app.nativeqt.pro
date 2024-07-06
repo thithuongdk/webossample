@@ -24,6 +24,7 @@ QT += \
         quick \
         quickcontrols2 \
         quickdialogs2 \
+        svg \
 
 
 CONFIG += link_pkgconfig
