@@ -43,7 +43,7 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 pointSize: 20
-                source: "qrc:/svg/menu"
+                source: "qrc:/png/menu"
                 iconColor: mediaPlayer.textColor
                 onClicked: folderDialog.open()
             }

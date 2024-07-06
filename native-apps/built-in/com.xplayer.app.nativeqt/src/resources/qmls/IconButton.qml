@@ -26,6 +26,8 @@ Item {
         // color: "black"
         opacity: 1
         scale: 0.01
+        smooth: true
+        mipmap: true
     }
 
     // Text { color:"white" text: icon.status == Image.Ready ? 'Loaded' : (icon.status == Image.Error ? 'Error' : (icon.status == Image.Loading ? 'Loading' : 'Null' ))}

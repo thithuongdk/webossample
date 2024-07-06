@@ -36,6 +36,8 @@ Slider {
                 height: container.iconSize
                 fillMode: Image.PreserveAspectFit
                 source: ""
+                smooth: true
+                mipmap: true
             }
         }
         Item{
@@ -57,6 +59,8 @@ Slider {
                 height: container.iconSize
                 fillMode: Image.PreserveAspectFit
                 source: ""
+                smooth: true
+                mipmap: true
             }
         }
         Rectangle {
