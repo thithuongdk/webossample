@@ -5,6 +5,7 @@ import QtQuick.Controls
 Slider {
     id: container
     property real iconSize: 30
+    property var textColor: "black"
     property alias leftIsText: leftIconText.visible
     property alias leftText: leftIconText.text
     property alias leftSrc: leftIconImage.source
@@ -24,7 +25,7 @@ Slider {
                 font.family: "Helvetica"
                 font.pointSize: container.iconSize*2/3
                 verticalAlignment: Text.AlignTop
-                color: "black"
+                color: container.textColor
                 text: ""
             }
             Image {
@@ -45,7 +46,7 @@ Slider {
                 font.family: "Helvetica"
                 font.pointSize: container.iconSize*2/3
                 verticalAlignment: Text.AlignTop
-                color: "black"
+                color: container.textColor
                 text: ""
             }
             Image {
@@ -69,7 +70,7 @@ Slider {
                 x: 0
                 width: container.visualPosition * parent.width
                 height: parent.height
-                color: "black"
+                color: container.textColor
                 radius: 2
             }
         }
@@ -82,7 +83,7 @@ Slider {
         width: 20
         height: 20
         radius: 10
-        color: container.pressed ? "#505050" : "#0f0f0f"
-        border.color: "#bdbebf"
+        color: container.pressed ? "#505050" : container.textColor
+        border.color: container.textColor
     }
 }

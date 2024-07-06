@@ -18,13 +18,13 @@ PlayerService::PlayerService(QObject *parent)
     m_appName(""),
     m_storagePath(""),
     m_folderPath(""),
-    m_mediaList(pbnjson::Array()),
+    m_mediaList(QList<QVariant>()),
     m_mediaCount(0),
     m_mediaIndex(0),
     m_musicPath(""),
     m_musicStorage(""),
-    m_mediaStatus(pbnjson::Object()),
-    m_mediaData(pbnjson::Object()),
+    m_mediaStatus(QMap<QString, QVariant>()),
+    m_mediaData(QMap<QString, QVariant>()),
     m_playState(0),
     m_mediaId(""),
     m_volume(90),
@@ -36,12 +36,21 @@ PlayerService::PlayerService(QObject *parent)
 
 PlayerService::~PlayerService()
 {
+    PlayerService::instance()->deInit();
+}
+
+void PlayerService::deInit()
+{
+    PlayerService::instance()->callMediaUnSubscribe(PlayerService::instance()->getMediaId().toStdString());  
+    PlayerService::instance()->callMediaUnLoad(PlayerService::instance()->getMediaId().toStdString());      
+    PlayerService::instance()->callMediaUnRegisterPipeline(PlayerService::instance()->getMediaPipeId().toStdString());
 }
 
 void PlayerService::init(std::string appName)
 {
     m_appName = appName;
-    callMIndexGetDeviceList();
+    PlayerService::instance()->callMIndexGetDeviceList();
+    PlayerService::instance()->callMediaRegisterPipeline();
 
     connectSignalSlots();
     qmlRegister();
@@ -65,7 +74,7 @@ QString PlayerService::getFolderPath() const
     return m_folderPath;
 }
 
-pbnjson::JValue PlayerService::getMediaList() const
+QList<QVariant> PlayerService::getMediaList() const
 {
     return m_mediaList;
 }
@@ -95,12 +104,17 @@ QString PlayerService::getMediaId() const
     return m_mediaId;
 }
 
-pbnjson::JValue PlayerService::getMediaStatus() const
+QString PlayerService::getMediaPipeId() const
+{
+    return m_mediaPipeId;
+}
+
+QMap<QString, QVariant> PlayerService::getMediaStatus() const
 {
     return m_mediaStatus;
 }
 
-pbnjson::JValue PlayerService::getMediaData() const
+QMap<QString, QVariant> PlayerService::getMediaData() const
 {
     return m_mediaData;
 }
@@ -148,20 +162,20 @@ void PlayerService::setFolderPath(QString folderPath) {
     }
 }
 
-void PlayerService::setMediaList(pbnjson::JValue mediaList) {
+void PlayerService::setMediaList(QList<QVariant> mediaList) {
     PmLogInfo(getPmLogContext(), "setMediaList", 1, PMLOGKS("mediaList", "mediaList"), " ");
     if (m_mediaList != mediaList) {
         m_mediaList = mediaList;
         if(m_mediaIndex>=0 && m_mediaIndex < m_mediaCount
-        && mediaList[m_mediaIndex].hasKey("file_path")
-        && m_musicPath.toString().toStdString() == mediaList[m_mediaIndex]["file_path"].asString()) {
+        && mediaList[m_mediaIndex].toMap().find("file_path")!=mediaList[m_mediaIndex].toMap().end()
+        && m_musicPath.toString() == mediaList[m_mediaIndex].toMap()["file_path"].toString() ) {
             //
         } else {
             int idex = 0;
             if(!m_musicPath.isEmpty()) {
                 for(int i=0; i<m_mediaCount; i++) {
-                    if(mediaList[i].hasKey("file_path")
-                    && m_musicPath.toString().toStdString() == mediaList[i]["file_path"].asString()) {
+                    if(mediaList[i].toMap().find("file_path")!=mediaList[i].toMap().end()
+                    && m_musicPath.toString() == mediaList[i].toMap()["file_path"].toString()) {
                         idex = i;
                         break;
                     }
@@ -184,8 +198,8 @@ void PlayerService::setMediaCount(int mediaCount) {
 void PlayerService::setMediaIndex(int mediaIndex) {
     PmLogInfo(getPmLogContext(), "setMediaIndex", 1, PMLOGKS("mediaIndex", std::to_string(mediaIndex).c_str()), " ");
     if(mediaIndex && m_mediaCount==1 
-        && m_mediaList[0].hasKey("file_path")
-        && m_musicPath.toString().toStdString() == m_mediaList[0]["file_path"].asString()) {
+        && m_mediaList[0].toMap().find("file_path")!=m_mediaList[0].toMap().end()
+        && m_musicPath.toString() == m_mediaList[0].toMap()["file_path"]) {
         mediaIndex=0;
         setSeek(0);
         callMediaPlay(m_mediaId.toStdString());
@@ -196,17 +210,15 @@ void PlayerService::setMediaIndex(int mediaIndex) {
             mediaIndex = m_mediaCount-1;
         }
         if(mediaIndex>=0 && mediaIndex<m_mediaCount) {
-            if(m_mediaList[mediaIndex].hasKey("file_path")) {
-                std::string musicPath = m_mediaList[mediaIndex]["file_path"].asString();
-                setMusicPath(QUrl(QString::fromStdString(musicPath)));
+            QMap<QString, QVariant> mapMedia = m_mediaList[mediaIndex].toMap();
+            if(mapMedia.find("file_path")!=mapMedia.end()) {
+                setMusicPath(mapMedia["file_path"].toUrl());
             }
-            if(m_mediaList[mediaIndex].hasKey("uri")) {
-                std::string musicStorage = m_mediaList[mediaIndex]["uri"].asString();
-                setMusicStorage(QString::fromStdString(musicStorage));
+            if(mapMedia.find("uri")!=mapMedia.end()) {
+                setMusicStorage(mapMedia["uri"].toString());
             }
-            if(m_mediaList[mediaIndex].hasKey("duration")) {
-                int duration = m_mediaList[mediaIndex]["duration"].asNumber<int>();
-                setDuration(duration);
+            if(mapMedia.find("duration")!=mapMedia.end()) {
+                setDuration(mapMedia["duration"].toInt());
             }
         } else { // no file
             mediaIndex = -1;
@@ -251,7 +263,15 @@ void PlayerService::setMediaId(QString mediaId) {
     }
 };
 
-void PlayerService::setMediaStatus(pbnjson::JValue mediaStatus) {
+void PlayerService::setMediaPipeId(QString mediaPipeId) {
+    PmLogInfo(getPmLogContext(), "setMediaPipeId", 1, PMLOGKS("mediaId", mediaPipeId.toStdString().c_str()), " ");
+    if (m_mediaPipeId != mediaPipeId) {
+        m_mediaPipeId = mediaPipeId;
+        emit mediaPipeIdChanged(mediaPipeId);
+    }
+};
+
+void PlayerService::setMediaStatus(QMap<QString, QVariant> mediaStatus) {
     PmLogInfo(getPmLogContext(), "setMediaStatus", 1, PMLOGKS("mediaStatus", "mediaStatus"), " ");
     if (m_mediaStatus != mediaStatus) {
         m_mediaStatus = mediaStatus;
@@ -259,7 +279,7 @@ void PlayerService::setMediaStatus(pbnjson::JValue mediaStatus) {
     }
 }
 
-void PlayerService::setMediaData(pbnjson::JValue mediaData) {
+void PlayerService::setMediaData(QMap<QString, QVariant> mediaData) {
     PmLogInfo(getPmLogContext(), "setMediaData", 1, PMLOGKS("mediaData", "mediaData"), " ");
     if (m_mediaData != mediaData) {
         m_mediaData = mediaData;
@@ -489,7 +509,8 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
                     if(PlayerService::instance()->getMediaCount()==1) {
                         PlayerService::instance()->callMediaPlay(mediaId);
                     } else {
-                        PlayerService::instance()->setMediaIndex(PlayerService::instance()->getMediaIndex()+1);
+                        int newIndex = PlayerService::instance()->getMediaIndex()+1;
+                        PlayerService::instance()->setMediaIndex(newIndex);
                     }
                 }
             } else if (response.hasKey("currentTime")) {
@@ -522,7 +543,7 @@ void PlayerService::callMediaUnSubscribe(std::string mediaId)
 void PlayerService::callMediaStatus(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"(})";
+    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.media/getPipelineState",
         sjson.c_str(),
@@ -533,9 +554,57 @@ void PlayerService::callMediaStatus(std::string mediaId)
             if (!response["returnValue"].asBool()) return false;
             if (PlayerService::instance()->getMediaId().toStdString()==response["mediaId"].asString()) {
                 if (response.hasKey("data")){
-                    pbnjson::JValue data = response["data"];
-                    PlayerService::instance()->setMediaStatus(data);
+                    pbnjson::JValue jdata = response["data"];
+                    QMap<QString, QVariant> mapData;
+                    if (jdata.hasKey("seekPos")) {
+                        mapData.insert("seekPos",QString::fromStdString(std::to_string(jdata["seekPos"].asNumber<int>())));
+                    }
+                    PlayerService::instance()->setMediaStatus(mapData);
                 }
+            }
+            return true;
+        },
+        this);
+}
+
+void PlayerService::callMediaRegisterPipeline()
+{
+    std::string sjson = R"({"type":"media"})";
+    LunaService::instance()->fLSCall1(
+        "luna://com.webos.media/registerPipeline",
+        sjson.c_str(),
+        [](LSHandle* sh, LSMessage* msg, void* context)->bool {
+            PmLogInfo(getPmLogContext(), "/getPipelineState",
+                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            // if (!response["returnValue"].asBool()) return false;
+            if (response.hasKey("connectionId")) {
+                std::string mediaPipeId = response["connectionId"].asString();
+                PlayerService::instance()->setMediaPipeId(QString::fromStdString(mediaPipeId));
+                if(!PlayerService::instance()->getStoragePath().isEmpty()) {
+                    PlayerService::instance()->setFolderPath("/media/multimedia");
+                }
+            }
+            return true;
+        },
+        this);
+}
+
+void PlayerService::callMediaUnRegisterPipeline(std::string mediaPipeId)
+{
+    if(mediaPipeId.empty()) return;
+    std::string sjson = R"({"mediaPipeId":")" + mediaPipeId + R"("})";
+    LunaService::instance()->fLSCall1(
+        "luna://com.webos.media/registerPipeline",
+        sjson.c_str(),
+        [](LSHandle* sh, LSMessage* msg, void* context)->bool {
+            PmLogInfo(getPmLogContext(), "/getPipelineState",
+                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            // if (!response["returnValue"].asBool()) return false;
+            if (response.hasKey("mediaPipeId")) {
+                std::string mediaPipeId = response["mediaPipeId"].asString();
+                PlayerService::instance()->setMediaPipeId(QString::fromStdString(mediaPipeId));
             }
             return true;
         },
@@ -555,7 +624,7 @@ void PlayerService::callMIndexGetDeviceList()
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("pluginList") && response["pluginList"].isArray()) {
                 pbnjson::JValue pluginList = response["pluginList"];
-                std::string uri="";
+                std::string uriStorage="";
                 for(int ipi=0; ipi<pluginList.arraySize(); ipi++) {
                     if(pluginList[ipi].hasKey("deviceList") && pluginList[ipi]["deviceList"].isArray()) {
                         pbnjson::JValue deviceList = pluginList[ipi]["deviceList"];
@@ -563,24 +632,26 @@ void PlayerService::callMIndexGetDeviceList()
                             if(deviceList[idv].hasKey("audioCount")
                                 && deviceList[idv]["audioCount"].asNumber<int>()>0
                                 && deviceList[idv].hasKey("uri")) {
-                                uri = deviceList[idv]["uri"].asString();
+                                uriStorage = deviceList[idv]["uri"].asString();
                                 break;
                             }
                         }
-                        if(!uri.empty()) break;
+                        if(!uriStorage.empty()) break;
                     }
                 }
-                PlayerService::instance()->setStoragePath(QString::fromStdString(uri));
-                PlayerService::instance()->setFolderPath(QString::fromStdString(uri));
+                PlayerService::instance()->setStoragePath(QString::fromStdString(uriStorage));
+                if(!PlayerService::instance()->getMediaPipeId().isEmpty()) {
+                    PlayerService::instance()->setFolderPath("/media/multimedia");
+                }
             }
             return true;
         },
         this);
 }
 
-void PlayerService::callMIndexGetAudioList(std::string uriFile)
+void PlayerService::callMIndexGetAudioList(std::string uriStorage)
 {
-    std::string sjson = R"({"uri":")" + uriFile + R"("})";
+    std::string sjson = R"({"uri":")"  + uriStorage + R"(/"})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.service.mediaindexer/getAudioList",
         sjson.c_str(),
@@ -593,7 +664,31 @@ void PlayerService::callMIndexGetAudioList(std::string uriFile)
                 if (response["audioList"].hasKey("results") && response["audioList"].hasKey("count")) {
                     int mediaCount = response["audioList"]["count"].asNumber<int>();
                     PlayerService::instance()->setMediaCount(mediaCount);
-                    pbnjson::JValue mediaList = response["audioList"]["results"];
+                    pbnjson::JValue jmediaList = response["audioList"]["results"];
+                    QList<QVariant> mediaList;
+                    for(int idx=0; idx<jmediaList.arraySize(); idx++) {
+                        pbnjson::JValue jmetadata = jmediaList[idx];
+                        QMap<QString, QVariant> mapMetaData;
+                        if (jmetadata.hasKey("file_path")) {
+                            mapMetaData.insert("file_path",QString::fromStdString(jmetadata["file_path"].asString()));
+                        }
+                        if (jmetadata.hasKey("uri")) {
+                            mapMetaData.insert("uri",QString::fromStdString(jmetadata["uri"].asString()));
+                        }
+                        if (jmetadata.hasKey("duration")) {
+                            mapMetaData.insert("duration",QString::fromStdString(std::to_string(jmetadata["duration"].asNumber<int>())));
+                        }
+                        if (jmetadata.hasKey("title")) {
+                            mapMetaData.insert("title",QString::fromStdString(jmetadata["title"].asString()));
+                        }
+                        if (jmetadata.hasKey("artist")) {
+                            mapMetaData.insert("artist",QString::fromStdString(jmetadata["artist"].asString()));
+                        }
+                        if (jmetadata.hasKey("album")) {
+                            mapMetaData.insert("album",QString::fromStdString(jmetadata["album"].asString()));
+                        }
+                        mediaList.append(mapMetaData);
+                    }
                     PlayerService::instance()->setMediaList(mediaList);
                 }
             }
@@ -618,7 +713,29 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
                 pbnjson::JValue metadata = response["metadata"];
                 if (metadata.hasKey("file_path")
                     && PlayerService::instance()->getMusicPath().toString().toStdString()==metadata["file_path"].asString()) {
-                    PlayerService::instance()->setMediaData(metadata);
+                    QMap<QString, QVariant> mapMetaData;
+                    if (metadata.hasKey("duration")) {
+                        mapMetaData.insert("duration",QString::fromStdString(std::to_string(metadata["duration"].asNumber<int>())));
+                    }
+                    if (metadata.hasKey("file_path")) {
+                        mapMetaData.insert("file_path",QString::fromStdString(metadata["file_path"].asString()));
+                    }
+                    if (metadata.hasKey("uri")) {
+                        mapMetaData.insert("uri",QString::fromStdString(metadata["uri"].asString()));
+                    }
+                    if (metadata.hasKey("title")) {
+                        mapMetaData.insert("title",QString::fromStdString(metadata["title"].asString()));
+                    }
+                    if (metadata.hasKey("artist")) {
+                        mapMetaData.insert("artist",QString::fromStdString(metadata["artist"].asString()));
+                    }
+                    if (metadata.hasKey("album")) {
+                        mapMetaData.insert("album",QString::fromStdString(metadata["album"].asString()));
+                    }
+                    if (metadata.hasKey("album_artist")) {
+                        mapMetaData.insert("album_artist",QString::fromStdString(metadata["album_artist"].asString()));
+                    }
+                    PlayerService::instance()->setMediaData(mapMetaData);
                 }
             }
             return true;
@@ -637,7 +754,9 @@ void PlayerService::callMIndexRqScan()
                         1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
-            PlayerService::instance()->callMIndexGetAudioList(PlayerService::instance()->getFolderPath().toStdString());
+            std::string uristorage = PlayerService::instance()->getStoragePath().toStdString()
+                                    + PlayerService::instance()->getFolderPath().toStdString();
+            PlayerService::instance()->callMIndexGetAudioList(uristorage);
             return true;
         },
         this);

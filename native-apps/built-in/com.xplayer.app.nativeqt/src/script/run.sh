@@ -63,21 +63,21 @@ APP_NAME="com.xplayer.app.nativeqt"
 WEBOS_PATH_IPK="/media/internal/downloads/$APP_NAME.ipk"
 
 # Đường dẫn host webos
-LOCAL_HOST_WEBOS="localhost"
+LOCAL_HOST_WEBOS="10.220.56.237"
 
 WORKER_PATH="/home/worker"
 if [ -d /home/thuong/ ]; then
-  WORKER_PATH="/home/thuong"
+    WORKER_PATH="/home/thuong"
+    LOCAL_HOST_WEBOS="localhost"
 fi
 echo "WORKER_PATH = $WORKER_PATH "
 
-
 echo "close app $APP_NAME "
-ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/closeByAppId '\{\"id\":\"$APP_NAME\"\}'"
+ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/close '{\"id\":\"$APP_NAME\"}'"
 if [ $? -ne 0 ]; then
-    LOCAL_HOST_WEBOS="10.220.56.237"
+    LOCAL_HOST_WEBOS="10.220.51.149"
     echo "connect ssh -p 6622 root@$LOCAL_HOST_WEBOS webos virtual."
-    ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/closeByAppId '\{\"id\":\"$APP_NAME\"\}'"
+    ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/close '{\"id\":\"$APP_NAME\"}'"
     if [ $? -ne 0 ]; then
         echo "FAIL ssh webos virtual."
         exit 1
@@ -107,7 +107,7 @@ echo "reset ipk"
 ssh -p 6622 root@$LOCAL_HOST_WEBOS /usr/sbin/ls-control scan-services
 ssh -p 6622 root@$LOCAL_HOST_WEBOS systemctl restart sam
 sleep 1
-ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/launch '\{\"id\":\"$APP_NAME\"\}'"
+ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/launch '{\"id\":\"$APP_NAME\"}'"
 
 
 echo "Chinh sua file va chay bitbake thanh cong"

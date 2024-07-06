@@ -6,59 +6,106 @@ import app.playerservice 1.0
 
 Rectangle {
     id: mediaPlayer
+
+    property var boderColor: "#5C821A"
+    property var backGrColor: "#0F1B07"
+    property var textColor: "#C6D166"
+
     x: 0
     width: 800
     height: 720
     border.width: 2
-    
+    radius: 8
+    border.color: mediaPlayer.boderColor
+    color: mediaPlayer.backGrColor
     Item {
         x: 100
         y: 100
         width: 200
         height: 200
-        ListModel {
-            id: musicInfoModel
-            ListElement { name: "music Name";       svalue: "" }
-            ListElement { name: "music Path";       svalue: "" }
-            ListElement { name: "media Index";      svalue: "" }
-            ListElement { name: "media Id";         svalue: "" }
-            ListElement { name: "play State";       svalue: "" }
-            ListElement { name: "seek";             svalue: "" }
-            ListElement { name: "folder Path";      svalue: "" }
-            ListElement { name: "storage Path";     svalue: "" }
-        }
-        Component.onCompleted: {
-            playerService.onMusicPathChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(0, "svalue", playerService.musicPath.fileName().toString());
-                musicInfoModel.setProperty(1, "svalue", playerService.musicPath.toString());
-            });
-            playerService.onMediaCountChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(2, "svalue", (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString());});
-            playerService.onMediaIndexChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(2, "svalue", (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString());});
-            playerService.onMediaIdChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(3, "svalue", playerService.mediaId);});
-            playerService.onPlayStateChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(4, "svalue", (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play"));});
-            playerService.onSeekChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(5, "svalue", playerService.seek);});
-            playerService.onFolderPathChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(6, "svalue", playerService.folderPath);});
-            playerService.onStoragePathChanged.connect(function(newValue) {
-                musicInfoModel.setProperty(7, "svalue", playerService.storagePath);});
-        }
-//                // text: playerService.mediaData.get("file_path").asString()  
-        ListView {
-            width: 180; height: 200
-            model: musicInfoModel
-            delegate: 
-                Text {
-                    color: "black"
-                    font.pointSize: 18
-                    text: model.name + ": " + model.svalue
-                }
+
+        Column {
+            Text {
+                text: playerService.musicPath.toString().substring(playerService.musicPath.toString().lastIndexOf("/") + 1)
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaData["title"].toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaData["uri"].toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaData["artist"].toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaData["album"].toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: (playerService.mediaIndex<0?"-":(playerService.mediaIndex+1).toFixed(0).toString()) + "/" + playerService.mediaCount.toFixed(0).toString();
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaId
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.mediaPipeId
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: (playerService.playState==0)?"stop":((playerService.playState==1)?"pause":"play")
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.seek
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.musicPath.toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.folderPath
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: playerService.storagePath
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
         }
     }
+
 
     Rectangle {
         x: 0
@@ -66,7 +113,9 @@ Rectangle {
         width: parent.width
         height: 200
         border.width: 2
-        color: "lightgray"
+        radius: 8
+        border.color: mediaPlayer.boderColor
+        color: mediaPlayer.backGrColor
 
         IconSlider {
             id: durationSlider
@@ -78,6 +127,7 @@ Rectangle {
             value: playerService.seek
             to: (playerService.duration*1000).toFixed(0)
             iconSize: 30
+            textColor: mediaPlayer.textColor
             leftIsText: true
             leftText: fmtime((value/1000).toFixed(0))
             rightIsText: true
@@ -106,6 +156,7 @@ Rectangle {
             value: playerService.rate
             to: 4.0
             iconSize: 30
+            textColor: mediaPlayer.textColor
             leftIsText: false
             leftSrc: "qrc:/png/time"
             rightIsText: true
@@ -123,6 +174,7 @@ Rectangle {
             value: playerService.volume
             to: 100
             iconSize: 30
+            textColor: mediaPlayer.textColor
             leftIsText: true
             leftText: playerService.volume.toString()
             rightIsText: false
@@ -146,6 +198,7 @@ Rectangle {
                     id: rewindButton
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/rewind"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         playerService.seek=(Math.max(0,playerService.seek - 10000))
                     }
@@ -154,6 +207,7 @@ Rectangle {
                     id: backButton
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/back"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         playerService.mediaIndex=(playerService.mediaIndex-1)
                     }
@@ -162,6 +216,7 @@ Rectangle {
                     id: playButton
                     pointSize: controlButton.iconSize
                     source: (playerService.playState==2)?"qrc:/png/pause":"qrc:/png/play"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         if(playerService.playState==2) {
                             playerService.playState=(1);
@@ -175,6 +230,7 @@ Rectangle {
                     id: stopButton
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/stop"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         playerService.playState=(0);
                     }
@@ -183,6 +239,7 @@ Rectangle {
                     id: nextButton
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/next"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         playerService.mediaIndex=(playerService.mediaIndex+1)
                     }
@@ -191,9 +248,9 @@ Rectangle {
                     id: skipButton
                     pointSize: controlButton.iconSize
                     source: "qrc:/png/skip"
+                    iconColor: mediaPlayer.textColor
                     onClicked: {
                         playerService.seek=(Math.min(playerService.duration*1000,playerService.seek + 10000))
-                        listMusicModel.addListElement("c","cccc");
                     }
                 }
             }

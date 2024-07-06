@@ -6,6 +6,7 @@ Item {
     id: container
 
     signal clicked()
+    property var iconColor: "black"
     property alias source: icon.source
     property alias pressed: containerArea.pressed
     property string state: enabled ? (pressed ? "pressed" : "default") : "disabled"
@@ -23,6 +24,11 @@ Item {
         opacity: 1
         scale: 1
     }
+    // ColorOverlay {
+    //     anchors.fill: icon
+    //     source: icon
+    //     color: container.iconColor
+    // }
     MouseArea {
         id: containerArea
         anchors.fill: container
