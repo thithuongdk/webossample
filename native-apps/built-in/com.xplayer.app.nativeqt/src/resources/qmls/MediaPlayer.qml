@@ -39,12 +39,6 @@ Rectangle {
                 color: mediaPlayer.textColor
             }
             Text {
-                text: playerService.mediaData["uri"].toString()
-                font.pixelSize: 18
-                font.bold: true
-                color: mediaPlayer.textColor
-            }
-            Text {
                 text: playerService.mediaData["artist"].toString()
                 font.pixelSize: 18
                 font.bold: true
@@ -93,6 +87,12 @@ Rectangle {
                 color: mediaPlayer.textColor
             }
             Text {
+                text: playerService.mediaData["uri"].toString()
+                font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
                 text: playerService.folderPath
                 font.pixelSize: 18
                 font.bold: true
@@ -101,6 +101,12 @@ Rectangle {
             Text {
                 text: playerService.storagePath
                 font.pixelSize: 18
+                font.bold: true
+                color: mediaPlayer.textColor
+            }
+            Text {
+                text: "⏮️⯇⏯️▶▸🞂⏹️⯈⏭️"
+                font.pixelSize: 40
                 font.bold: true
                 color: mediaPlayer.textColor
             }
@@ -130,9 +136,7 @@ Rectangle {
             iconSize: 30
             textColor: mediaPlayer.textColor
             text2Color: mediaPlayer.text2Color
-            leftIsText: true
             leftText: fmtime((value/1000).toFixed(0))
-            rightIsText: true
             rightText: fmtime((playerService.duration).toFixed(0))
             onValueChanged: playerService.seek=(value.toFixed(0));
             function fmtime(ss) {
@@ -160,9 +164,7 @@ Rectangle {
             iconSize: 30
             textColor: mediaPlayer.textColor
             text2Color: mediaPlayer.text2Color
-            leftIsText: false
-            leftSrc: "qrc:/png/time"
-            rightIsText: true
+            leftText: "⏲"
             rightText: value.toFixed(1).toString()
             onValueChanged: playerService.rate=(value.toFixed(1));
         }
@@ -179,12 +181,8 @@ Rectangle {
             iconSize: 30
             textColor: mediaPlayer.textColor
             text2Color: mediaPlayer.text2Color
-            leftIsText: true
             leftText: playerService.volume.toString()
-            rightIsText: false
-            rightSrc: value.toFixed(0)==0? "qrc:/png/speaker_x"
-                                :"qrc:/png/speaker_"
-                                + (value*3/100).toFixed(0).toString()
+            rightText: value.toFixed(0)==0? "🔇":(value<33?"🔈": (value<66?"🔉": "🔊"))
             onValueChanged: playerService.volume=(value.toFixed(0));
         }
 
@@ -197,12 +195,14 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             height: 100
             Row {
+                spacing: 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 IconButton {
                     id: rewindButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/rewind"
-                    iconColor: mediaPlayer.textColor
+                    source: "⏮️"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         playerService.seek=(Math.max(0,playerService.seek - 10000))
                     }
@@ -210,8 +210,9 @@ Rectangle {
                 IconButton {
                     id: backButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/back"
-                    iconColor: mediaPlayer.textColor
+                    source: "⯇"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         playerService.mediaIndex=(playerService.mediaIndex-1)
                     }
@@ -219,8 +220,9 @@ Rectangle {
                 IconButton {
                     id: playButton
                     pointSize: controlButton.iconSize
-                    source: (playerService.playState==2)?"qrc:/png/pause":"qrc:/png/play"
-                    iconColor: mediaPlayer.textColor
+                    source: "⏯️"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         if(playerService.playState==2) {
                             playerService.playState=(1);
@@ -233,8 +235,9 @@ Rectangle {
                 IconButton {
                     id: stopButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/stop"
-                    iconColor: mediaPlayer.textColor
+                    source: "⏹️"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         playerService.playState=(0);
                     }
@@ -242,8 +245,9 @@ Rectangle {
                 IconButton {
                     id: nextButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/next"
-                    iconColor: mediaPlayer.textColor
+                    source: "⯈"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         playerService.mediaIndex=(playerService.mediaIndex+1)
                     }
@@ -251,8 +255,9 @@ Rectangle {
                 IconButton {
                     id: skipButton
                     pointSize: controlButton.iconSize
-                    source: "qrc:/png/skip"
-                    iconColor: mediaPlayer.textColor
+                    source: "⏭️"
+                    iconColor: mediaPlayer.backGrColor
+                    bgColor:mediaPlayer.textColor
                     onClicked: {
                         playerService.seek=(Math.min(playerService.duration*1000,playerService.seek + 10000))
                     }

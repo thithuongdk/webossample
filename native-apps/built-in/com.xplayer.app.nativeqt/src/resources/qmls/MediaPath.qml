@@ -29,28 +29,25 @@ Rectangle {
         }
     }
     Column {
-        anchors.fill: parent
+        x: 10
+        y: 10
+        width: parent.width-20
         spacing: 2
         Row {
             id: titleFolderDialog
             spacing: 2
-            anchors.top: parent.top
-            anchors.topMargin: 10
             width: parent.width;
             height: 25
             IconButton {
                 id: openFolderButton
-                anchors.left: parent.left
-                anchors.leftMargin: 5
                 pointSize: 20
-                source: "qrc:/png/menu"
+                source: "🇻🇳"
                 iconColor: mediaPlayer.textColor
+                bgColor: "transparent"
                 onClicked: folderDialog.open()
             }
             Text {
-                anchors.left: openFolderButton.right
-                anchors.right: parent.right
-                anchors.rightMargin: 10
+                width: titleFolderDialog.width-openFolderButton.width
                 text: playerService.folderPath
                 font.pixelSize: 20
                 font.bold: true
@@ -58,13 +55,9 @@ Rectangle {
             }
         }
         ListView {
-            anchors.top: titleFolderDialog.bottom
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.rightMargin: 10
             id: musicFileListView
+            width: parent.width
+            height: mediaPath.height-titleFolderDialog.height-10
             model: playerService.mediaList
             currentIndex: playerService.mediaIndex
             flickDeceleration: 3000
@@ -74,7 +67,7 @@ Rectangle {
             delegate: Item {
                 id: itemDelegate
                 width: parent.width
-                height: 30
+                height: 40
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
@@ -86,7 +79,7 @@ Rectangle {
                     running: musicFileListView.currentIndex == index && musicFileListView.width < textElement.implicitWidth
                     
                     PauseAnimation {
-                        duration: 5000
+                        duration: 3000
                     }
                     
                     NumberAnimation {
@@ -102,16 +95,16 @@ Rectangle {
                 Column {
                     Text {
                         id: textElement
-                        font.pixelSize: 14
+                        font.pixelSize: 18
                         font.bold: itemDelegate.ListView.isCurrentItem
                         text: (index+1) + ": " + modelData["title"].toString()
-                        color: mediaPath.textColor
+                        color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                     }
                     Text {
-                        font.pixelSize: 10
+                        font.pixelSize: 14
                         font.bold: itemDelegate.ListView.isCurrentItem
                         text: "artist: " + modelData["artist"].toString()
-                        color: mediaPath.textColor
+                        color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                     }
                 }
             }
