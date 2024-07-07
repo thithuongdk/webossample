@@ -40,19 +40,46 @@ Rectangle {
                 y: 10
                 id: openFolderButton
                 pointSize: 20
-                source: "🇻🇳"
+                source: "🗁"
+                enableBg: false
                 iconColor: mediaPlayer.iconColor
                 bgColor: "transparent"
                 onClicked: folderDialog.open()
             }
-            Text {
+            Item {
                 x: 30
-                y: 5
-                width: titleFolderDialog.width-x-10
-                text: playerService.folderPath
-                font.pixelSize: 20
-                font.bold: true
-                color: mediaPath.textColor
+                id: openFolderTextItem
+                width: titleFolderDialog.width-x-20
+                Text {
+                    y: 7
+                    id: openFolderText
+                    text: playerService.folderPath
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: mediaPath.textColor
+                }
+            }
+
+            SequentialAnimation {
+                id: textFolderAnimation
+                running: openFolderTextItem.width < openFolderText.implicitWidth
+                
+                PauseAnimation {
+                    duration: 1000
+                }
+                
+                NumberAnimation {
+                    target: openFolderText
+                    property: "x"
+                    from: openFolderText.x
+                    to: -openFolderText.width
+                    duration: 20*openFolderText.width
+                    loops: Animation.Infinite
+                    easing.type: Easing.Linear
+                }
+                onStopped: {
+                    openFolderText.x = 0
+                }
             }
         }
 
@@ -89,7 +116,7 @@ Rectangle {
                         running: musicFileListView.currentIndex == index && musicFileListView.width < textElement.implicitWidth
                         
                         PauseAnimation {
-                            duration: 3000
+                            duration: 2000
                         }
                         
                         NumberAnimation {
@@ -97,9 +124,12 @@ Rectangle {
                             property: "x"
                             from: textElement.x
                             to: -textElement.width
-                            duration: 10000
+                            duration: 20*textElement.width
                             loops: Animation.Infinite
                             easing.type: Easing.Linear
+                        }
+                        onStopped: {
+                            textElement.x = 0
                         }
                     }
                     Column {
@@ -111,6 +141,7 @@ Rectangle {
                             color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                         }
                         Text {
+                            x: 20
                             font.pixelSize: 14
                             font.bold: itemDelegate.ListView.isCurrentItem
                             text: "artist: " + modelData["artist"].toString()

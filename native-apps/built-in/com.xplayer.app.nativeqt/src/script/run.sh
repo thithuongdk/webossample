@@ -111,3 +111,4 @@ ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicati
 
 
 echo "Chinh sua file va chay bitbake thanh cong"
+# /home/thuong/webossample/native-apps/built-in/com.xplayer.app.nativeqt/oe-workdir/recipe-sysroot/usr/include
