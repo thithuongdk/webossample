@@ -9,6 +9,7 @@ Item {
     // property var iconColor: "#FFFFFF"
     property alias iconColor: iconText.color
     // property alias bgColor: recBg.color
+    property var enableBg: true
     property var bgColor: "#010101"
     property alias source: iconText.text
     property alias pressed: containerArea.pressed
@@ -21,6 +22,7 @@ Item {
 
     Rectangle {
         id: recBg
+        visible: enableBg
         width: pointSize
         height: pointSize
         radius: pointSize/2

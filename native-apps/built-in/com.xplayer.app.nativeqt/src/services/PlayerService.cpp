@@ -28,9 +28,10 @@ PlayerService::PlayerService(QObject *parent)
     m_playState(0),
     m_mediaId(""),
     m_volume(90),
-    m_rate(1),
+    m_rate(10),
     m_seek(0),
-    m_duration(0)
+    m_duration(0),
+    m_appSettings(QMap<QString, QVariant>())
 {
 }
 
@@ -49,6 +50,7 @@ void PlayerService::deInit()
 void PlayerService::init(std::string appName)
 {
     m_appName = appName;
+    PlayerService::instance()->callAppSettings(appName);
     PlayerService::instance()->callMIndexGetDeviceList();
     PlayerService::instance()->callMediaRegisterPipeline();
 
@@ -129,7 +131,7 @@ int PlayerService::getVolume() const
     return m_volume;
 }
 
-double PlayerService::getRate() const
+int PlayerService::getRate() const
 {
     return m_rate;
 }
@@ -142,6 +144,11 @@ int PlayerService::getSeek() const
 int PlayerService::getDuration() const
 {
     return m_duration;
+}
+
+QMap<QString, QVariant> PlayerService::getAppSettings() const
+{
+    return m_appSettings;
 }
 
 /* set function */
@@ -302,6 +309,7 @@ void PlayerService::setPlayState(int playState) {
             callMediaPause(m_mediaId.toStdString());        //pause mediaId
         } else if(playState==2) {
             callMediaPlay(m_mediaId.toStdString());         //play mediaId
+            callAppSettings("player");                      //save rate and volume
         } else {
             //
         }
@@ -319,8 +327,8 @@ void PlayerService::setVolume(int volume) {
     }
 }
 
-void PlayerService::setRate(double rate) {
-    PmLogInfo(getPmLogContext(), "setRate", 1, PMLOGKS("rate", std::to_string(rate).c_str()), " ");
+void PlayerService::setRate(int rate) {
+    PmLogInfo(getPmLogContext(), "setRate", 1, PMLOGKS("rate", std::to_string(rate/10).c_str()), " ");
     if (m_rate != rate) {
         callMediaSetPlayRate(m_mediaId.toStdString(), rate);  //set rate of mediaId
         m_rate = rate;
@@ -344,6 +352,15 @@ void PlayerService::setDuration(int duration) {
     if (m_duration != duration) {
         m_duration = duration;
         emit durationChanged(duration);
+    }
+}
+
+void PlayerService::setAppSettings(QMap<QString, QVariant> appSettings) {
+    PmLogInfo(getPmLogContext(), "setAppSettings", 1, PMLOGKS("appSettings", "appSettings"), " ");
+    if (m_appSettings != appSettings) {
+        m_appSettings = appSettings;
+        PlayerService::instance()->callAppSettings();
+        emit appSettingsChanged(appSettings);
     }
 }
 
@@ -453,11 +470,11 @@ void PlayerService::callMediaSeek(std::string mediaId, int seek)
         this);
 }
 
-void PlayerService::callMediaSetPlayRate(std::string mediaId, double playRate)
+void PlayerService::callMediaSetPlayRate(std::string mediaId, int playRate)
 {
     if(mediaId.empty()) return;
     std::string sjson = R"({"mediaId":")" + mediaId +
-                        R"(","playRate":)" + std::to_string(playRate) + R"(,"audioOutput":true})";
+                        R"(","playRate":)" + std::to_string(playRate/10) + R"(,"audioOutput":true})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.media/setPlayRate",
         sjson.c_str(),
@@ -669,24 +686,24 @@ void PlayerService::callMIndexGetAudioList(std::string uriStorage)
                     for(int idx=0; idx<jmediaList.arraySize(); idx++) {
                         pbnjson::JValue jmetadata = jmediaList[idx];
                         QMap<QString, QVariant> mapMetaData;
-                        if (jmetadata.hasKey("file_path")) {
+                        // if (jmetadata.hasKey("file_path")) {
                             mapMetaData.insert("file_path",QString::fromStdString(jmetadata["file_path"].asString()));
-                        }
-                        if (jmetadata.hasKey("uri")) {
+                        // }
+                        // if (jmetadata.hasKey("uri")) {
                             mapMetaData.insert("uri",QString::fromStdString(jmetadata["uri"].asString()));
-                        }
-                        if (jmetadata.hasKey("duration")) {
+                        // }
+                        // if (jmetadata.hasKey("duration")) {
                             mapMetaData.insert("duration",QString::fromStdString(std::to_string(jmetadata["duration"].asNumber<int>())));
-                        }
-                        if (jmetadata.hasKey("title")) {
+                        // }
+                        // if (jmetadata.hasKey("title")) {
                             mapMetaData.insert("title",QString::fromStdString(jmetadata["title"].asString()));
-                        }
-                        if (jmetadata.hasKey("artist")) {
+                        // }
+                        // if (jmetadata.hasKey("artist")) {
                             mapMetaData.insert("artist",QString::fromStdString(jmetadata["artist"].asString()));
-                        }
-                        if (jmetadata.hasKey("album")) {
+                        // }
+                        // if (jmetadata.hasKey("album")) {
                             mapMetaData.insert("album",QString::fromStdString(jmetadata["album"].asString()));
-                        }
+                        // }
                         mediaList.append(mapMetaData);
                     }
                     PlayerService::instance()->setMediaList(mediaList);
@@ -714,27 +731,27 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
                 if (metadata.hasKey("file_path")
                     && PlayerService::instance()->getMusicPath().toString().toStdString()==metadata["file_path"].asString()) {
                     QMap<QString, QVariant> mapMetaData;
-                    if (metadata.hasKey("duration")) {
+                    // if (metadata.hasKey("duration")) {
                         mapMetaData.insert("duration",QString::fromStdString(std::to_string(metadata["duration"].asNumber<int>())));
-                    }
-                    if (metadata.hasKey("file_path")) {
+                    // }
+                    // if (metadata.hasKey("file_path")) {
                         mapMetaData.insert("file_path",QString::fromStdString(metadata["file_path"].asString()));
-                    }
-                    if (metadata.hasKey("uri")) {
+                    // }
+                    // if (metadata.hasKey("uri")) {
                         mapMetaData.insert("uri",QString::fromStdString(metadata["uri"].asString()));
-                    }
-                    if (metadata.hasKey("title")) {
+                    // }
+                    // if (metadata.hasKey("title")) {
                         mapMetaData.insert("title",QString::fromStdString(metadata["title"].asString()));
-                    }
-                    if (metadata.hasKey("artist")) {
+                    // }
+                    // if (metadata.hasKey("artist")) {
                         mapMetaData.insert("artist",QString::fromStdString(metadata["artist"].asString()));
-                    }
-                    if (metadata.hasKey("album")) {
+                    // }
+                    // if (metadata.hasKey("album")) {
                         mapMetaData.insert("album",QString::fromStdString(metadata["album"].asString()));
-                    }
-                    if (metadata.hasKey("album_artist")) {
+                    // }
+                    // if (metadata.hasKey("album_artist")) {
                         mapMetaData.insert("album_artist",QString::fromStdString(metadata["album_artist"].asString()));
-                    }
+                    // }
                     PlayerService::instance()->setMediaData(mapMetaData);
                 }
             }
@@ -760,4 +777,29 @@ void PlayerService::callMIndexRqScan()
             return true;
         },
         this);
+}
+
+void PlayerService::callAppSettings(std::string appName)
+{
+    static QSettings qappSettings(QString::fromStdString("My Company"), QString::fromStdString(appName));
+    if(appName.empty()) {
+        QMap<QString, QVariant> appSettings;
+        appSettings.insert("theme/boderColor",qappSettings.value("theme/boderColor", "#D9D9D9"));
+        appSettings.insert("theme/backGrColor",qappSettings.value("theme/backGrColor", "#F4F4F4"));
+        appSettings.insert("theme/textColor",qappSettings.value("theme/textColor", "#333333"));
+        appSettings.insert("theme/text2Color",qappSettings.value("theme/text2Color", "#1DB954"));
+        appSettings.insert("theme/iconColor",qappSettings.value("theme/iconColor", "#1DB954"));
+        PlayerService::instance()->setAppSettings(appSettings);
+        PlayerService::instance()->setVolume(qappSettings.value("player/volume", 90).toInt());
+        PlayerService::instance()->setRate(qappSettings.value("player/volume", 10).toInt());
+    } else if(appName == "theme") {
+        qappSettings.setValue("theme/boderColor", PlayerService::instance()->getAppSettings()["theme/boderColor"]);
+        qappSettings.setValue("theme/backGrColor", PlayerService::instance()->getAppSettings()["theme/backGrColor"]);
+        qappSettings.setValue("theme/textColor", PlayerService::instance()->getAppSettings()["theme/textColor"]);
+        qappSettings.setValue("theme/text2Color", PlayerService::instance()->getAppSettings()["theme/text2Color"]);
+        qappSettings.setValue("theme/iconColor", PlayerService::instance()->getAppSettings()["theme/iconColor"]);
+    } else if(appName == "player") {
+        qappSettings.setValue("player/volume", PlayerService::instance()->getAppSettings()["player/volume"]);
+        qappSettings.setValue("player/rate", PlayerService::instance()->getAppSettings()["player/rate"]);
+    }
 }

@@ -159,13 +159,13 @@ Rectangle {
                 height: 80
                 from: 0
                 value: playerService.rate
-                to: 4.0
+                to: 40
                 iconSize: 30
                 textColor: mediaPlayer.textColor
                 text2Color: mediaPlayer.text2Color
                 leftText: "⏲"
-                rightText: value.toFixed(1).toString()
-                onValueChanged: playerService.rate=(value.toFixed(1));
+                rightText: (value/10).toFixed(1).toString()
+                onValueChanged: playerService.rate=value.toFixed(0);
             }
 
             IconSlider {
@@ -181,8 +181,8 @@ Rectangle {
                 textColor: mediaPlayer.textColor
                 text2Color: mediaPlayer.text2Color
                 leftText: playerService.volume.toString()
-                rightText: value.toFixed(0)==0? "🔇":(value<33?"🔈": (value<66?"🔉": "🔊"))
-                onValueChanged: playerService.volume=(value.toFixed(0));
+                rightText: value<1? "🔇":(value<33?"🔈": (value<66?"🔉": "🔊"))
+                onValueChanged: playerService.volume=value.toFixed(0);
             }
 
             Item {

@@ -23,7 +23,7 @@ Rectangle {
     Column {
         Rectangle {
             id: titleFolderDialog
-            width: mediaPath.width;
+            width: mediaPath.width
             height: 40
             border.width: 4
             border.color: mediaPath.boderColor
@@ -40,20 +40,50 @@ Rectangle {
                 y: 10
                 id: openFolderButton
                 pointSize: 20
-                source: "🇻🇳"
+                source: "🗁"
+                enableBg: false
                 iconColor: mediaPlayer.iconColor
                 bgColor: "transparent"
                 onClicked: folderDialog.open()
             }
-            Text {
-                x: 30
-                y: 5
-                width: titleFolderDialog.width-x-10
-                text: playerService.folderPath
-                font.pixelSize: 20
-                font.bold: true
-                color: mediaPath.textColor
+            Item {
+                x: 35
+                anchors.verticalCenter: parent.verticalCenter
+                id: openFolderTextItem
+                width: parent.width-45
+                height: parent.height-10
+                clip: true
+                Text {
+                    y: 7
+                    id: openFolderText
+                    text: playerService.folderPath
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: mediaPath.textColor
+                }
+                SequentialAnimation {
+                    id: textFolderAnimation
+                    running: openFolderTextItem.width < openFolderText.implicitWidth
+                    
+                    PauseAnimation {
+                        duration: 1000
+                    }
+                    
+                    NumberAnimation {
+                        target: openFolderText
+                        property: "x"
+                        from: openFolderText.x
+                        to: -openFolderText.width
+                        duration: 20*openFolderText.width
+                        loops: Animation.Infinite
+                        easing.type: Easing.Linear
+                    }
+                    onStopped: {
+                        openFolderText.x = 0
+                    }
+                }
             }
+
         }
 
         Rectangle {
@@ -89,7 +119,7 @@ Rectangle {
                         running: musicFileListView.currentIndex == index && musicFileListView.width < textElement.implicitWidth
                         
                         PauseAnimation {
-                            duration: 3000
+                            duration: 2000
                         }
                         
                         NumberAnimation {
@@ -97,9 +127,12 @@ Rectangle {
                             property: "x"
                             from: textElement.x
                             to: -textElement.width
-                            duration: 10000
+                            duration: 20*textElement.width
                             loops: Animation.Infinite
                             easing.type: Easing.Linear
+                        }
+                        onStopped: {
+                            textElement.x = 0
                         }
                     }
                     Column {
@@ -111,6 +144,7 @@ Rectangle {
                             color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                         }
                         Text {
+                            x: 20
                             font.pixelSize: 14
                             font.bold: itemDelegate.ListView.isCurrentItem
                             text: "artist: " + modelData["artist"].toString()
