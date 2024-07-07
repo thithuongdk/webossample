@@ -8,7 +8,8 @@ Item {
     signal clicked()
     // property var iconColor: "#FFFFFF"
     property alias iconColor: iconText.color
-    property alias bgColor: recBg.color
+    // property alias bgColor: recBg.color
+    property var bgColor: "#010101"
     property alias source: iconText.text
     property alias pressed: containerArea.pressed
     property string state: enabled ? (pressed ? "pressed" : "default") : "disabled"
@@ -26,18 +27,21 @@ Item {
         // border.color: "#00000000"
         // border.color: "black"
         // border.width: 5
-        color: "green"
+        color: containerArea.pressed?"#D0D0D0":"#E0E0E0"
         opacity: containerArea.pressed?1:0.8
+        border.width: containerArea.pressed?3:2
+        border.color: !containerArea.pressed?"#D0D0D0":"#E0E0E0"
     }
     Text {
         id: iconText
         // anchors.centerIn: recBg
         anchors.horizontalCenter: recBg.horizontalCenter
         // anchors.verticalCenter: recBg.verticalCenter
-        y: containerArea.pressed?(-pointSize*0.2):(-pointSize*0.15)
+        y: containerArea.pressed?(-pointSize*0.20):(-pointSize*0.18)
         text: ""
         font.bold: containerArea.pressed
-        font.pixelSize: containerArea.pressed?pointSize:(pointSize*0.9)
+        // font.pixelSize: containerArea.pressed?pointSize:(pointSize*0.9)
+        font.pixelSize: pointSize*0.9
         color: "black"
     }
 

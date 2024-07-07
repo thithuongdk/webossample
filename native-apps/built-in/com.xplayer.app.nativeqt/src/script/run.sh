@@ -70,14 +70,12 @@ if [ -d /home/thuong/ ]; then
     WORKER_PATH="/home/thuong"
     LOCAL_HOST_WEBOS="localhost"
 fi
-echo "WORKER_PATH = $WORKER_PATH "
 
-echo "close app $APP_NAME "
-ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/close '{\"id\":\"$APP_NAME\"}'"
+echo "connect ssh -p 6622 root@$LOCAL_HOST_WEBOS webos virtual."
+ssh -p 6622 root@$LOCAL_HOST_WEBOS ls /media/internal/downloads
 if [ $? -ne 0 ]; then
     LOCAL_HOST_WEBOS="10.220.51.149"
-    echo "connect ssh -p 6622 root@$LOCAL_HOST_WEBOS webos virtual."
-    ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/close '{\"id\":\"$APP_NAME\"}'"
+    ssh -p 6622 root@$LOCAL_HOST_WEBOS ls /media/internal/downloads
     if [ $? -ne 0 ]; then
         echo "FAIL ssh webos virtual."
         exit 1
@@ -100,8 +98,10 @@ if [ $? -ne 0 ]; then
     echo "FAIL ssh webos virtual."
     exit 1
 fi
-echo "install ipk"
+echo "remove ipk"
+ssh -p 6622 root@$LOCAL_HOST_WEBOS "luna-send -n 1 -f luna://com.webos.applicationManager/close '{\"id\":\"$APP_NAME\"}'"
 ssh -p 6622 root@$LOCAL_HOST_WEBOS opkg remove $APP_NAME
+echo "install ipk"
 ssh -p 6622 root@$LOCAL_HOST_WEBOS opkg install $WEBOS_PATH_IPK
 echo "reset ipk"
 ssh -p 6622 root@$LOCAL_HOST_WEBOS /usr/sbin/ls-control scan-services
