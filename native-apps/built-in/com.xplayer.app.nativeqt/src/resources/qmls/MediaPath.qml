@@ -83,9 +83,7 @@ Rectangle {
                     }
                 }
             }
-
         }
-
         Rectangle {
             width: mediaPath.width;
             height: mediaPath.height-titleFolderDialog.height
