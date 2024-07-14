@@ -26,6 +26,7 @@ PlayerService::PlayerService(QObject *parent)
     m_mediaStatus(QMap<QString, QVariant>()),
     m_mediaData(QMap<QString, QVariant>()),
     m_playState(0),
+    m_shuffleStatus(0),
     m_mediaId(""),
     m_volume(90),
     m_rate(10),
@@ -50,7 +51,7 @@ void PlayerService::deInit()
 void PlayerService::init(std::string appName)
 {
     m_appName = appName;
-    PlayerService::instance()->callAppSettings(appName);
+    PlayerService::instance()->callAppSettings();
     PlayerService::instance()->callMIndexGetDeviceList();
     PlayerService::instance()->callMediaRegisterPipeline();
 
@@ -126,6 +127,11 @@ int PlayerService::getPlayState() const
     return m_playState;
 }
 
+int PlayerService::getShuffleStatus() const
+{
+    return m_shuffleStatus;
+}
+
 int PlayerService::getVolume() const
 {
     return m_volume;
@@ -172,24 +178,21 @@ void PlayerService::setFolderPath(QString folderPath) {
 void PlayerService::setMediaList(QList<QVariant> mediaList) {
     PmLogInfo(getPmLogContext(), "setMediaList", 1, PMLOGKS("mediaList", "mediaList"), " ");
     if (m_mediaList != mediaList) {
-        m_mediaList = mediaList;
-        if(m_mediaIndex>=0 && m_mediaIndex < m_mediaCount
-        && mediaList[m_mediaIndex].toMap().find("file_path")!=mediaList[m_mediaIndex].toMap().end()
-        && m_musicPath.toString() == mediaList[m_mediaIndex].toMap()["file_path"].toString() ) {
-            //
-        } else {
-            int idex = 0;
-            if(!m_musicPath.isEmpty()) {
+        int idex = 0;
+        if(m_mediaIndex>=0 && m_mediaIndex < m_mediaCount && !m_musicPath.isEmpty()) {
+            if(m_musicPath.toString() == mediaList[m_mediaIndex].toMap()["file_path"].toString()) {
+                idex = m_mediaIndex;
+            } else {
                 for(int i=0; i<m_mediaCount; i++) {
-                    if(mediaList[i].toMap().find("file_path")!=mediaList[i].toMap().end()
-                    && m_musicPath.toString() == mediaList[i].toMap()["file_path"].toString()) {
+                    if(m_musicPath.toString() == mediaList[i].toMap()["file_path"].toString()) {
                         idex = i;
                         break;
                     }
                 }
             }
-            setMediaIndex(idex);
         }
+        m_mediaList = mediaList;
+        setMediaIndex(idex);
         emit mediaListChanged(mediaList);
     }
 }
@@ -199,40 +202,30 @@ void PlayerService::setMediaCount(int mediaCount) {
     if (m_mediaCount != mediaCount) {
         m_mediaCount = mediaCount;
         emit mediaCountChanged(mediaCount);
+        if(m_mediaCount==0) {
+            setPlayState(0); // stop
+            setMusicPath(QUrl(""));
+            setDuration(0);
+        } 
     }
 }
 
 void PlayerService::setMediaIndex(int mediaIndex) {
     PmLogInfo(getPmLogContext(), "setMediaIndex", 1, PMLOGKS("mediaIndex", std::to_string(mediaIndex).c_str()), " ");
-    if(mediaIndex && m_mediaCount==1 
-        && m_mediaList[0].toMap().find("file_path")!=m_mediaList[0].toMap().end()
-        && m_musicPath.toString() == m_mediaList[0].toMap()["file_path"]) {
+    if(m_mediaCount==0) {
+        m_mediaIndex = -1;
+        emit mediaIndexChanged(-1);
+        return;
+    } else if(m_mediaCount==1 || mediaIndex >= m_mediaCount) {
         mediaIndex=0;
-        setSeek(0);
-        callMediaPlay(m_mediaId.toStdString());
-    } else {
-        if(mediaIndex >= m_mediaCount) {
-            mediaIndex = 0;
-        } else if(mediaIndex < 0) {
-            mediaIndex = m_mediaCount-1;
-        }
-        if(mediaIndex>=0 && mediaIndex<m_mediaCount) {
-            QMap<QString, QVariant> mapMedia = m_mediaList[mediaIndex].toMap();
-            if(mapMedia.find("file_path")!=mapMedia.end()) {
-                setMusicPath(mapMedia["file_path"].toUrl());
-            }
-            if(mapMedia.find("uri")!=mapMedia.end()) {
-                setMusicStorage(mapMedia["uri"].toString());
-            }
-            if(mapMedia.find("duration")!=mapMedia.end()) {
-                setDuration(mapMedia["duration"].toInt());
-            }
-        } else { // no file
-            mediaIndex = -1;
-            setPlayState(0); // stop
-            setMusicPath(QUrl(""));
-            setDuration(0);
-        }
+    } else if(mediaIndex<0) {
+        mediaIndex=m_mediaCount-1;
+    }
+    QMap<QString, QVariant> mapMedia = m_mediaList[mediaIndex].toMap();
+    if(m_musicPath.toString() != mapMedia["file_path"]) {
+        setMusicPath(mapMedia["file_path"].toUrl());
+        setMusicStorage(mapMedia["uri"].toString());
+        setDuration(mapMedia["duration"].toInt());
     }
     if (m_mediaIndex != mediaIndex) {
         m_mediaIndex = mediaIndex;
@@ -243,13 +236,14 @@ void PlayerService::setMediaIndex(int mediaIndex) {
 void PlayerService::setMusicPath(QUrl musicPath) {
     PmLogInfo(getPmLogContext(), "setMusicPath", 1, PMLOGKS("musicPath", musicPath.toString().toStdString().c_str()), " ");
     if (m_musicPath != musicPath) {
-        callMediaUnLoad(m_mediaId.toStdString());             // unload old media
-        setMediaId("");
-        callMediaLoad(m_appName, musicPath.toString().toStdString());    //subscribe new mediaId
+        // unload + load
+        callMediaUnLoad(m_mediaId.toStdString());
+        setSeek(0);
+        callMediaLoad(m_appName, musicPath.toString().toStdString());
         m_musicPath = musicPath;
         emit musicPathChanged(musicPath);
     } else {
-        callMediaSeek(m_mediaId.toStdString(), 0);            //set time 0
+        setSeek(0);            //set time 0
     }
 }
 
@@ -295,26 +289,36 @@ void PlayerService::setMediaData(QMap<QString, QVariant> mediaData) {
 }
 
 void PlayerService::setPlayState(int playState) {
+    // playState = 0:stop 1:pause 2:play 3:statusMax
     PmLogInfo(getPmLogContext(), "setPlayState", 1, PMLOGKS("playState", std::to_string(playState).c_str()), " ");
-    // playState = 0:stop 1:pause 2:play 
-    if(m_mediaId.isEmpty()) {
-        playState = 0;
-        m_playState = playState;
-        emit playStateChanged(playState);
-    } else if (m_playState != playState) {
-        if(playState==0) {
-            callMediaPause(m_mediaId.toStdString());        //pause mediaId
-            callMediaSeek(m_mediaId.toStdString(), 0);      //set time of mediaId
-        } else if(playState==1) {
-            callMediaPause(m_mediaId.toStdString());        //pause mediaId
-        } else if(playState==2) {
-            callMediaPlay(m_mediaId.toStdString());         //play mediaId
-            callAppSettings("player");                      //save rate and volume
+    if (m_playState != playState) {
+        if(playState==0) {                                  // when stop: unsubcribe + pause + seek0 + unload
+            callMediaPause(m_mediaId.toStdString());
+            setSeek(0);
+            callMediaUnLoad(m_mediaId.toStdString());
+        } else if(playState==1) {                           // when pause: unsubcribe + pause
+            callMediaPause(m_mediaId.toStdString());
+        } else if(playState==2) {                           // when play:  load + play + subcribe
+            callMediaPlay(m_mediaId.toStdString());
+            // callAppSettings("player");                      //save rate and volume
         } else {
             //
         }
+        callAppSettings("player");
         m_playState = playState;
         emit playStateChanged(playState);
+    }
+}
+
+void PlayerService::setShuffleStatus(int shuffleStatus) {
+    // shuffleStatus = 0:noRepeat 1:shuffle 2:repeatAll 3:repeatOne 4:repeatMax
+    PmLogInfo(getPmLogContext(), "setShuffleStatus", 1, PMLOGKS("shuffleStatus", std::to_string(shuffleStatus).c_str()), " ");
+    if (m_shuffleStatus != shuffleStatus) {
+        if(shuffleStatus>=4) {
+            shuffleStatus=0;
+        }
+        m_shuffleStatus = shuffleStatus;
+        emit shuffleStatusChanged(shuffleStatus);
     }
 }
 
@@ -339,8 +343,10 @@ void PlayerService::setRate(int rate) {
 void PlayerService::setSeek(int seek, bool pypass) {
     if (m_seek != seek) {
         if(seek<m_seek || (seek-m_seek)>3000) {
-            PmLogInfo(getPmLogContext(), "setSeek", 1, PMLOGKS("seek", std::to_string(seek).c_str()), " ");
-            if(!pypass) callMediaSeek(m_mediaId.toStdString(), seek);     //set seek(s) of mediaId
+            if(!pypass) {
+                PmLogInfo(getPmLogContext(), "setSeek", 1, PMLOGKS("seek", std::to_string(seek).c_str()), " ");
+                callMediaSeek(m_mediaId.toStdString(), seek);     //set seek(s) of mediaId
+            }
         }
         m_seek = seek;
         emit seekChanged(seek);
@@ -359,7 +365,7 @@ void PlayerService::setAppSettings(QMap<QString, QVariant> appSettings) {
     PmLogInfo(getPmLogContext(), "setAppSettings", 1, PMLOGKS("appSettings", "appSettings"), " ");
     if (m_appSettings != appSettings) {
         m_appSettings = appSettings;
-        PlayerService::instance()->callAppSettings();
+        // PlayerService::instance()->callAppSettings();
         emit appSettingsChanged(appSettings);
     }
 }
@@ -367,7 +373,10 @@ void PlayerService::setAppSettings(QMap<QString, QVariant> appSettings) {
 /* call services */
 void PlayerService::callMediaPlay(std::string mediaId)
 {
-    if(mediaId.empty()) return;
+    if(mediaId.empty()) {           // if empty then load before
+        PlayerService::instance()->callMediaLoad(m_appName, PlayerService::instance()->getMusicPath().toString().toStdString());
+        return;
+    } 
     PlayerService::instance()->callMediaSubscribe(mediaId);
     std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
     LunaService::instance()->fLSCall1(
@@ -418,7 +427,7 @@ void PlayerService::callMediaLoad(std::string appName, std::string uriFile)
             if (response.hasKey("mediaId")) {
                 std::string mediaId = response["mediaId"].asString();
                 PlayerService::instance()->setMediaId(QString::fromStdString(mediaId));             // update new media
-                PlayerService::instance()->callMediaSeek(mediaId,0);        // time 0
+                PlayerService::instance()->callMediaSeek(mediaId, PlayerService::instance()->getSeek());        // time 0
                 PlayerService::instance()->callMediaSetVolume(mediaId, PlayerService::instance()->getVolume());
                 PlayerService::instance()->callMediaSetPlayRate(mediaId, PlayerService::instance()->getRate());
                 if(PlayerService::instance()->getPlayState()==2) {
@@ -450,6 +459,7 @@ void PlayerService::callMediaUnLoad(std::string mediaId)
             return true;
         },
         this);
+    PlayerService::instance()->setMediaId(""); 
 }
 
 void PlayerService::callMediaSeek(std::string mediaId, int seek)
@@ -514,25 +524,53 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
         "luna://com.webos.media/subscribe",
         sjson.c_str(),
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/subscribe",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
-            if (response.hasKey("returnValue") && !response["returnValue"].asBool()) return false;
+            if (response.hasKey("returnValue") && !response["returnValue"].asBool()) {
+                PmLogInfo(getPmLogContext(), "/subscribe",
+                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+                return false;
+            }
             if (response.hasKey("endOfStream") && response["endOfStream"].hasKey("mediaId")) {
+                PmLogInfo(getPmLogContext(), "/subscribe",
+                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
                 std::string mediaId = response["endOfStream"]["mediaId"].asString();
                 if (PlayerService::instance()->getMediaId().toStdString()==mediaId) {
                     PlayerService::instance()->callMediaPause(mediaId);
                     PlayerService::instance()->setSeek(0);
-                    if(PlayerService::instance()->getMediaCount()==1) {
-                        PlayerService::instance()->callMediaPlay(mediaId);
+                    int maxIndex=PlayerService::instance()->getMediaCount();
+                    if(maxIndex==1) {
+                        if (PlayerService::instance()->getShuffleStatus()==1
+                        || PlayerService::instance()->getShuffleStatus()==3) {
+                            PlayerService::instance()->callMediaPlay(mediaId);
+                        }
                     } else {
-                        int newIndex = PlayerService::instance()->getMediaIndex()+1;
+                        // shuffleStatus = 0:noRepeat 1:shuffle 2:repeatAll 3:repeatOne
+                        int oldIndex=PlayerService::instance()->getMediaIndex();
+                        int newIndex=0;
+                        if(PlayerService::instance()->getShuffleStatus()==0){
+                            if(oldIndex<maxIndex-1) {
+                                newIndex=oldIndex+1;
+                            }
+                        } else if(PlayerService::instance()->getShuffleStatus()==1){
+                            do {
+                                newIndex = std::rand()%maxIndex;
+                            } while(newIndex==oldIndex);
+                        } else if(PlayerService::instance()->getShuffleStatus()==2){
+                            if(oldIndex<maxIndex-1) {
+                                newIndex=oldIndex+1;
+                            } else {
+                                newIndex=0;
+                            }
+                        }
                         PlayerService::instance()->setMediaIndex(newIndex);
                     }
                 }
             } else if (response.hasKey("currentTime")) {
                 int currentTime = response["currentTime"].asNumber<int>();
                 PlayerService::instance()->setSeek(currentTime, true);    // pypass send data media/seek
+            } else {
+                PmLogInfo(getPmLogContext(), "/subscribe",
+                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
             }
 
             return true;
@@ -591,7 +629,7 @@ void PlayerService::callMediaRegisterPipeline()
         "luna://com.webos.media/registerPipeline",
         sjson.c_str(),
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getPipelineState",
+            PmLogInfo(getPmLogContext(), "/registerPipeline",
                         1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
             // if (!response["returnValue"].asBool()) return false;
@@ -685,26 +723,16 @@ void PlayerService::callMIndexGetAudioList(std::string uriStorage)
                     QList<QVariant> mediaList;
                     for(int idx=0; idx<jmediaList.arraySize(); idx++) {
                         pbnjson::JValue jmetadata = jmediaList[idx];
-                        QMap<QString, QVariant> mapMetaData;
-                        // if (jmetadata.hasKey("file_path")) {
+                        if (jmetadata.hasKey("file_path")) {
+                            QMap<QString, QVariant> mapMetaData;
                             mapMetaData.insert("file_path",QString::fromStdString(jmetadata["file_path"].asString()));
-                        // }
-                        // if (jmetadata.hasKey("uri")) {
                             mapMetaData.insert("uri",QString::fromStdString(jmetadata["uri"].asString()));
-                        // }
-                        // if (jmetadata.hasKey("duration")) {
                             mapMetaData.insert("duration",QString::fromStdString(std::to_string(jmetadata["duration"].asNumber<int>())));
-                        // }
-                        // if (jmetadata.hasKey("title")) {
                             mapMetaData.insert("title",QString::fromStdString(jmetadata["title"].asString()));
-                        // }
-                        // if (jmetadata.hasKey("artist")) {
                             mapMetaData.insert("artist",QString::fromStdString(jmetadata["artist"].asString()));
-                        // }
-                        // if (jmetadata.hasKey("album")) {
                             mapMetaData.insert("album",QString::fromStdString(jmetadata["album"].asString()));
-                        // }
-                        mediaList.append(mapMetaData);
+                            mediaList.append(mapMetaData);
+                        }
                     }
                     PlayerService::instance()->setMediaList(mediaList);
                 }
@@ -729,29 +757,15 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
             if (response.hasKey("metadata")) {
                 pbnjson::JValue metadata = response["metadata"];
                 if (metadata.hasKey("file_path")
-                    && PlayerService::instance()->getMusicPath().toString().toStdString()==metadata["file_path"].asString()) {
+                && PlayerService::instance()->getMusicPath().toString().toStdString()==metadata["file_path"].asString()) {
                     QMap<QString, QVariant> mapMetaData;
-                    // if (metadata.hasKey("duration")) {
-                        mapMetaData.insert("duration",QString::fromStdString(std::to_string(metadata["duration"].asNumber<int>())));
-                    // }
-                    // if (metadata.hasKey("file_path")) {
-                        mapMetaData.insert("file_path",QString::fromStdString(metadata["file_path"].asString()));
-                    // }
-                    // if (metadata.hasKey("uri")) {
-                        mapMetaData.insert("uri",QString::fromStdString(metadata["uri"].asString()));
-                    // }
-                    // if (metadata.hasKey("title")) {
-                        mapMetaData.insert("title",QString::fromStdString(metadata["title"].asString()));
-                    // }
-                    // if (metadata.hasKey("artist")) {
-                        mapMetaData.insert("artist",QString::fromStdString(metadata["artist"].asString()));
-                    // }
-                    // if (metadata.hasKey("album")) {
-                        mapMetaData.insert("album",QString::fromStdString(metadata["album"].asString()));
-                    // }
-                    // if (metadata.hasKey("album_artist")) {
-                        mapMetaData.insert("album_artist",QString::fromStdString(metadata["album_artist"].asString()));
-                    // }
+                    mapMetaData.insert("duration",QString::fromStdString(std::to_string(metadata["duration"].asNumber<int>())));
+                    mapMetaData.insert("file_path",QString::fromStdString(metadata["file_path"].asString()));
+                    mapMetaData.insert("uri",QString::fromStdString(metadata["uri"].asString()));
+                    mapMetaData.insert("title",QString::fromStdString(metadata["title"].asString()));
+                    mapMetaData.insert("artist",QString::fromStdString(metadata["artist"].asString()));
+                    mapMetaData.insert("album",QString::fromStdString(metadata["album"].asString()));
+                    mapMetaData.insert("album_artist",QString::fromStdString(metadata["album_artist"].asString()));
                     PlayerService::instance()->setMediaData(mapMetaData);
                 }
             }
@@ -781,8 +795,10 @@ void PlayerService::callMIndexRqScan()
 
 void PlayerService::callAppSettings(std::string appName)
 {
-    static QSettings qappSettings(QString::fromStdString("My Company"), QString::fromStdString(appName));
+    PmLogInfo(getPmLogContext(), "callAppSettings", 1, PMLOGKS("status", appName.c_str()), " ");
+    QSettings qappSettings(QString::fromStdString("My Company"), QString::fromStdString(m_appName));
     if(appName.empty()) {
+        // qappSettings.sync();
         QMap<QString, QVariant> appSettings;
         appSettings.insert("theme/boderColor",qappSettings.value("theme/boderColor", "#D9D9D9"));
         appSettings.insert("theme/backGrColor",qappSettings.value("theme/backGrColor", "#F4F4F4"));
@@ -791,15 +807,17 @@ void PlayerService::callAppSettings(std::string appName)
         appSettings.insert("theme/iconColor",qappSettings.value("theme/iconColor", "#1DB954"));
         PlayerService::instance()->setAppSettings(appSettings);
         PlayerService::instance()->setVolume(qappSettings.value("player/volume", 90).toInt());
-        PlayerService::instance()->setRate(qappSettings.value("player/volume", 10).toInt());
+        PlayerService::instance()->setRate(qappSettings.value("player/rate", 10).toInt());
     } else if(appName == "theme") {
         qappSettings.setValue("theme/boderColor", PlayerService::instance()->getAppSettings()["theme/boderColor"]);
         qappSettings.setValue("theme/backGrColor", PlayerService::instance()->getAppSettings()["theme/backGrColor"]);
         qappSettings.setValue("theme/textColor", PlayerService::instance()->getAppSettings()["theme/textColor"]);
         qappSettings.setValue("theme/text2Color", PlayerService::instance()->getAppSettings()["theme/text2Color"]);
         qappSettings.setValue("theme/iconColor", PlayerService::instance()->getAppSettings()["theme/iconColor"]);
+        qappSettings.sync();
     } else if(appName == "player") {
         qappSettings.setValue("player/volume", PlayerService::instance()->getAppSettings()["player/volume"]);
         qappSettings.setValue("player/rate", PlayerService::instance()->getAppSettings()["player/rate"]);
+        qappSettings.sync();
     }
 }

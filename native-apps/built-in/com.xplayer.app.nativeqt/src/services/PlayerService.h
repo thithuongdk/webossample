@@ -11,6 +11,7 @@
 #include <QQuickView>
 #include <QQmlApplicationEngine>
 #include <uMediaClient.h>
+#include <cstdlib>
 #include "Log.h"
 #include "LunaService.h"
 
@@ -30,6 +31,7 @@ class PlayerService : public QObject
     Q_PROPERTY( QMap<QString, QVariant>         mediaStatus         READ getMediaStatus             WRITE setMediaStatus          NOTIFY mediaStatusChanged         );
     Q_PROPERTY( QMap<QString, QVariant>         mediaData           READ getMediaData               WRITE setMediaData            NOTIFY mediaDataChanged           );
     Q_PROPERTY( int                             playState           READ getPlayState               WRITE setPlayState            NOTIFY playStateChanged           );
+    Q_PROPERTY( int                             shuffleStatus       READ getShuffleStatus           WRITE setShuffleStatus        NOTIFY shuffleStatus              );
     Q_PROPERTY( int                             volume              READ getVolume                  WRITE setVolume               NOTIFY volumeChanged              );
     Q_PROPERTY( int                             rate                READ getRate                    WRITE setRate                 NOTIFY rateChanged                );
     Q_PROPERTY( int                             seek                READ getSeek                    WRITE setSeek                 NOTIFY seekChanged                );
@@ -59,6 +61,7 @@ public:
     QMap<QString, QVariant>         getMediaStatus()                const;
     QMap<QString, QVariant>         getMediaData()                  const;
     int                             getPlayState()                  const;
+    int                             getShuffleStatus()              const;
     int                             getVolume()                     const;
     int                             getRate()                       const;
     int                             getSeek()                       const;
@@ -78,6 +81,7 @@ public:
     void setMediaStatus             (QMap<QString, QVariant>)                       ;
     void setMediaData               (QMap<QString, QVariant>)                       ;
     void setPlayState               (int playState)                                 ;
+    void setShuffleStatus           (int shuffleStatus)                             ;
     void setVolume                  (int volume)                                    ;
     void setRate                    (int rate)                                      ;
     void setSeek                    (int seek, bool pypass=false)                   ;
@@ -97,6 +101,7 @@ signals:
     void mediaStatusChanged         (QMap<QString, QVariant> mediaStatus = QMap<QString, QVariant>());
     void mediaDataChanged           (QMap<QString, QVariant> mediaData = QMap<QString, QVariant>());
     void playStateChanged           (int playState = 0);
+    void shuffleStatusChanged       (int shuffleStatus = 0);
     void volumeChanged              (int volume = 90);
     void rateChanged                (int rate = 10);
     void seekChanged                (int seek = 0);
@@ -137,7 +142,8 @@ public:
     QString                             m_musicStorage          ;
     QMap<QString, QVariant>             m_mediaStatus           ;
     QMap<QString, QVariant>             m_mediaData             ;
-    int                                 m_playState             ;
+    int                                 m_playState             ;       // playState = 0:stop 1:pause 2:play
+    int                                 m_shuffleStatus         ;       // shuffleStatus = 0:noRepeat 1:shuffle 2:repeatAll 3:repeatOne
     QString                             m_mediaId               ;
     QString                             m_mediaPipeId           ;
     int                                 m_volume                ;

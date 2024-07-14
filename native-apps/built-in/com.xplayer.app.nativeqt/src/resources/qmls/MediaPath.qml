@@ -84,6 +84,21 @@ Rectangle {
                 }
             }
         }
+        Row {
+            id: shuffleStatus
+            height: mediaPath.height-titleFolderDialog.height
+            IconButton {
+                x: 10
+                y: 10
+                id: openFolderButton
+                pointSize: 20
+                source: "🗁"
+                enableBg: false
+                iconColor: mediaPlayer.iconColor
+                bgColor: "transparent"
+                onClicked: folderDialog.open()
+            }
+        }
         Rectangle {
             width: mediaPath.width;
             height: mediaPath.height-titleFolderDialog.height

@@ -213,7 +213,11 @@ Rectangle {
                         iconColor: mediaPlayer.iconColor
                         bgColor:mediaPlayer.textColor
                         onClicked: {
-                            playerService.mediaIndex=(playerService.mediaIndex-1)
+                            if(playerService.mediaCount>1) {
+                                playerService.mediaIndex=(playerService.mediaIndex-1)
+                            } else {
+                                playerService.seek=0;
+                            }
                         }
                     }
                     IconButton {
@@ -248,7 +252,11 @@ Rectangle {
                         iconColor: mediaPlayer.iconColor
                         bgColor:mediaPlayer.textColor
                         onClicked: {
-                            playerService.mediaIndex=(playerService.mediaIndex+1)
+                            if(playerService.mediaCount>1) {
+                                playerService.mediaIndex=(playerService.mediaIndex+1)
+                            } else {
+                                playerService.seek=0;
+                            }
                         }
                     }
                     IconButton {
