@@ -62,10 +62,10 @@ bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
             AppService::instance()->setWindowStatus(1);
         } else if (!strcmp(event.c_str(),"close")) {
             PmLogInfo(getPmLogContext(), "quit", 0, "ok");
-            // AppService::instance()->setWindowStatus(-1);
-            // g_main_loop_quit(AppService::instance()->getMainLoop());
+            AppService::instance()->setWindowStatus(-1);
+            g_main_loop_quit(AppService::instance()->getMainLoop());
         } else if (!strcmp(event.c_str(),"relaunch")) {
-            // AppService::instance()->setWindowStatus(2);
+            AppService::instance()->setWindowStatus(2);
         } else if (!strcmp(event.c_str(),"pause")) {
         }
     }
@@ -103,7 +103,7 @@ void AppService::closeWindow() {
                         1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
             pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
-            // PlayerService::instance()->callAppSettings(AppService::instance()->getAppName());
+            PlayerService::instance()->callAppSettings(AppService::instance()->getAppName());
             return true;
         },
         this);
@@ -143,10 +143,10 @@ void AppService::setWindowStatus(int windowStatus) {
     PmLogInfo(getPmLogContext(), "setWindowStatus", 1, PMLOGKS("windowStatus", std::to_string(windowStatus).c_str()), " ");
     if (m_windowStatus != windowStatus) {
         if(windowStatus==-1) {
-            // PlayerService::instance()->deInit();
-            // closeWindow();
-        } else if(windowStatus==3 && m_windowStatus==2) {
-            // launchHome();
+            PlayerService::instance()->deInit();
+            closeWindow();
+        } else if(windowStatus==3) {
+            launchHome();
         } else if(windowStatus==2 && m_windowStatus==1) {
             // launchApp();
         }

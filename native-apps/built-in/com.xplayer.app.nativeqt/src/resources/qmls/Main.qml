@@ -11,8 +11,8 @@ Window {
     property var textColor: "#333333"
     property var text2Color: "#1DB954"
     property var iconColor: "#1DB954"
-    visible: true
-    visibility: Window.AutomaticVisibility
+    visible: appService.windowStatus==2||appService.windowStatus==4
+    visibility: appService.windowStatus==2?Window.Maximized:(appService.windowStatus==3?Window.Hidde:(appService.windowStatus==4?Window.Minimized:Window.AutomaticVisibility))
     // visible: appService.windowStatus==2 || appService.windowStatus==4
     // visibility: appService.windowStatus==2?Window.Maximized: \
     //             (appService.windowStatus==3?Window.Hidde: \
@@ -72,11 +72,11 @@ Window {
             iconColor: "black"
             bgColor:"transparent"
             onClicked: {
-                // if (appService.windowStatus==2) {
-                //     appService.windowStatus=4
-                // } else if(appService.windowStatus==4) {
-                //     appService.windowStatus=2
-                // }
+                if (appService.windowStatus==2) {
+                    appService.windowStatus=4
+                } else if(appService.windowStatus==4) {
+                    appService.windowStatus=2
+                }
             }
         }
         IconButton {
