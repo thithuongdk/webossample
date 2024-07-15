@@ -52,6 +52,7 @@ public:
     void init(std::string appName);
 
 public:
+    std::string                     getAppName()                    const;
     QString                         getStoragePath()                const;
     QString                         getFolderPath()                 const;
     list_v                          getMediaList()                  const;

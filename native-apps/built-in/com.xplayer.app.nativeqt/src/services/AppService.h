@@ -17,6 +17,7 @@
 class AppService: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int windowStatus READ getWindowStatus WRITE setWindowStatus NOTIFY windowStatusChanged);
 
 private:
     static AppService* m_instance;
@@ -28,6 +29,13 @@ private:
 public:
     static AppService* instance(QObject* parent = nullptr);
     void init(std::string appName, GMainLoop *mainLoop);
+    std::string getAppName() const {return m_appName;};
+    GMainLoop* getMainLoop() const {return m_mainLoop;};
+    int getWindowStatus() const {return m_windowStatus;};
+    void setWindowStatus(int windowStatus);
+
+signals:
+    void windowStatusChanged         (int windowStatus = 0);
 
 public:
     void registerApp();
@@ -37,6 +45,10 @@ public:
 
 public:
     void createWindow();
+    Q_INVOKABLE void minimumWindow();
+    Q_INVOKABLE void closeWindow();
+    Q_INVOKABLE void launchHome();
+    Q_INVOKABLE void launchApp();
 
 // public slots:
     // void onCreateWindow();
@@ -45,6 +57,8 @@ public:
 
 private:
     std::string m_appName;
+    int m_windowStatus;         // 0:   1:register  2:launch  3:hide 4:close
+    GMainLoop *m_mainLoop;
     QQmlApplicationEngine *m_engine;
 };
 #endif

@@ -67,6 +67,11 @@ void PlayerService::qmlRegister() {
 }
 
 /* get function */
+std::string PlayerService::getAppName() const
+{
+    return m_appName;
+}
+
 QString PlayerService::getStoragePath() const
 {
     return m_storagePath;
@@ -809,10 +814,19 @@ void PlayerService::callAppSettings(std::string appName)
         appSettings.insert("theme/text2Color",qappSettings.value("theme/text2Color", "#1DB954"));
         appSettings.insert("theme/iconColor",qappSettings.value("theme/iconColor", "#1DB954"));
         PlayerService::instance()->setAppSettings(appSettings);
-        PmLogInfo(getPmLogContext(), "setVolume test", 1, PMLOGKS("volume", qappSettings.value("player/volume", 90).toInt()), " ");
-        PmLogInfo(getPmLogContext(), "setRate test", 1, PMLOGKS("rate", qappSettings.value("player/rate", 10).toInt()), " ");
+        // PmLogInfo(getPmLogContext(), "setVolumeTest", 1, PMLOGKS("volume", qappSettings.value("player/volume", 90).toInt()), " ");
+        // PmLogInfo(getPmLogContext(), "setRateTest", 1, PMLOGKS("rate", qappSettings.value("player/rate", 10).toInt()), " ");
         // PlayerService::instance()->setVolume(qappSettings.value("player/volume", 90).toInt());
         // PlayerService::instance()->setRate(qappSettings.value("player/rate", 10).toInt());
+    // } else if(appName == PlayerService::instance()->getAppName()) {
+    //     qappSettings.setValue("theme/boderColor", PlayerService::instance()->getAppSettings()["theme/boderColor"]);
+    //     qappSettings.setValue("theme/backGrColor", PlayerService::instance()->getAppSettings()["theme/backGrColor"]);
+    //     qappSettings.setValue("theme/textColor", PlayerService::instance()->getAppSettings()["theme/textColor"]);
+    //     qappSettings.setValue("theme/text2Color", PlayerService::instance()->getAppSettings()["theme/text2Color"]);
+    //     qappSettings.setValue("theme/iconColor", PlayerService::instance()->getAppSettings()["theme/iconColor"]);
+    //     qappSettings.setValue("player/volume", PlayerService::instance()->getAppSettings()["player/volume"]);
+    //     qappSettings.setValue("player/rate", PlayerService::instance()->getAppSettings()["player/rate"]);
+    //     qappSettings.sync();
     } else if(appName == "theme") {
         qappSettings.setValue("theme/boderColor", PlayerService::instance()->getAppSettings()["theme/boderColor"]);
         qappSettings.setValue("theme/backGrColor", PlayerService::instance()->getAppSettings()["theme/backGrColor"]);

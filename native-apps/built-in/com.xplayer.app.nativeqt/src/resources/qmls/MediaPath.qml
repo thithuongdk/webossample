@@ -133,20 +133,29 @@ Rectangle {
                             textElement.x = 0
                         }
                     }
-                    Column {
+                    Row {
                         Text {
-                            id: textElement
+                            id: indexElement
                             font.pixelSize: 18
                             font.bold: itemDelegate.ListView.isCurrentItem
-                            text: (index+1) + ": " + modelData["title"].toString()
+                            text: (index+1) + ": "
                             color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                         }
-                        Text {
-                            x: 20
-                            font.pixelSize: 14
-                            font.bold: itemDelegate.ListView.isCurrentItem
-                            text: "artist: " + modelData["artist"].toString()
-                            color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                        Column {
+                            Text {
+                                id: textElement
+                                font.pixelSize: 18
+                                font.bold: itemDelegate.ListView.isCurrentItem
+                                text: modelData["title"].toString()
+                                color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                            }
+                            Text {
+                                x: 20
+                                font.pixelSize: 14
+                                font.bold: itemDelegate.ListView.isCurrentItem
+                                text: "artist: " + modelData["artist"].toString()
+                                color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                            }
                         }
                     }
                 }

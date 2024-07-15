@@ -30,5 +30,6 @@ int main(int argc, char **argv)
     GMainLoop *mainLoop = g_main_loop_new(nullptr, false);
     AppService::instance()->init("com.xplayer.app.nativeqt", mainLoop);
     g_main_loop_run(mainLoop);
+    g_main_loop_unref(mainLoop);
     return app.exec();
 }
