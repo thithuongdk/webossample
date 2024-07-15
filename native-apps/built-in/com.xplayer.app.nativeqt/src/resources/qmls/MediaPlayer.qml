@@ -107,9 +107,10 @@ Rectangle {
                     color: mediaPlayer.textColor
                 }
                 Text {
-                    text: "⏮️⯇⏯️▶▸🞂⏹️⯈⏭️"
+                    text: "⏮️⯇⏯️▶▸🞂⏹️⯈⏭️🔁🔂🔀▶️⏸️"
                     font.pixelSize: 40
                     font.bold: true
+                    font.family: "Geneva"
                     color: mediaPlayer.textColor
                 }
             }
@@ -197,6 +198,18 @@ Rectangle {
                     spacing: 10
                     anchors.horizontalCenter: parent.horizontalCenter
                     IconButton {
+                        id: shuffleButton
+                        y: controlButton.iconSize/2
+                        pointSize: controlButton.iconSize/2
+                        source: playerService.shuffleStatus==0?"🔁":(playerService.shuffleStatus==1?"🔁":(playerService.shuffleStatus==2?"🔂":"🔀"))
+                        enableBg: false
+                        iconColor: playerService.shuffleStatus==0? "#60000000":mediaPlayer.text2Color
+                        bgColor: "transparent"
+                        onClicked: {
+                            playerService.shuffleStatus=playerService.shuffleStatus+1
+                        }
+                    }
+                    IconButton {
                         id: rewindButton
                         pointSize: controlButton.iconSize
                         source: "⏮️"
@@ -209,7 +222,7 @@ Rectangle {
                     IconButton {
                         id: backButton
                         pointSize: controlButton.iconSize
-                        source: "⯇"
+                        source: "⏪"
                         iconColor: mediaPlayer.iconColor
                         bgColor:mediaPlayer.textColor
                         onClicked: {
@@ -223,7 +236,7 @@ Rectangle {
                     IconButton {
                         id: playButton
                         pointSize: controlButton.iconSize
-                        source: "⏯️"
+                        source: playerService.playState==0?"⏯️":(playerService.playState==1?"⯈":"⏸️")
                         iconColor: mediaPlayer.iconColor
                         bgColor:mediaPlayer.textColor
                         onClicked: {
@@ -248,7 +261,7 @@ Rectangle {
                     IconButton {
                         id: nextButton
                         pointSize: controlButton.iconSize
-                        source: "⯈"
+                        source: "⏩"
                         iconColor: mediaPlayer.iconColor
                         bgColor:mediaPlayer.textColor
                         onClicked: {

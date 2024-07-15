@@ -54,7 +54,7 @@ Rectangle {
                 height: parent.height-10
                 clip: true
                 Text {
-                    y: 7
+                    y: 3
                     id: openFolderText
                     text: playerService.folderPath
                     font.pixelSize: 20
@@ -82,21 +82,6 @@ Rectangle {
                         openFolderText.x = 0
                     }
                 }
-            }
-        }
-        Row {
-            id: shuffleStatus
-            height: mediaPath.height-titleFolderDialog.height
-            IconButton {
-                x: 10
-                y: 10
-                id: openFolderButton
-                pointSize: 20
-                source: "🗁"
-                enableBg: false
-                iconColor: mediaPlayer.iconColor
-                bgColor: "transparent"
-                onClicked: folderDialog.open()
             }
         }
         Rectangle {
