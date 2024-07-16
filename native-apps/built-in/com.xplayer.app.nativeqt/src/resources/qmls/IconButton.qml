@@ -40,6 +40,7 @@ Item {
         anchors.horizontalCenter: recBg.horizontalCenter
         // anchors.verticalCenter: recBg.verticalCenter
         y: containerArea.pressed?(-pointSize*0.20):(-pointSize*0.18)
+        opacity: containerArea.pressed?1:0.8
         text: ""
         font.bold: containerArea.pressed
         // font.pixelSize: containerArea.pressed?pointSize:(pointSize*0.9)

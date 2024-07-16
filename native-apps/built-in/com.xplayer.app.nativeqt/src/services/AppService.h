@@ -41,23 +41,15 @@ public:
     void registerApp();
 
 public:
-    static bool cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context);
-
-public:
-    void createWindow();
-    Q_INVOKABLE void minimumWindow();
-    Q_INVOKABLE void closeWindow();
-    Q_INVOKABLE void launchHome();
-    Q_INVOKABLE void launchApp();
-
-// public slots:
-    // void onCreateWindow();
-// signals :
-    // void createWindow();
+    Q_INVOKABLE void callCreateWindow();
+    Q_INVOKABLE void callMinimumWindow();
+    Q_INVOKABLE void callCloseWindow();
+    Q_INVOKABLE void callLaunchHome();
+    Q_INVOKABLE void callLaunchApp();
 
 private:
     std::string m_appName;
-    int m_windowStatus;         // 0:   1:register  2:launch  3:hide 4:close
+    int m_windowStatus;         // -1:close   1:register  2:launch  3:hide  4:mini
     GMainLoop *m_mainLoop;
     QQmlApplicationEngine *m_engine;
 };

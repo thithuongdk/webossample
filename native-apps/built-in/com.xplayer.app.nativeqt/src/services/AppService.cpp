@@ -40,42 +40,32 @@ void AppService::init(const std::string appName, GMainLoop *mainLoop)
     qmlRegister();
 }
 
-void AppService::createWindow()
-{
-    PmLogInfo(getPmLogContext(), "AppService", 0, "onCreateWindow()");
-    m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
-    PlayerService::instance()->init(m_appName);
-}
-
-bool AppService::cbRegisterApp(LSHandle* sh, LSMessage* msg, void* context)
-{
-    Q_UNUSED(sh);
-    PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGJSON("payload", LSMessageGetPayload(msg)), " ");
-    pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
-    if (!response["returnValue"].asBool()) return false;
-    if (response.hasKey("event")) {
-        std::string event = response["event"].asString();
-        PmLogInfo(getPmLogContext(), "REGISTER_CALLBACK", 1, PMLOGKS("event", event.c_str()), " ");
-        if (!strcmp(event.c_str(),"registered")) {
-            PmLogInfo(getPmLogContext(), "registered", 0, "ok");
-            AppService::instance()->createWindow();
-            AppService::instance()->setWindowStatus(1);
-        } else if (!strcmp(event.c_str(),"close")) {
-            PmLogInfo(getPmLogContext(), "quit", 0, "ok");
-            AppService::instance()->setWindowStatus(-1);
-            g_main_loop_quit(AppService::instance()->getMainLoop());
-        } else if (!strcmp(event.c_str(),"relaunch")) {
-            AppService::instance()->setWindowStatus(2);
-        } else if (!strcmp(event.c_str(),"pause")) {
-        }
-    }
-    return true;
-}
-
 void AppService::registerApp()
 {
-    LunaService::instance()->fLSCalln("luna://com.webos.service.applicationmanager/registerApp", "{}",
-                                    AppService::cbRegisterApp, this);
+    LunaService::instance()->fLSCall1(
+        "luna://com.webos.service.applicationmanager/registerApp",
+        "{}",
+        [](LSHandle* sh, LSMessage* msg, void* context)->bool {
+            PmLogInfo(getPmLogContext(), "/registerApp",
+                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            if (!response["returnValue"].asBool()) return false;
+            if (response.hasKey("event")) {
+                std::string event = response["event"].asString();
+                if (!strcmp(event.c_str(),"registered")) {
+                    AppService::instance()->callCreateWindow();
+                    AppService::instance()->setWindowStatus(1);
+                } else if (!strcmp(event.c_str(),"close")) {
+                    AppService::instance()->setWindowStatus(-1);
+                    g_main_loop_quit(AppService::instance()->getMainLoop());
+                } else if (!strcmp(event.c_str(),"relaunch")) {
+                    AppService::instance()->setWindowStatus(2);
+                } else if (!strcmp(event.c_str(),"pause")) {
+                }
+            }
+            return true;
+        },
+        this);
 }
 
 void AppService::connectSignalSlots() {
@@ -90,10 +80,17 @@ void AppService::qmlRegister() {
     m_engine->rootContext()->setContextProperty("appService", AppService::instance());
 }
 
-void AppService::minimumWindow() {
+void AppService::callCreateWindow()
+{
+    PmLogInfo(getPmLogContext(), "AppService", 0, "callCreateWindow()");
+    m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
+    PlayerService::instance()->init(m_appName);
 }
 
-void AppService::closeWindow() {
+void AppService::callMinimumWindow() {
+}
+
+void AppService::callCloseWindow() {
     std::string sjson = R"({"id":")" + AppService::instance()->getAppName() + R"("})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.service.applicationmanager/close",
@@ -109,7 +106,7 @@ void AppService::closeWindow() {
         this);
 }
 
-void AppService::launchHome() {
+void AppService::callLaunchHome() {
     std::string sjson = R"({"id":"com.webos.app.home"})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.service.applicationmanager/launch",
@@ -124,7 +121,7 @@ void AppService::launchHome() {
         this);
 }
 
-void AppService::launchApp() {
+void AppService::callLaunchApp() {
     std::string sjson = R"({"id":")" + AppService::instance()->getAppName() + R"("})";
     LunaService::instance()->fLSCall1(
         "luna://com.webos.service.applicationmanager/launch",
@@ -144,11 +141,11 @@ void AppService::setWindowStatus(int windowStatus) {
     if (m_windowStatus != windowStatus) {
         if(windowStatus==-1) {
             PlayerService::instance()->deInit();
-            closeWindow();
+            callCloseWindow();
         } else if(windowStatus==3) {
-            launchHome();
-        } else if(windowStatus==2 && m_windowStatus==1) {
-            // launchApp();
+            callLaunchHome();
+        } else if(windowStatus==2) {
+            callLaunchApp();
         }
         m_windowStatus = windowStatus;
         emit windowStatusChanged(windowStatus);

@@ -6,6 +6,7 @@
         <file>src/resources/qmls/IconSlider.qml</file>
         <file>src/resources/qmls/MediaPath.qml</file>
         <file>src/resources/qmls/MediaPlayer.qml</file>
+        <file>src/resources/qmls/MediaWindowBt.qml</file>
     </qresource>
     <qresource prefix="/png">
         <file alias="back">src/resources/icons/png/back.png</file>

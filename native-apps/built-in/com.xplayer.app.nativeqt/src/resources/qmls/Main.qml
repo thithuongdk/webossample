@@ -1,7 +1,6 @@
 
 import QtQuick
 import QtQuick.Window
-import app.appservice 1.0
 
 Window {
     id: mediaWindow
@@ -11,20 +10,9 @@ Window {
     property var textColor: "#333333"
     property var text2Color: "#1DB954"
     property var iconColor: "#1DB954"
-    visible: appService.windowStatus==2||appService.windowStatus==4
-    visibility: appService.windowStatus==2?Window.Maximized:(appService.windowStatus==3?Window.Hidde:(appService.windowStatus==4?Window.Minimized:Window.AutomaticVisibility))
-    // visible: appService.windowStatus==2 || appService.windowStatus==4
-    // visibility: appService.windowStatus==2?Window.Maximized: \
-    //             (appService.windowStatus==3?Window.Hidde: \
-    //             (appService.windowStatus==4?Window.Minimized: \
-    //             Window.AutomaticVisibility:))
-
-// QWindow::Windowed
-// QWindow::Minimized
-// QWindow::Maximized
-// QWindow::FullScreen
-// QWindow::AutomaticVisibility
-// QWindow::Hidde
+    visible: true
+    visibility: Window.Maximized
+ 
     width: 1280
     height: 720
     color: mediaWindow.backGrColor
@@ -51,43 +39,11 @@ Window {
             iconColor: mediaWindow.iconColor
         }
     }
-    Row {
+
+    MediaWindowBt {
+        id: mediaWindowBt
+        visible: false
         anchors.right: parent.right
         anchors.top: parent.top
-        height: 50
-        IconButton {
-            id: miniButton
-            pointSize: 40
-            source: "🗕"
-            iconColor: "black"
-            bgColor:"transparent"
-            onClicked: {
-                appService.windowStatus = 3;
-            }
-        }
-        IconButton {
-            id: resizeButton
-            pointSize: 40
-            source: "🗖"
-            iconColor: "black"
-            bgColor:"transparent"
-            onClicked: {
-                if (appService.windowStatus==2) {
-                    appService.windowStatus=4
-                } else if(appService.windowStatus==4) {
-                    appService.windowStatus=2
-                }
-            }
-        }
-        IconButton {
-            id: closeButton
-            pointSize: 40
-            source: "🗙"
-            iconColor: "black"
-            bgColor:"transparent"
-            onClicked: {
-                appService.windowStatus = -1;
-            }
-        }
     }
 }

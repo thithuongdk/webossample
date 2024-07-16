@@ -142,6 +142,7 @@ Rectangle {
                             color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
                         }
                         Column {
+                            clip: true
                             Text {
                                 id: textElement
                                 font.pixelSize: 18
