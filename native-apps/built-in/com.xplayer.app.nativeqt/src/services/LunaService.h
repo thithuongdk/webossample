@@ -28,6 +28,7 @@ public:
     void init(std::string appName, GMainLoop *mainloop);
     static const char *fLSMessageGetPayload(LSMessage * msg);
     static void fMessagePrintLogCB(LSMessage * msg);
+    static void fMessagePrintLogCB(LSHandle* sh, LSMessage* msg, void* context);
     static void fLSCalln(std::string luna, std::string msg, fCallBack cbF, void* udata = 0);
     static void fLSSubscriptionReply(std::string key, std::string msg);
     static void fLSMessageReply(LSHandle *sh, LSMessage * msg, void *ctx, std::string key);

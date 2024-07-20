@@ -75,8 +75,14 @@ const char *LunaService::fLSMessageGetPayload(LSMessage * msg)
 
 void LunaService::fMessagePrintLogCB(LSMessage * msg) 
 {
-    PmLogInfo(getPmLogContext(), "CALLBACK",
-                2, LSMessageGetMethod(msg), LSMessageGetPayload(msg), " ");
+    PmLogInfo(getPmLogContext(), "CALLBACK", 0, LSMessageGetMethod(msg), LSMessageGetPayload(msg));
+}
+
+void LunaService::fMessagePrintLogCB(LSHandle* sh, LSMessage* msg, void* context) 
+{
+    Q_UNUSED(sh);
+    Q_UNUSED(context);
+    PmLogInfo(getPmLogContext(), "CALLBACK", 0, LSMessageGetMethod(msg), LSMessageGetPayload(msg));
 }
 
 void LunaService::fLSCalln(std::string luna, std::string msg, fCallBack cbF, void* udata)
@@ -85,7 +91,7 @@ void LunaService::fLSCalln(std::string luna, std::string msg, fCallBack cbF, voi
     LSError lserror;
     LSErrorInit(&lserror);
     PmLogInfo(getPmLogContext(), "LSCALL", 2, PMLOGKS("luna", luna.c_str()), PMLOGJSON("msg", msg.c_str()), " ");
-    if(!LSCall(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
+    if(!LSCall(LunaService::instance()->getHandle(), luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
         PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
         LSErrorPrint(&lserror, stderr);
     }
@@ -97,7 +103,7 @@ void LunaService::fLSCall1(std::string luna, std::string msg, fCallBack cbF, voi
     LSError lserror;
     LSErrorInit(&lserror);
     PmLogInfo(getPmLogContext(), "LSCALL1", 2, PMLOGKS("luna", luna.c_str()), PMLOGJSON("msg", msg.c_str()), " ");
-    if(!LSCallOneReply(m_handle, luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
+    if(!LSCallOneReply(LunaService::instance()->getHandle(), luna.c_str(), msg.c_str(), cbF, udata, nullptr, &lserror)) {
         PmLogError(getPmLogContext(), luna.c_str(), 0, "so sad");
         LSErrorPrint(&lserror, stderr);
     }
@@ -109,7 +115,7 @@ void LunaService::fSetTimeOutLSCall(LSMessageToken token, int timeout_ms)
     LSError lserror;
     LSErrorInit(&lserror);
     PmLogInfo(getPmLogContext(), "LSCALLTIME", 1, PMLOGKS("timeout_ms", timeout_ms), " ");
-    if(!LSCallSetTimeout(m_handle, token, timeout_ms, &lserror)) {
+    if(!LSCallSetTimeout(LunaService::instance()->getHandle(), token, timeout_ms, &lserror)) {
         PmLogError(getPmLogContext(), "LSCallSetTimeoutErr", 0, "so sad");
         LSErrorPrint(&lserror, stderr);
     }
@@ -119,8 +125,8 @@ void LunaService::fLSSubscriptionReply(std::string key, std::string msg)
 {
     LSError lserror;
     LSErrorInit(&lserror);
-    if(!LSSubscriptionGetHandleSubscribersCount(m_handle, key.c_str())) {
-        if(!LSSubscriptionReply(m_handle, key.c_str(), msg.c_str(), &lserror)) {
+    if(!LSSubscriptionGetHandleSubscribersCount(LunaService::instance()->getHandle(), key.c_str())) {
+        if(!LSSubscriptionReply(LunaService::instance()->getHandle(), key.c_str(), msg.c_str(), &lserror)) {
             LSErrorPrint(&lserror, stderr);
         }
     }
@@ -139,7 +145,7 @@ void LunaService::sendRegisterApp(fCallBack cbF)
         "luna://com.webos.service.applicationmanager/registerApp",
         "{}",
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendCloseWindow(std::string appName, fCallBack cbF)
@@ -149,7 +155,7 @@ void LunaService::sendCloseWindow(std::string appName, fCallBack cbF)
         "luna://com.webos.service.applicationmanager/close",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendLaunchHome(fCallBack cbF)
@@ -159,7 +165,7 @@ void LunaService::sendLaunchHome(fCallBack cbF)
         "luna://com.webos.service.applicationmanager/launch",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendLaunchApp(std::string appName, fCallBack cbF)
@@ -169,7 +175,7 @@ void LunaService::sendLaunchApp(std::string appName, fCallBack cbF)
         "luna://com.webos.service.applicationmanager/launch",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaPlay(std::string mediaId, fCallBack cbF)
@@ -179,7 +185,7 @@ void LunaService::sendMediaPlay(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/play",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaPause(std::string mediaId, fCallBack cbF)
@@ -189,7 +195,7 @@ void LunaService::sendMediaPause(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/pause",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaLoad(std::string appName, std::string uriFile, fCallBack cbF)
@@ -201,7 +207,7 @@ void LunaService::sendMediaLoad(std::string appName, std::string uriFile, fCallB
         "luna://com.webos.media/load",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaUnLoad(std::string mediaId, fCallBack cbF)
@@ -211,7 +217,7 @@ void LunaService::sendMediaUnLoad(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/unload",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaSeek(std::string mediaId, int seek, fCallBack cbF)
@@ -222,7 +228,7 @@ void LunaService::sendMediaSeek(std::string mediaId, int seek, fCallBack cbF)
         "luna://com.webos.media/seek",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaSetPlayRate(std::string mediaId, int playRate, fCallBack cbF)
@@ -233,7 +239,7 @@ void LunaService::sendMediaSetPlayRate(std::string mediaId, int playRate, fCallB
         "luna://com.webos.media/setPlayRate",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaSetVolume(std::string mediaId, int volume, fCallBack cbF)
@@ -244,7 +250,7 @@ void LunaService::sendMediaSetVolume(std::string mediaId, int volume, fCallBack 
         "luna://com.webos.media/setVolume",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaSubscribe(std::string mediaId, fCallBack cbF)
@@ -254,7 +260,7 @@ void LunaService::sendMediaSubscribe(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/subscribe",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaUnSubscribe(std::string mediaId, fCallBack cbF)
@@ -264,7 +270,7 @@ void LunaService::sendMediaUnSubscribe(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/unsubscribe",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaStatus(std::string mediaId, fCallBack cbF)
@@ -274,7 +280,7 @@ void LunaService::sendMediaStatus(std::string mediaId, fCallBack cbF)
         "luna://com.webos.media/getPipelineState",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaRegisterPipeline(fCallBack cbF)
@@ -284,7 +290,7 @@ void LunaService::sendMediaRegisterPipeline(fCallBack cbF)
         "luna://com.webos.media/registerPipeline",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMediaUnRegisterPipeline(std::string mediaPipeId, fCallBack cbF)
@@ -294,7 +300,7 @@ void LunaService::sendMediaUnRegisterPipeline(std::string mediaPipeId, fCallBack
         "luna://com.webos.media/registerPipeline",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMIndexGetDeviceList(fCallBack cbF)
@@ -304,7 +310,7 @@ void LunaService::sendMIndexGetDeviceList(fCallBack cbF)
         "luna://com.webos.service.mediaindexer/getDeviceList",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMIndexGetAudioList(std::string uriStorage, fCallBack cbF)
@@ -314,7 +320,7 @@ void LunaService::sendMIndexGetAudioList(std::string uriStorage, fCallBack cbF)
         "luna://com.webos.service.mediaindexer/getAudioList",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMIndexGetAudioMetadata(std::string uriStorage, fCallBack cbF)
@@ -324,7 +330,7 @@ void LunaService::sendMIndexGetAudioMetadata(std::string uriStorage, fCallBack c
         "luna://com.webos.service.mediaindexer/getAudioMetadata",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }
 
 void LunaService::sendMIndexRqScan(fCallBack cbF)
@@ -334,5 +340,5 @@ void LunaService::sendMIndexRqScan(fCallBack cbF)
         "luna://com.webos.service.mediaindexer/requestMediaScan",
         sjson.c_str(),
         cbF,
-        this);
+        nullptr);
 }

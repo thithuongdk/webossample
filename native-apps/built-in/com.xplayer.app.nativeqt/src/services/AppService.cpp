@@ -44,7 +44,7 @@ void AppService::registerApp()
 {
     LunaService::sendRegisterApp(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            fMessagePrintLog(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("event")) {
@@ -61,8 +61,7 @@ void AppService::registerApp()
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void AppService::connectSignalSlots() {
@@ -89,8 +88,9 @@ void AppService::callMinimumWindow() {
 
 void AppService::callCloseWindow() {
     LunaService::sendCloseWindow(
+        m_appName,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             PlayerService::instance()->callAppSettings(AppService::instance()->getAppName());
@@ -100,9 +100,8 @@ void AppService::callCloseWindow() {
 
 void AppService::callLaunchHome() {
     LunaService::sendLaunchHome(
-        m_appName,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -113,7 +112,7 @@ void AppService::callLaunchApp() {
     LunaService::sendLaunchApp(
         m_appName,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;

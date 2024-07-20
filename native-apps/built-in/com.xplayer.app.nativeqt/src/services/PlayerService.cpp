@@ -387,7 +387,7 @@ void PlayerService::callMediaPlay(std::string mediaId)
     LunaService::sendMediaPlay(
         mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -401,7 +401,7 @@ void PlayerService::callMediaPause(std::string mediaId)
     LunaService::sendMediaPause(
         mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -415,7 +415,7 @@ void PlayerService::callMediaLoad(std::string uriFile)
         m_appName,
         uriFile,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaId")) {
@@ -439,7 +439,7 @@ void PlayerService::callMediaUnLoad(std::string mediaId)
     LunaService::sendMediaUnLoad(
         mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaId")
@@ -458,7 +458,7 @@ void PlayerService::callMediaSeek(std::string mediaId, int seek)
         mediaId,
         seek,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -472,7 +472,7 @@ void PlayerService::callMediaSetPlayRate(std::string mediaId, int playRate)
         mediaId,
         int(playRate/10),
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -486,7 +486,7 @@ void PlayerService::callMediaSetVolume(std::string mediaId, int volume)
         mediaId,
         volume,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -532,11 +532,11 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (response.hasKey("returnValue") && !response["returnValue"].asBool()) {
-                LunaService::fMessagePrintLogCB(msg);
+                LunaService::fMessagePrintLogCB(sh, msg, context);
                 return false;
             }
             if (response.hasKey("endOfStream") && response["endOfStream"].hasKey("mediaId")) {
-                LunaService::fMessagePrintLogCB(msg);
+                LunaService::fMessagePrintLogCB(sh, msg, context);
                 std::string mediaId = response["endOfStream"]["mediaId"].asString();
                 if (PlayerService::instance()->getMediaId().toStdString()==mediaId) {
                     PlayerService::instance()->callEndToNextMediaIndex();
@@ -545,7 +545,7 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
                 int currentTime = response["currentTime"].asNumber<int>();
                 PlayerService::instance()->setSeek(currentTime, true);    // pypass send data media/seek
             } else {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             }
 
             return true;
@@ -558,7 +558,7 @@ void PlayerService::callMediaUnSubscribe(std::string mediaId)
     LunaService::sendMediaUnSubscribe(
         mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
@@ -571,7 +571,7 @@ void PlayerService::callMediaStatus(std::string mediaId)
     LunaService::sendMediaStatus(
         mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (PlayerService::instance()->getMediaId().toStdString()==response["mediaId"].asString()) {
@@ -592,7 +592,7 @@ void PlayerService::callMediaRegisterPipeline()
 {
     LunaService::sendMediaRegisterPipeline(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             // if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("connectionId")) {
@@ -612,7 +612,7 @@ void PlayerService::callMediaUnRegisterPipeline(std::string mediaPipeId)
     LunaService::sendMediaUnRegisterPipeline(
         mediaPipeId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             // if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaPipeId")) {
@@ -627,7 +627,7 @@ void PlayerService::callMIndexGetDeviceList()
 {
     LunaService::sendMIndexGetDeviceList(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("pluginList") && response["pluginList"].isArray()) {
@@ -661,7 +661,7 @@ void PlayerService::callMIndexGetAudioList(std::string uriStorage)
     LunaService::sendMIndexGetAudioList(
         uriStorage,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("audioList")) {
@@ -696,7 +696,7 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
     LunaService::sendMIndexGetAudioMetadata(
         uriStorage,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("metadata")) {
@@ -722,7 +722,7 @@ void PlayerService::callMIndexRqScan()
 {
     LunaService::sendMIndexRqScan(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            LunaService::fMessagePrintLogCB(msg);
+            LunaService::fMessagePrintLogCB(sh, msg, context);
             pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             std::string uristorage = PlayerService::instance()->getStoragePath().toStdString()
