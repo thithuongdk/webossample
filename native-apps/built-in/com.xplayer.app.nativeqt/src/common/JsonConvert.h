@@ -1,3 +1,4 @@
+#include "Mock.h"
 #ifndef JSONCONVERT_H
 #define JSONCONVERT_H
 

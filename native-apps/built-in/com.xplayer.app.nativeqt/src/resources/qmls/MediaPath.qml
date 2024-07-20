@@ -6,7 +6,7 @@ import app.playerservice 1.0
 // import libpbnjson 1.0
 
 Rectangle {
-    id: mediaPath
+    id: root
 
     property string boderColor: "#ABE338"
     property string backGrColor: "#0F1B07"
@@ -16,17 +16,17 @@ Rectangle {
 
     width: 280
     height: 720
-    // color: mediaPath.backGrColor
+    // color: root.backGrColor
     border.width: 4
     radius: 8
-    border.color: mediaPath.boderColor
+    border.color: root.boderColor
     Column {
         Rectangle {
             id: titleFolderDialog
-            width: mediaPath.width
+            width: root.width
             height: 40
             border.width: 4
-            border.color: mediaPath.boderColor
+            border.color: root.boderColor
             radius: 8
             FolderDialog {
                 id: folderDialog
@@ -40,10 +40,7 @@ Rectangle {
                 y: 10
                 id: openFolderButton
                 pointSize: 20
-                source: "🗁"
-                enableBg: false
-                iconColor: mediaPlayer.iconColor
-                bgColor: "transparent"
+                source: "qrc:/png/menu"
                 onClicked: folderDialog.open()
             }
             Item {
@@ -59,7 +56,7 @@ Rectangle {
                     text: playerService.folderPath
                     font.pixelSize: 20
                     font.bold: true
-                    color: mediaPath.textColor
+                    color: root.textColor
                 }
                 SequentialAnimation {
                     id: textFolderAnimation
@@ -85,10 +82,10 @@ Rectangle {
             }
         }
         Rectangle {
-            width: mediaPath.width;
-            height: mediaPath.height-titleFolderDialog.height
+            width: root.width;
+            height: root.height-titleFolderDialog.height
             border.width: 4
-            border.color: mediaPath.boderColor
+            border.color: root.boderColor
             radius: 8
             ListView {
                 id: musicFileListView
@@ -139,7 +136,7 @@ Rectangle {
                             font.pixelSize: 18
                             font.bold: itemDelegate.ListView.isCurrentItem
                             text: (index+1) + ": "
-                            color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                            color: itemDelegate.ListView.isCurrentItem?root.text2Color:root.textColor
                         }
                         Column {
                             clip: true
@@ -148,14 +145,14 @@ Rectangle {
                                 font.pixelSize: 18
                                 font.bold: itemDelegate.ListView.isCurrentItem
                                 text: modelData["title"].toString()
-                                color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                                color: itemDelegate.ListView.isCurrentItem?root.text2Color:root.textColor
                             }
                             Text {
                                 x: 20
                                 font.pixelSize: 14
                                 font.bold: itemDelegate.ListView.isCurrentItem
                                 text: "artist: " + modelData["artist"].toString()
-                                color: itemDelegate.ListView.isCurrentItem?mediaPath.text2Color:mediaPath.textColor
+                                color: itemDelegate.ListView.isCurrentItem?root.text2Color:root.textColor
                             }
                         }
                     }

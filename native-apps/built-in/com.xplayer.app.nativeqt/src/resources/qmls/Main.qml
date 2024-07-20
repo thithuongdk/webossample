@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Window
 
 Window {
-    id: mediaWindow
+    id: root
     title: "XPlayer"
     property string boderColor: "#D9D9D9"
     property string backGrColor: "#F4F4F4"
@@ -15,28 +15,28 @@ Window {
  
     width: 1280
     height: 720
-    color: mediaWindow.backGrColor
+    color: root.backGrColor
     Row {
         MediaPath {
             id: mediapath
             width: 280
             height: 720
-            boderColor: mediaWindow.boderColor
-            backGrColor: mediaWindow.backGrColor
-            textColor: mediaWindow.textColor
-            text2Color: mediaWindow.text2Color
-            iconColor: mediaWindow.iconColor
+            boderColor: root.boderColor
+            backGrColor: root.backGrColor
+            textColor: root.textColor
+            text2Color: root.text2Color
+            iconColor: root.iconColor
 
         }
         MediaPlayer {
             id: mediaplayer
             width: 1000
             height: 720
-            boderColor: mediaWindow.boderColor
-            backGrColor: mediaWindow.backGrColor
-            textColor: mediaWindow.textColor
-            text2Color: mediaWindow.text2Color
-            iconColor: mediaWindow.iconColor
+            boderColor: root.boderColor
+            backGrColor: root.backGrColor
+            textColor: root.textColor
+            text2Color: root.text2Color
+            iconColor: root.iconColor
         }
     }
 

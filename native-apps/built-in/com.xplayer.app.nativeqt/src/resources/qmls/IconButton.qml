@@ -3,46 +3,55 @@ import QtQuick
 import QtQuick.Controls
 
 Item {
-    id: container
+    id: root
 
     signal clicked()
-    property alias iconColor: iconText.color
-    property bool enableBg: true
+    property alias pressed: rootArea.pressed
+    property string iconColor: "black"
+    property bool enableBg: false
     property string bgColor: "#010101"
-    property alias source: iconText.text
-    property alias pressed: containerArea.pressed
-    property string state: enabled ? (pressed ? "pressed" : "default") : "disabled"
-    property alias pointSize: container.width
-    property alias radius: recBg.radius
+    property string source: "qrc:/png/help"
+    property string text: ""
+    property string state: enabled ? (root.pressed ? "pressed" : "default") : "disabled"
+    property real pointSize: 80
+    property real radius: pointSize/2
 
-    width: 80
+    width: pointSize
     height: pointSize
 
     Rectangle {
         id: recBg
-        visible: enableBg
-        width: pointSize
-        height: pointSize
-        radius: pointSize/2
-        color: containerArea.pressed?"#D0D0D0":"#E0E0E0"
-        opacity: containerArea.pressed?1:0.8
-        border.width: containerArea.pressed?3:2
-        border.color: !containerArea.pressed?"#D0D0D0":"#E0E0E0"
-    }
-    Text {
-        id: iconText
-        anchors.horizontalCenter: recBg.horizontalCenter
-        y: containerArea.pressed?(-pointSize*0.20):(-pointSize*0.18)
-        opacity: containerArea.pressed?1:0.8
-        text: ""
-        font.bold: containerArea.pressed
-        font.pixelSize: pointSize*0.9
-        color: "black"
-    }
+        // visible: root.enableBg
+        anchors.centerIn: parent
+        width: root.pointSize
+        height: root.pointSize
+        radius: root.radius
+        color: root.pressed?"#D0D0D0":"#E0E0E0"
+        opacity: 1
+        border.width: root.pressed?3:2
+        border.color: !root.pressed?"#C0C0C0":"#D0D0D0"
 
-    MouseArea {
-        id: containerArea
-        anchors.fill: container
-        onClicked: container.clicked()
+        Image {
+            id: icon
+            visible: root.source !== ""
+            source: root.source
+            width: root.width*90
+            height: root.height*90
+            anchors.centerIn: parent
+            fillMode: Image.PreserveAspectFit
+            sourceSize.width: 1024
+            sourceSize.height: 1024
+            // color: "black"
+            opacity: root.pressed?0.9:1
+            scale: root.pressed?0.0095:0.01
+            smooth: true
+            mipmap: true
+        }
+
+        MouseArea {
+            id: rootArea
+            anchors.fill: parent
+            onClicked: root.clicked()
+        }
     }
 }

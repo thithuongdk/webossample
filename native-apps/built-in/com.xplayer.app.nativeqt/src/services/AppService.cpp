@@ -35,9 +35,9 @@ void AppService::init(const std::string appName, GMainLoop *mainLoop)
     PlayerService::instance();
     m_engine = new QQmlApplicationEngine();
 
-    registerApp();
     connectSignalSlots();
     qmlRegister();
+    registerApp();
 }
 
 void AppService::registerApp()
@@ -49,6 +49,7 @@ void AppService::registerApp()
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("event")) {
                 std::string event = response["event"].asString();
+                LunaService::fMessagePrintLogCB(sh, msg, context);
                 if (!strcmp(event.c_str(),"registered")) {
                     AppService::instance()->callCreateWindow();
                     AppService::instance()->setWindowStatus(1);
@@ -78,6 +79,7 @@ void AppService::qmlRegister() {
 
 void AppService::callCreateWindow()
 {
+    std::cout << "callCreateWindow" <<std::endl;
     PmLogInfo(getPmLogContext(), "AppService", 0, "callCreateWindow()");
     m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
     PlayerService::instance()->init(m_appName);

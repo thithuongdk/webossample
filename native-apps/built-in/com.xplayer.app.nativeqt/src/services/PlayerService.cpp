@@ -55,9 +55,30 @@ void PlayerService::init(std::string appName)
     PlayerService::instance()->callAppSettings();
     PlayerService::instance()->callMIndexGetDeviceList();
     PlayerService::instance()->callMediaRegisterPipeline();
-
+#ifdef MOCK_H
+    PlayerService::instance()->initFakeData();
+#endif
     connectSignalSlots();
     qmlRegister();
+}
+
+void PlayerService::initFakeData()
+{
+    setFolderPath("/haha/hahah/hahaha/hahaha");
+    setMediaCount(10);
+    list_v mediaList;
+    for(int idx=0; idx<10; idx++) {
+        map_v mapMetaData;
+        mapMetaData.insert("file_path",QString::fromStdString("file_path_" + std::to_string(idx)));
+        mapMetaData.insert("uri",QString::fromStdString("uri_" + std::to_string(idx)));
+        mapMetaData.insert("duration",QString::fromStdString(std::to_string(1000)));
+        mapMetaData.insert("title",QString::fromStdString("title_dcmsdfasdjhgjkasdhjkhg_" + std::to_string(idx)));
+        mapMetaData.insert("artist",QString::fromStdString("artist_sdffgsdg_" + std::to_string(idx)));
+        mapMetaData.insert("album",QString::fromStdString("album_" + std::to_string(idx)));
+        mediaList.append(mapMetaData);
+    }
+    setMediaList(mediaList);
+    setMediaIndex(2);
 }
 
 void PlayerService::connectSignalSlots() {

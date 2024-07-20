@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "Glib.h"
 #include "Log.h"
 #include "AppService.h"
 #include <QGuiApplication>
@@ -21,6 +22,7 @@
 #include <QWindow>
 #include <QScreen>
 #include <qpa/qplatformnativeinterface.h>
+#include <iostream>
 
 int main(int argc, char **argv)
 {

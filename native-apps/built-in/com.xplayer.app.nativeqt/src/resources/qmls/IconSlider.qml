@@ -1,55 +1,99 @@
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic
 
 Slider {
-    id: container
+    id: root
     property real iconSize: 30
     property string textColor: "black"
     property string text2Color: "brown"
-    property alias leftText: leftIconText.text
-    property alias rightText: rightIconText.text
+    property string leftText: ""
+    property string rightText: ""
+    property string leftIcon: "qrc:/png/help"
+    property string rightIcon: "qrc:/png/help"
 
     snapMode: Slider.SnapOnRelease
     stepSize: 0.1
 
     background: Item{
+        id: backGround
         Item{
+            anchors.left: backGround.left
+            width: childrenRect.width
+            height: root.iconSize
             Text {
                 id: leftIconText
-                height: container.iconSize
+                visible: root.leftText !== ""
+                height: root.iconSize
                 font.family: "Helvetica"
-                font.pointSize: container.iconSize*2/3
+                font.pointSize: root.iconSize
                 verticalAlignment: Text.AlignTop
-                color: container.textColor
-                text: ""
+                color: root.textColor
+                text: root.leftText
+            }
+            Image {
+                id: leftIconImage
+                visible: root.leftIcon !== "qrc:/png/help"
+                source: root.leftIcon
+                width: root.iconSize
+                height: root.iconSize
+                y: root.iconSize*0.3
+                // anchors.verticalCenter: leftIconText.verticalCenter
+                fillMode: Image.PreserveAspectFit
+                // sourceSize.width: 1024
+                // sourceSize.height: 1024
+                // color: "black"
+                opacity: 1
+                // scale: 0.01
+                smooth: true
+                mipmap: true
             }
         }
         Item{
-            x: container.width-childrenRect.width
+            anchors.right: backGround.right
+            width: childrenRect.width
+            height: root.iconSize
             Text {
                 id: rightIconText
-                height: container.iconSize
+                visible: root.rightText !== ""
+                height: root.iconSize
                 font.family: "Helvetica"
-                font.pointSize: container.iconSize*2/3
+                font.pointSize: root.iconSize
                 verticalAlignment: Text.AlignTop
-                color: container.textColor
-                text: ""
+                color: root.textColor
+                text: rightText
+            }
+            Image {
+                id: rightIconImage
+                visible: root.rightIcon !== "qrc:/png/help"
+                source: root.rightIcon
+                width: root.iconSize
+                height: root.iconSize
+                // anchors.verticalCenter: leftIconText.verticalCenter
+                y: root.iconSize*0.2
+                fillMode: Image.PreserveAspectFit
+                // sourceSize.width: 1024
+                // sourceSize.height: 1024
+                // color: "black"
+                opacity: 1
+                // scale: 0.01
+                smooth: true
+                mipmap: true
             }
         }
         Rectangle {
             id: sliderLine
-            y: container.height - 30
+            y: root.height - 30
             height: 4
-            width: container.width
+            width: root.width
             radius: 2
-            color: container.text2Color
+            color: root.text2Color
 
             Rectangle {
                 x: 0
-                width: container.visualPosition * parent.width
+                width: root.visualPosition * parent.width
                 height: parent.height
-                color: container.textColor
+                color: root.textColor
                 radius: 2
             }
         }
@@ -57,12 +101,12 @@ Slider {
 
     handle: Rectangle {
         id: sliderBall
-        x: container.visualPosition * (container.width-width)
+        x: root.visualPosition * (root.width-width)
         y: sliderLine.y + (sliderLine.height-height)/2
         width: 20
         height: 20
         radius: 10
-        color: container.pressed ? "#505050" : container.textColor
-        border.color: container.textColor
+        color: root.pressed ? "#505050" : root.textColor
+        border.color: root.textColor
     }
 }

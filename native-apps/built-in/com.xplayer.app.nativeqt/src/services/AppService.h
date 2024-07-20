@@ -6,9 +6,10 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
-#include <glib.h>
+#include <iostream>
 #include <string>
 #include "Log.h"
+#include "Glib.h"
 #include "JsonConvert.h"
 #include "LunaService.h"
 #include "PlayerService.h"

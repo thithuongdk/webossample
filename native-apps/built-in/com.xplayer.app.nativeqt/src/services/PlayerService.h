@@ -1,8 +1,6 @@
 #ifndef PLAYERSERVICE_H
 #define PLAYERSERVICE_H
 
-#include <set>
-#include <vector>
 #include <QUrl>
 #include <QVariant>
 #include <QSettings>
@@ -10,8 +8,7 @@
 #include <QVariant>
 #include <QQuickView>
 #include <QQmlApplicationEngine>
-#include <uMediaClient.h>
-#include <cstdlib>
+#include <iostream>
 #include "Log.h"
 #include "LunaService.h"
 
@@ -50,6 +47,7 @@ public:
     static PlayerService* instance(QObject* parent = nullptr);
     void deInit();
     void init(std::string appName);
+    void initFakeData();
 
 public:
     std::string                     getAppName()                    const;

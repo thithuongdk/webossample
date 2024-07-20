@@ -1,3 +1,4 @@
+#include "Mock.h"
 #ifndef LUNASERVICE_H
 #define LUNASERVICE_H
 
