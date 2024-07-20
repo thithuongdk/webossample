@@ -7,11 +7,11 @@ import app.playerservice 1.0
 Rectangle {
     id: mediaPlayer
 
-    property var boderColor: "#ABE338"
-    property var backGrColor: "#0F1B07"
-    property var textColor: "#FFD700"
-    property var text2Color: "#F8F8F2"
-    property var iconColor: "#F8F8F2"
+    property string boderColor: "#ABE338"
+    property string backGrColor: "#0F1B07"
+    property string textColor: "#FFD700"
+    property string text2Color: "#F8F8F2"
+    property string iconColor: "#F8F8F2"
 
     width: 1000
     height: 720

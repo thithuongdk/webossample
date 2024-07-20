@@ -5,8 +5,8 @@ import QtQuick.Controls
 Slider {
     id: container
     property real iconSize: 30
-    property var textColor: "black"
-    property var text2Color: "brown"
+    property string textColor: "black"
+    property string text2Color: "brown"
     property alias leftText: leftIconText.text
     property alias rightText: rightIconText.text
 

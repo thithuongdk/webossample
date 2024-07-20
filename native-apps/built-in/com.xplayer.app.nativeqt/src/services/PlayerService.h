@@ -119,7 +119,7 @@ private:
 public:
     Q_INVOKABLE void callMediaPlay                                  (std::string mediaId="")                           ;
     Q_INVOKABLE void callMediaPause                                 (std::string mediaId="")                           ;
-    Q_INVOKABLE void callMediaLoad                                  (std::string appName="", std::string uriFile="")   ;
+    Q_INVOKABLE void callMediaLoad                                  (std::string uriFile="")                           ;
     Q_INVOKABLE void callMediaUnLoad                                (std::string mediaId="")                           ;
     Q_INVOKABLE void callMediaSeek                                  (std::string mediaId="", int seek=0)               ;
     Q_INVOKABLE void callMediaSetPlayRate                           (std::string mediaId="", int playRate=10)          ;

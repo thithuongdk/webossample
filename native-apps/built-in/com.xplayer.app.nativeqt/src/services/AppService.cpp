@@ -42,13 +42,10 @@ void AppService::init(const std::string appName, GMainLoop *mainLoop)
 
 void AppService::registerApp()
 {
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.applicationmanager/registerApp",
-        "{}",
+    LunaService::sendRegisterApp(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/registerApp",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            fMessagePrintLog(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("event")) {
                 std::string event = response["event"].asString();
@@ -91,49 +88,36 @@ void AppService::callMinimumWindow() {
 }
 
 void AppService::callCloseWindow() {
-    std::string sjson = R"({"id":")" + AppService::instance()->getAppName() + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.applicationmanager/close",
-        sjson.c_str(),
+    LunaService::sendCloseWindow(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/close",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             PlayerService::instance()->callAppSettings(AppService::instance()->getAppName());
             return true;
-        },
-        this);
+        });
 }
 
 void AppService::callLaunchHome() {
-    std::string sjson = R"({"id":"com.webos.app.home"})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.applicationmanager/launch",
-        sjson.c_str(),
+    LunaService::sendLaunchHome(
+        m_appName,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/launch",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void AppService::callLaunchApp() {
-    std::string sjson = R"({"id":")" + AppService::instance()->getAppName() + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.applicationmanager/launch",
-        sjson.c_str(),
+    LunaService::sendLaunchApp(
+        m_appName,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/launch",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void AppService::setWindowStatus(int windowStatus) {

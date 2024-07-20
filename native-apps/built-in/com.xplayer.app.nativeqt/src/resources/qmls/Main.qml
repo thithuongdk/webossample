@@ -5,11 +5,11 @@ import QtQuick.Window
 Window {
     id: mediaWindow
     title: "XPlayer"
-    property var boderColor: "#D9D9D9"
-    property var backGrColor: "#F4F4F4"
-    property var textColor: "#333333"
-    property var text2Color: "#1DB954"
-    property var iconColor: "#1DB954"
+    property string boderColor: "#D9D9D9"
+    property string backGrColor: "#F4F4F4"
+    property string textColor: "#333333"
+    property string text2Color: "#1DB954"
+    property string iconColor: "#1DB954"
     visible: true
     visibility: Window.Maximized
  

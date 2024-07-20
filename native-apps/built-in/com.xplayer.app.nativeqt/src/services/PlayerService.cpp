@@ -245,7 +245,7 @@ void PlayerService::setMusicPath(QUrl musicPath) {
         // unload + load
         callMediaUnLoad(m_mediaId.toStdString());
         setSeek(0);
-        callMediaLoad(m_appName, musicPath.toString().toStdString());
+        callMediaLoad(musicPath.toString().toStdString());
         m_musicPath = musicPath;
         emit musicPathChanged(musicPath);
     } else {
@@ -380,55 +380,43 @@ void PlayerService::setAppSettings(map_v appSettings) {
 void PlayerService::callMediaPlay(std::string mediaId)
 {
     if(mediaId.empty()) {           // if empty then load before
-        PlayerService::instance()->callMediaLoad(m_appName, PlayerService::instance()->getMusicPath().toString().toStdString());
+        PlayerService::instance()->callMediaLoad(PlayerService::instance()->getMusicPath().toString().toStdString());
         return;
     } 
     PlayerService::instance()->callMediaSubscribe(mediaId);
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/play",
-        sjson.c_str(),
+    LunaService::sendMediaPlay(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/play",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaPause(std::string mediaId)
 {
     if(mediaId.empty()) return;
     PlayerService::instance()->callMediaUnSubscribe(mediaId);
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/pause",
-        sjson.c_str(),
+    LunaService::sendMediaPause(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/pause",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
-void PlayerService::callMediaLoad(std::string appName, std::string uriFile)
+void PlayerService::callMediaLoad(std::string uriFile)
 {
     if(uriFile.empty()) return;
-    std::string sjson = R"({"uri":")" + uriFile +
-                        R"(", "type":"media", "callbackpayload":{"option":{"appId":")" + appName +
-                        R"(", "windowId":""}}})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/load",
-        sjson.c_str(),
+    LunaService::sendMediaLoad(
+        m_appName,
+        uriFile,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/load",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaId")) {
                 std::string mediaId = response["mediaId"].asString();
@@ -441,85 +429,68 @@ void PlayerService::callMediaLoad(std::string appName, std::string uriFile)
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaUnLoad(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
     PlayerService::instance()->callMediaUnSubscribe(mediaId);
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/unload",
-        sjson.c_str(),
+    LunaService::sendMediaUnLoad(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/unload",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaId")
                 && PlayerService::instance()->getMediaId().toStdString()==response["mediaId"].asString()) {
                 PlayerService::instance()->setMediaId("");             // update new media
             }
             return true;
-        },
-        this);
+        });
     PlayerService::instance()->setMediaId(""); 
 }
 
 void PlayerService::callMediaSeek(std::string mediaId, int seek)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId +
-                        R"(","position":)" + std::to_string(seek) + R"(})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/seek",
-        sjson.c_str(),
+    LunaService::sendMediaSeek(
+        mediaId,
+        seek,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/seek",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaSetPlayRate(std::string mediaId, int playRate)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId +
-                        R"(","playRate":)" + std::to_string(playRate/10) + R"(,"audioOutput":true})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/setPlayRate",
-        sjson.c_str(),
+    LunaService::sendMediaSetPlayRate(
+        mediaId,
+        int(playRate/10),
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/setPlayRate",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaSetVolume(std::string mediaId, int volume)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId +
-                        R"(","volume":)" + std::to_string(volume) + R"(})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/setVolume",
-        sjson.c_str(),
+    LunaService::sendMediaSetVolume(
+        mediaId,
+        volume,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/setVolume",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callEndToNextMediaIndex() {
@@ -556,20 +527,16 @@ void PlayerService::callEndToNextMediaIndex() {
 void PlayerService::callMediaSubscribe(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    LunaService::instance()->fLSCalln(
-        "luna://com.webos.media/subscribe",
-        sjson.c_str(),
+    LunaService::sendMediaSubscribe(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (response.hasKey("returnValue") && !response["returnValue"].asBool()) {
-                PmLogInfo(getPmLogContext(), "/subscribe",
-                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+                LunaService::fMessagePrintLogCB(msg);
                 return false;
             }
             if (response.hasKey("endOfStream") && response["endOfStream"].hasKey("mediaId")) {
-                PmLogInfo(getPmLogContext(), "/subscribe",
-                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+                LunaService::fMessagePrintLogCB(msg);
                 std::string mediaId = response["endOfStream"]["mediaId"].asString();
                 if (PlayerService::instance()->getMediaId().toStdString()==mediaId) {
                     PlayerService::instance()->callEndToNextMediaIndex();
@@ -578,43 +545,34 @@ void PlayerService::callMediaSubscribe(std::string mediaId)
                 int currentTime = response["currentTime"].asNumber<int>();
                 PlayerService::instance()->setSeek(currentTime, true);    // pypass send data media/seek
             } else {
-                PmLogInfo(getPmLogContext(), "/subscribe",
-                            1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
+            LunaService::fMessagePrintLogCB(msg);
             }
 
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaUnSubscribe(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/unsubscribe",
-        sjson.c_str(),
+    LunaService::sendMediaUnSubscribe(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/unsubscribe",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaStatus(std::string mediaId)
 {
     if(mediaId.empty()) return;
-    std::string sjson = R"({"mediaId":")" + mediaId + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/getPipelineState",
-        sjson.c_str(),
+    LunaService::sendMediaStatus(
+        mediaId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getPipelineState",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (PlayerService::instance()->getMediaId().toStdString()==response["mediaId"].asString()) {
                 if (response.hasKey("data")){
@@ -627,20 +585,15 @@ void PlayerService::callMediaStatus(std::string mediaId)
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaRegisterPipeline()
 {
-    std::string sjson = R"({"type":"media"})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/registerPipeline",
-        sjson.c_str(),
+    LunaService::sendMediaRegisterPipeline(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/registerPipeline",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             // if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("connectionId")) {
                 std::string mediaPipeId = response["connectionId"].asString();
@@ -650,41 +603,32 @@ void PlayerService::callMediaRegisterPipeline()
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMediaUnRegisterPipeline(std::string mediaPipeId)
 {
     if(mediaPipeId.empty()) return;
-    std::string sjson = R"({"mediaPipeId":")" + mediaPipeId + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.media/registerPipeline",
-        sjson.c_str(),
+    LunaService::sendMediaUnRegisterPipeline(
+        mediaPipeId,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getPipelineState",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             // if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("mediaPipeId")) {
                 std::string mediaPipeId = response["mediaPipeId"].asString();
                 PlayerService::instance()->setMediaPipeId(QString::fromStdString(mediaPipeId));
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMIndexGetDeviceList()
 {
-    std::string sjson = R"({"subscribe":true})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.mediaindexer/getDeviceList",
-        sjson.c_str(),
+    LunaService::sendMIndexGetDeviceList(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getDeviceList",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("pluginList") && response["pluginList"].isArray()) {
                 pbnjson::JValue pluginList = response["pluginList"];
@@ -709,20 +653,16 @@ void PlayerService::callMIndexGetDeviceList()
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMIndexGetAudioList(std::string uriStorage)
 {
-    std::string sjson = R"({"uri":")"  + uriStorage + R"(/"})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.mediaindexer/getAudioList",
-        sjson.c_str(),
+    LunaService::sendMIndexGetAudioList(
+        uriStorage,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getAudioList",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("audioList")) {
                 if (response["audioList"].hasKey("results") && response["audioList"].hasKey("count")) {
@@ -747,21 +687,17 @@ void PlayerService::callMIndexGetAudioList(std::string uriStorage)
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
 {
     if(uriStorage.empty()) return;
-    std::string sjson = R"({"uri":")" + uriStorage + R"("})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.mediaindexer/getAudioMetadata",
-        sjson.c_str(),
+    LunaService::sendMIndexGetAudioMetadata(
+        uriStorage,
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/getAudioMetadata",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             if (response.hasKey("metadata")) {
                 pbnjson::JValue metadata = response["metadata"];
@@ -779,27 +715,21 @@ void PlayerService::callMIndexGetAudioMetadata(std::string uriStorage)
                 }
             }
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callMIndexRqScan()
 {
-    std::string sjson = R"({"path": "/"})";
-    LunaService::instance()->fLSCall1(
-        "luna://com.webos.service.mediaindexer/requestMediaScan",
-        sjson.c_str(),
+    LunaService::sendMIndexRqScan(
         [](LSHandle* sh, LSMessage* msg, void* context)->bool {
-            PmLogInfo(getPmLogContext(), "/requestMediaScan",
-                        1, PMLOGJSON("callbackpayload", LSMessageGetPayload(msg)), " ");
-            pbnjson::JValue response = convertStringToJson(LSMessageGetPayload(msg));
+            LunaService::fMessagePrintLogCB(msg);
+            pbnjson::JValue response = convertStringToJson(LunaService::fLSMessageGetPayload(msg));
             if (!response["returnValue"].asBool()) return false;
             std::string uristorage = PlayerService::instance()->getStoragePath().toStdString()
                                     + PlayerService::instance()->getFolderPath().toStdString();
             PlayerService::instance()->callMIndexGetAudioList(uristorage);
             return true;
-        },
-        this);
+        });
 }
 
 void PlayerService::callAppSettings(std::string appName)
