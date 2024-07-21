@@ -40,45 +40,22 @@ Rectangle {
                 y: 10
                 id: openFolderButton
                 pointSize: 20
-                source: "qrc:/png/menu"
+                source: "qrc:/svg/folder"
+                radius: 5
                 onClicked: folderDialog.open()
             }
-            Item {
+            TextLong {
                 x: 35
                 anchors.verticalCenter: parent.verticalCenter
                 id: openFolderTextItem
                 width: parent.width-45
                 height: parent.height-10
-                clip: true
-                Text {
-                    y: 3
-                    id: openFolderText
-                    text: playerService.folderPath
-                    font.pixelSize: 20
-                    font.bold: true
-                    color: root.textColor
-                }
-                SequentialAnimation {
-                    id: textFolderAnimation
-                    running: openFolderTextItem.width < openFolderText.implicitWidth
-                    
-                    PauseAnimation {
-                        duration: 1000
-                    }
-                    
-                    NumberAnimation {
-                        target: openFolderText
-                        property: "x"
-                        from: openFolderText.x
-                        to: -openFolderText.width
-                        duration: 20*openFolderText.width
-                        loops: Animation.Infinite
-                        easing.type: Easing.Linear
-                    }
-                    onStopped: {
-                        openFolderText.x = 0
-                    }
-                }
+                text: playerService.folderPath
+                pixelSize: 20
+                bold: true
+                color: root.textColor
+                running: true
+                delay: 1000
             }
         }
         Rectangle {
@@ -99,56 +76,48 @@ Rectangle {
                 boundsBehavior: Flickable.StopAtBounds
                 snapMode: ListView.SnapToItem
                 clip: true
+
                 delegate: Item {
                     id: itemDelegate
                     height: 45
                     width: parent.width
+                    clip: true
+
+
                     MouseArea {
                         anchors.fill: itemDelegate
                         onClicked: {
                             playerService.mediaIndex = index
                         }
                     }
-                    SequentialAnimation {
-                        id: textAnimation
-                        running: musicFileListView.currentIndex == index && musicFileListView.width < textElement.implicitWidth
-                        
-                        PauseAnimation {
-                            duration: 2000
-                        }
-                        
-                        NumberAnimation {
-                            target: textElement
-                            property: "x"
-                            from: textElement.x
-                            to: -textElement.width
-                            duration: 20*textElement.width
-                            loops: Animation.Infinite
-                            easing.type: Easing.Linear
-                        }
-                        onStopped: {
-                            textElement.x = 0
-                        }
-                    }
                     Row {
                         Text {
                             id: indexElement
+                            width: 35
+                            height: 20
                             font.pixelSize: 18
                             font.bold: itemDelegate.ListView.isCurrentItem
                             text: (index+1) + ": "
                             color: itemDelegate.ListView.isCurrentItem?root.text2Color:root.textColor
                         }
                         Column {
-                            clip: true
-                            Text {
+                            TextLong {
+                                // anchors.verticalCenter: parent.verticalCenter
                                 id: textElement
-                                font.pixelSize: 18
-                                font.bold: itemDelegate.ListView.isCurrentItem
+                                y: 0
+                                width: itemDelegate.width-45
+                                height: 25
                                 text: modelData["title"].toString()
+                                pixelSize: 16
+                                bold: itemDelegate.ListView.isCurrentItem
                                 color: itemDelegate.ListView.isCurrentItem?root.text2Color:root.textColor
+                                running: itemDelegate.ListView.isCurrentItem
+                                delay: 1000
                             }
                             Text {
-                                x: 20
+                                y: 20
+                                width: itemDelegate.width-45
+                                height: 20
                                 font.pixelSize: 14
                                 font.bold: itemDelegate.ListView.isCurrentItem
                                 text: "artist: " + modelData["artist"].toString()

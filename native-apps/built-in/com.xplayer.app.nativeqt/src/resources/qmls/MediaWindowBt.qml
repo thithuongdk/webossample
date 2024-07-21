@@ -11,7 +11,7 @@ Item {
         IconButton {
             id: miniButton
             pointSize: 30
-            source: "qrc:/png/minus"
+            source: "qrc:/svg/play"
             iconColor: "black"
             enableBg: false
             onClicked: {
@@ -21,7 +21,7 @@ Item {
         IconButton {
             id: resizeButton
             pointSize: 30
-            source: "qrc:/png/plus"
+            source: "qrc:/svg/play"
             iconColor: "black"
             enableBg: false
             onClicked: {
@@ -35,7 +35,7 @@ Item {
         IconButton {
             id: closeButton
             pointSize: 30
-            source: "qrc:/png/quit"
+            source: "qrc:/svg/play"
             iconColor: "black"
             enableBg: false
             onClicked: {

@@ -26,7 +26,6 @@ Window {
             textColor: root.textColor
             text2Color: root.text2Color
             iconColor: root.iconColor
-
         }
         MediaPlayer {
             id: mediaplayer

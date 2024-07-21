@@ -1,61 +1,37 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/">
         <file>src/resources/qmls/Main.qml</file>
         <file>src/resources/qmls/IconButton.qml</file>
         <file>src/resources/qmls/IconSlider.qml</file>
+        <file>src/resources/qmls/TextLong.qml</file>
         <file>src/resources/qmls/MediaPath.qml</file>
         <file>src/resources/qmls/MediaPlayer.qml</file>
         <file>src/resources/qmls/MediaWindowBt.qml</file>
     </qresource>
     <qresource prefix="/png">
-        <file alias="back">src/resources/icons/png/back.png</file>
-        <file alias="help">src/resources/icons/png/help.png</file>
-        <file alias="info">src/resources/icons/png/info.png</file>
-        <file alias="menu">src/resources/icons/png/menu.png</file>
-        <file alias="minus">src/resources/icons/png/minus.png</file>
         <file alias="music">src/resources/icons/png/music.png</file>
-        <file alias="next">src/resources/icons/png/next.png</file>
-        <file alias="pause">src/resources/icons/png/pause.png</file>
-        <file alias="play">src/resources/icons/png/play.png</file>
-        <file alias="plus">src/resources/icons/png/plus.png</file>
-        <file alias="quit">src/resources/icons/png/quit.png</file>
-        <file alias="repeat">src/resources/icons/png/repeat.png</file>
-        <file alias="rewind">src/resources/icons/png/rewind.png</file>
-        <file alias="share">src/resources/icons/png/share.png</file>
-        <file alias="shuffle">src/resources/icons/png/shuffle.png</file>
-        <file alias="skip">src/resources/icons/png/skip.png</file>
-        <file alias="speaker_0">src/resources/icons/png/speaker_0.png</file>
-        <file alias="speaker_1">src/resources/icons/png/speaker_1.png</file>
-        <file alias="speaker_2">src/resources/icons/png/speaker_2.png</file>
-        <file alias="speaker_3">src/resources/icons/png/speaker_3.png</file>
-        <file alias="speaker_x">src/resources/icons/png/speaker_x.png</file>
-        <file alias="stop">src/resources/icons/png/stop.png</file>
-        <file alias="switch_0">src/resources/icons/png/switch_0.png</file>
-        <file alias="switch_1">src/resources/icons/png/switch_1.png</file>
-        <file alias="time">src/resources/icons/png/time.png</file>
     </qresource>
     <qresource prefix="/svg">
-        <file alias="back">src/resources/icons/svg/back.svg</file>
-        <file alias="fast_back">src/resources/icons/svg/fast_back.svg</file>
-        <file alias="fast_forward">src/resources/icons/svg/fast_forward.svg</file>
-        <file alias="folder">src/resources/icons/svg/folder.svg</file>
-        <file alias="forward">src/resources/icons/svg/forward.svg</file>
-        <file alias="list_play">src/resources/icons/svg/list_play.svg</file>
-        <file alias="pause_circle">src/resources/icons/svg/pause_circle.svg</file>
-        <file alias="play_circle">src/resources/icons/svg/play_circle.svg</file>
-        <file alias="play_pause">src/resources/icons/svg/play_pause.svg</file>
-        <file alias="play">src/resources/icons/svg/play.svg</file>
-        <file alias="repeat">src/resources/icons/svg/repeat.svg</file>
-        <file alias="shuffle">src/resources/icons/svg/shuffle.svg</file>
-        <file alias="sound">src/resources/icons/svg/sound.svg</file>
-        <file alias="stop_circle">src/resources/icons/svg/stop_circle.svg</file>
-        <file alias="stop">src/resources/icons/svg/stop.svg</file>
-        <file alias="time">src/resources/icons/svg/time.svg</file>
-        <file alias="volume_0">src/resources/icons/svg/volume0.svg</file>
-        <file alias="volume_1">src/resources/icons/svg/volume1.svg</file>
-        <file alias="volume_2">src/resources/icons/svg/volume2.svg</file>
-        <file alias="volume_3">src/resources/icons/svg/volume3.svg</file>
-        <file alias="volume_x">src/resources/icons/svg/volumex.svg</file>
+        <file alias="back">src\resources\icons\svg\back.svg</file>
+        <file alias="fast_back">src\resources\icons\svg\fast_back.svg</file>
+        <file alias="fast_forward">src\resources\icons\svg\fast_forward.svg</file>
+        <file alias="folder">src\resources\icons\svg\folder.svg</file>
+        <file alias="forward">src\resources\icons\svg\forward.svg</file>
+        <file alias="list_play">src\resources\icons\svg\list_play.svg</file>
+        <file alias="pause_circle">src\resources\icons\svg\pause_circle.svg</file>
+        <file alias="play_circle">src\resources\icons\svg\play_circle.svg</file>
+        <file alias="play_pause">src\resources\icons\svg\play_pause.svg</file>
+        <file alias="play">src\resources\icons\svg\play.svg</file>
+        <file alias="repeat">src\resources\icons\svg\repeat.svg</file>
+        <file alias="shuffle">src\resources\icons\svg\shuffle.svg</file>
+        <file alias="sound">src\resources\icons\svg\sound.svg</file>
+        <file alias="stop_circle">src\resources\icons\svg\stop_circle.svg</file>
+        <file alias="stop">src\resources\icons\svg\stop.svg</file>
+        <file alias="time">src\resources\icons\svg\time.svg</file>
+        <file alias="volume_0">src\resources\icons\svg\volume_0.svg</file>
+        <file alias="volume_1">src\resources\icons\svg\volume_1.svg</file>
+        <file alias="volume_2">src\resources\icons\svg\volume_2.svg</file>
+        <file alias="volume_3">src\resources\icons\svg\volume_3.svg</file>
+        <file alias="volume_x">src\resources\icons\svg\volume_x.svg</file>
     </qresource>
 </RCC>
