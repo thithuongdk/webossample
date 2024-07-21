@@ -28,31 +28,31 @@ QT += \
 
 #        svg \
 
+if (0) {
+        EFINES += MOCK_H
+        SOURCES += main.cpp src/services/AppService.cpp src/services/PlayerService.cpp
+        HEADERS += src/common/Mock.h src/common/Log.h src/common/Glib.h src/common/JsonConvert.h src/services/LunaService.h src/services/AppService.h src/services/PlayerService.h
+} else {
+        CONFIG += link_pkgconfig
+        PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib umedia_api
 
+        SOURCES += \
+                main.cpp \
+                src/services/AppEnum.cpp \
+                src/services/LunaService.cpp \
+                src/services/AppService.cpp \
+                src/services/PlayerService.cpp \
 
-# DEFINES += MOCK_H
-# SOURCES += main.cpp src/services/AppService.cpp src/services/PlayerService.cpp
-# HEADERS += src/common/Mock.h src/common/Log.h src/common/Glib.h src/common/JsonConvert.h src/services/LunaService.h src/services/AppService.h src/services/PlayerService.h
+        HEADERS += \
+                src/common/JsonConvert.h \
+                src/common/Log.h \
+                src/common/Glib.h \
+                src/services/AppEnum.h \
+                src/services/LunaService.h \
+                src/services/AppService.h \
+                src/services/PlayerService.h \
 
-CONFIG += link_pkgconfig
-PKGCONFIG += luna-service2 glib-2.0 pbnjson_cpp PmLogLib umedia_api
-
-SOURCES += \
-            main.cpp \
-            src/services/AppEnum.cpp \
-            src/services/LunaService.cpp \
-            src/services/AppService.cpp \
-            src/services/PlayerService.cpp \
-
-HEADERS += \
-            src/common/JsonConvert.h \
-            src/common/Log.h \
-            src/common/Glib.h \
-            src/services/AppEnum.h \
-            src/services/LunaService.h \
-            src/services/AppService.h \
-            src/services/PlayerService.h \
-
+}
 
 INCLUDEPATH += \
             src/common \

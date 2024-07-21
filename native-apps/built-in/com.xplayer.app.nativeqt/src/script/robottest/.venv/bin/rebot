@@ -1,0 +1,8 @@
+#!/home/thuong/webossample/native-apps/built-in/com.xplayer.app.nativeqt/src/script/robottest/.venv/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+from robot.rebot import rebot_cli
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(rebot_cli())

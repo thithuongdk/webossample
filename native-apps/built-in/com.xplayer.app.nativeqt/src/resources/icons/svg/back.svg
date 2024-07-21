@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg fill="#FFD700" height="800px" width="800px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-	 viewBox="0 0 60 60" xml:space="preserve">
-<path d="M30,0C13.458,0,0,13.458,0,30s13.458,30,30,30s30-13.458,30-30S46.542,0,30,0z M20,46h-7V14h7V46z M46,45
-	c0,0.371-0.205,0.711-0.533,0.884C45.321,45.962,45.16,46,45,46c-0.197,0-0.394-0.059-0.563-0.174l-22-15
-	C22.164,30.64,22,30.331,22,30s0.164-0.64,0.437-0.826l22-15c0.308-0.208,0.705-0.231,1.031-0.058C45.795,14.289,46,14.629,46,15V45
-	z"/>
+<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" d="M18.4,21.8 L6.4,12.8 C5.86666667,12.4 5.86666667,11.6 6.4,11.2 L18.4,2.2 C19.0592363,1.70557281 20,2.17595468 20,3 L20,21 C20,21.8240453 19.0592363,22.2944272 18.4,21.8 Z M18,5 L8.66666667,12 L18,19 L18,5 Z M6,22 L4,22 L4,2 L6,2 L6,22 Z"/>
 </svg>

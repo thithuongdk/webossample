@@ -24,6 +24,7 @@ Below are the tools and libraries (and their minimum versions) required to build
 
 Copyright and License Information
 =================================
+svg down: https://www.svgrepo.com/collection/essential-compilation/2
 Unless otherwise specified, all content, including all source code files and
 documentation files in this repository are:
 

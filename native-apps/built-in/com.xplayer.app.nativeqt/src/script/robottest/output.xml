@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.0.1 (Python 3.11.6 on linux)" generated="2024-07-10T21:40:37.324226" rpa="false" schemaversion="5">
+<suite id="s1" name="Geaudiolist Test" source="/home/thuong/webossample/native-apps/built-in/com.xplayer.app.nativeqt/src/script/robottest/tests/geaudiolist_test.robot">
+<kw name="Open Connection And Log In" type="SETUP">
+<kw name="Open Connection" owner="SSHLibrary">
+<arg>${HOST}</arg>
+<arg>port=${PORT}</arg>
+<doc>Opens a new SSH connection to the given ``host`` and ``port``.</doc>
+<status status="PASS" start="2024-07-10T21:40:37.471809" elapsed="0.000298"/>
+</kw>
+<kw name="Login" owner="SSHLibrary">
+<msg time="2024-07-10T21:40:37.472446" level="INFO">Logging into 'localhost:6622' as 'root'.</msg>
+<msg time="2024-07-10T21:40:38.920150" level="INFO">Read output: root@qemux86-64:~#</msg>
+<arg>${USERNAME}</arg>
+<arg>${PASSWORD}</arg>
+<doc>Logs into the SSH server with the given ``username`` and ``password``.</doc>
+<status status="PASS" start="2024-07-10T21:40:37.472230" elapsed="1.448027"/>
+</kw>
+<status status="PASS" start="2024-07-10T21:40:37.471305" elapsed="1.449058"/>
+</kw>
+<test id="s1-t1" name="Execute Luna Test" line="48">
+<kw name="Luna Send">
+<kw name="Execute Command" owner="SSHLibrary">
+<msg time="2024-07-10T21:40:38.921411" level="INFO">Executing command 'luna-send -n 1 -f luna://com.webos.media/getActivePipelines '{}''.</msg>
+<msg time="2024-07-10T21:40:38.988239" level="INFO">Command exited with return code 0.</msg>
+<msg time="2024-07-10T21:40:38.988384" level="INFO">${responses} = [
+    {
+        "resources": [
+        ],
+        "pid": 21039,
+        "id": "_Dk9x9s1bkoEgf3",
+        "policy_state": 0,
+        "is_managed": true,
+        "is_foreground": false,
+        "process...</msg>
+<var>${responses}</var>
+<arg>luna-send -n ${count} -f luna://${command} '${payload}'</arg>
+<arg>timeout=5</arg>
+<arg>output_if_timeout=TRUE</arg>
+<doc>Executes ``command`` on the remote machine and returns its outputs.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.921169" elapsed="0.067238"/>
+</kw>
+<kw name="Replace String" owner="String">
+<msg time="2024-07-10T21:40:38.988737" level="INFO">${responses} = [
+    {
+        "resources": [
+        ],
+        "pid": 21039,
+        "id": "_Dk9x9s1bkoEgf3",
+        "policy_state": 0,
+        "is_managed": true,
+        "is_foreground": false,
+        "process...</msg>
+<var>${responses}</var>
+<arg>${responses}</arg>
+<arg>}\n{</arg>
+<arg>},{</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.988554" elapsed="0.000203"/>
+</kw>
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2024-07-10T21:40:38.990872" level="INFO">${output} = [[{'resources': [], 'pid': 21039, 'id': '_Dk9x9s1bkoEgf3', 'policy_state': 0, 'is_managed': True, 'is_foreground': False, 'processState': 'media_loaded', 'is_focus': False, 'mediaState': 'pause', 'typ...</msg>
+<var>${output}</var>
+<arg>json.loads("["+$responses+"]")</arg>
+<arg>json</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.988855" elapsed="0.002041"/>
+</kw>
+<return>
+<value>${output}</value>
+<status status="PASS" start="2024-07-10T21:40:38.990952" elapsed="0.000039"/>
+</return>
+<msg time="2024-07-10T21:40:38.991106" level="INFO">${output} = [[{'resources': [], 'pid': 21039, 'id': '_Dk9x9s1bkoEgf3', 'policy_state': 0, 'is_managed': True, 'is_foreground': False, 'processState': 'media_loaded', 'is_focus': False, 'mediaState': 'pause', 'typ...</msg>
+<var>${output}</var>
+<arg>1</arg>
+<arg>com.webos.media/getActivePipelines</arg>
+<arg>{}</arg>
+<status status="PASS" start="2024-07-10T21:40:38.920890" elapsed="0.070239"/>
+</kw>
+<kw name="Get From Dictionary" owner="Collections">
+<msg time="2024-07-10T21:40:38.991497" level="INFO">${mediaId} = _Dk9x9s1bkoEgf3</msg>
+<var>${mediaId}</var>
+<arg>${output}[0][0]</arg>
+<arg>mediaId</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.991315" elapsed="0.000199"/>
+</kw>
+<kw name="Luna Send">
+<kw name="Execute Command" owner="SSHLibrary">
+<msg time="2024-07-10T21:40:38.992136" level="INFO">Executing command 'luna-send -n 5 -f luna://com.webos.media/subscribe '{"mediaId":"_Dk9x9s1bkoEgf3"}''.</msg>
+<msg time="2024-07-10T21:40:39.623713" level="INFO">Command exited with return code 0.</msg>
+<msg time="2024-07-10T21:40:39.623840" level="INFO">${responses} = {
+    "subscription": true
+}
+{
+    "errorCode": 0,
+    "returnValue": true,
+    "errorText": "No Error",
+    "mediaId": "_Dk9x9s1bkoEgf3"
+}
+{
+    "currentTime": 80982
+}
+{
+    "currentTime": 80982
+}
+{
+...</msg>
+<var>${responses}</var>
+<arg>luna-send -n ${count} -f luna://${command} '${payload}'</arg>
+<arg>timeout=5</arg>
+<arg>output_if_timeout=TRUE</arg>
+<doc>Executes ``command`` on the remote machine and returns its outputs.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.991939" elapsed="0.631921"/>
+</kw>
+<kw name="Replace String" owner="String">
+<msg time="2024-07-10T21:40:39.624172" level="INFO">${responses} = {
+    "subscription": true
+},{
+    "errorCode": 0,
+    "returnValue": true,
+    "errorText": "No Error",
+    "mediaId": "_Dk9x9s1bkoEgf3"
+},{
+    "currentTime": 80982
+},{
+    "currentTime": 80982
+},{
+...</msg>
+<var>${responses}</var>
+<arg>${responses}</arg>
+<arg>}\n{</arg>
+<arg>},{</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<status status="PASS" start="2024-07-10T21:40:39.623996" elapsed="0.000195"/>
+</kw>
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2024-07-10T21:40:39.624547" level="INFO">${output} = [{'subscription': True}, {'errorCode': 0, 'returnValue': True, 'errorText': 'No Error', 'mediaId': '_Dk9x9s1bkoEgf3'}, {'currentTime': 80982}, {'currentTime': 80982}, {'currentTime': 80982}]</msg>
+<var>${output}</var>
+<arg>json.loads("["+$responses+"]")</arg>
+<arg>json</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2024-07-10T21:40:39.624277" elapsed="0.000290"/>
+</kw>
+<return>
+<value>${output}</value>
+<status status="PASS" start="2024-07-10T21:40:39.624608" elapsed="0.000032"/>
+</return>
+<msg time="2024-07-10T21:40:39.624742" level="INFO">${output} = [{'subscription': True}, {'errorCode': 0, 'returnValue': True, 'errorText': 'No Error', 'mediaId': '_Dk9x9s1bkoEgf3'}, {'currentTime': 80982}, {'currentTime': 80982}, {'currentTime': 80982}]</msg>
+<var>${output}</var>
+<arg>5</arg>
+<arg>com.webos.media/subscribe</arg>
+<arg>{"mediaId":"${mediaId}"}</arg>
+<status status="PASS" start="2024-07-10T21:40:38.991681" elapsed="0.633078"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2024-07-10T21:40:39.624993" level="INFO">The value of the variable is: [{'subscription': True}, {'errorCode': 0, 'returnValue': True, 'errorText': 'No Error', 'mediaId': '_Dk9x9s1bkoEgf3'}, {'currentTime': 80982}, {'currentTime': 80982}, {'currentTime': 80982}]</msg>
+<arg>The value of the variable is: ${output}</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2024-07-10T21:40:39.624887" elapsed="0.000139"/>
+</kw>
+<doc>Execute Command luna send 2 response.
+com.webos.service.mediaindexer/getDeviceList.</doc>
+<status status="PASS" start="2024-07-10T21:40:38.920438" elapsed="0.704701"/>
+</test>
+<kw name="Close Connection" owner="SSHLibrary" type="TEARDOWN">
+<doc>Closes the current connection.</doc>
+<status status="PASS" start="2024-07-10T21:40:39.625483" elapsed="0.000231"/>
+</kw>
+<doc>This example demonstrates executing commands on a remote machine
+and getting their output and the return code.
+
+Notice how connections are handled as part of the suite setup and
+teardown. This saves some time when executing several test cases.</doc>
+<status status="PASS" start="2024-07-10T21:40:37.325030" elapsed="2.300714"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Geaudiolist Test">Geaudiolist Test</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

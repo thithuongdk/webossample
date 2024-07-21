@@ -75,14 +75,19 @@ const char *LunaService::fLSMessageGetPayload(LSMessage * msg)
 
 void LunaService::fMessagePrintLogCB(LSMessage * msg) 
 {
-    PmLogInfo(getPmLogContext(), "CALLBACK", 0, LSMessageGetMethod(msg), LSMessageGetPayload(msg));
+    // PmLogInfo(getPmLogContext(), "CALLBACK", 1, PMLOGKS("method", LSMessageGetCategory(msg)), LSMessageGetPayload(msg));
+    // PmLogInfo(getPmLogContext(), "CALLBACK", 1, PMLOGKFV("method", "%s", LSMessageGetCategory(msg)), LSMessageGetPayload(msg));
+    PmLogInfo(getPmLogContext(), "CALLBACK", 0, "%s/%s: %s", LSMessageGetSenderServiceName(msg),LSMessageGetCategory(msg), LSMessageGetPayload(msg));
+
+    
+    LSMessagePrint(msg,stdout);
 }
 
 void LunaService::fMessagePrintLogCB(LSHandle* sh, LSMessage* msg, void* context) 
 {
     Q_UNUSED(sh);
     Q_UNUSED(context);
-    PmLogInfo(getPmLogContext(), "CALLBACK", 0, LSMessageGetMethod(msg), LSMessageGetPayload(msg));
+    fMessagePrintLogCB(msg);
 }
 
 void LunaService::fLSCalln(std::string luna, std::string msg, fCallBack cbF, void* udata)
@@ -134,6 +139,10 @@ void LunaService::fLSSubscriptionReply(std::string key, std::string msg)
 
 void LunaService::fLSMessageReply(LSHandle *sh, LSMessage * msg, void *ctx, std::string key)
 {
+    Q_UNUSED(sh);
+    Q_UNUSED(msg);
+    Q_UNUSED(ctx);
+    Q_UNUSED(key);
 }
 
 /* call services */
