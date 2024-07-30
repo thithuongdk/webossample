@@ -82,6 +82,11 @@ void AppService::callCreateWindow()
     std::cout << "callCreateWindow" <<std::endl;
     PmLogInfo(getPmLogContext(), "AppService", 0, "callCreateWindow()");
     m_engine->load(QUrl(QStringLiteral("qrc:/src/resources/qmls/Main.qml")));
+    QQuickWindow* window = qobject_cast<QQuickWindow*>(m_engine->rootObjects().first());
+    if(window) {
+        window->setWidth(1280);
+        window->setHeight(720);
+    }
     PlayerService::instance()->init(m_appName);
 }
 

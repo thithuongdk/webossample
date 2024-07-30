@@ -164,7 +164,7 @@ Rectangle {
                 iconSize: 20
                 textColor: root.textColor
                 text2Color: root.text2Color
-                leftIcon: "qrc:/png/time"
+                leftIcon: "qrc:/svg/time"
                 rightText: (value/10).toFixed(1).toString()
                 onValueChanged: playerService.rate=value.toFixed(0);
             }
@@ -182,9 +182,9 @@ Rectangle {
                 textColor: root.textColor
                 text2Color: root.text2Color
                 leftText: playerService.volume.toString()
-                rightIcon: value<1? "qrc:/png/speaker_x":
-                            (value<33?"qrc:/png/speaker_1":
-                            (value<66?"qrc:/png/speaker_2":"qrc:/png/speaker_3"))
+                rightIcon: value<1? "qrc:/svg/volume_x":
+                            (value<33?"qrc:/svg/volume_0":
+                            (value<66?"qrc:/svg/volume_1":"qrc:/svg/volume_2"))
                 onValueChanged: playerService.volume=value.toFixed(0);
             }
 
@@ -199,24 +199,37 @@ Rectangle {
                 Row {
                     spacing: 10
                     anchors.horizontalCenter: parent.horizontalCenter
-                    IconButton {
-                        id: shuffleButton
+                    Item {
                         y: controlButton.iconSize/2
-                        pointSize: controlButton.iconSize/2
-                        source: playerService.shuffleStatus===0?"qrc:/png/minus":
-                                (playerService.shuffleStatus===1?"qrc:/png/repeat":
-                                (playerService.shuffleStatus===2?"qrc:/png/info":"qrc:/png/shuffle"))
-                        enableBg: false
-                        iconColor: playerService.shuffleStatus===0? "#60000000":root.text2Color
-                        bgColor: "transparent"
-                        onClicked: {
-                            playerService.shuffleStatus=playerService.shuffleStatus+1
+                        height: controlButton.iconSize/2
+                        width: controlButton.iconSize/2
+                        Text {
+                            anchors.centerIn: parent
+                            text: playerService.shuffleStatus===2?"1":""
+                            font.bold: true
+                            font.pixelSize: controlButton.iconSize/8
+                        }
+                        IconButton {
+                            id: shuffleButton
+                            radius: controlButton.iconSize/10
+                            pointSize: controlButton.iconSize/2
+                            source: playerService.shuffleStatus===0?"qrc:/svg/repeat":
+                                    (playerService.shuffleStatus===1?"qrc:/svg/repeat":
+                                    (playerService.shuffleStatus===2?"qrc:/svg/repeat":"qrc:/svg/shuffle"))
+                            enableBg: false
+                            opacity: playerService.shuffleStatus===0?0.5:1
+                            iconColor: playerService.shuffleStatus===0? "#60000000":root.text2Color
+                            bgColor: "transparent"
+                            onClicked: {
+                                playerService.shuffleStatus=playerService.shuffleStatus+1
+                            }
                         }
                     }
                     IconButton {
                         id: rewindButton
-                        pointSize: controlButton.iconSize
-                        source: "qrc:/png/rewind"
+                        anchors.verticalCenter: parent.verticalCenter
+                        pointSize: controlButton.iconSize*0.7
+                        source: "qrc:/svg/fast_back"
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {
@@ -225,8 +238,9 @@ Rectangle {
                     }
                     IconButton {
                         id: backButton
-                        pointSize: controlButton.iconSize
-                        source: "qrc:/png/back"
+                        anchors.verticalCenter: parent.verticalCenter
+                        pointSize: controlButton.iconSize*0.7
+                        source: "qrc:/svg/back"
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {
@@ -239,9 +253,10 @@ Rectangle {
                     }
                     IconButton {
                         id: playButton
+                        anchors.verticalCenter: parent.verticalCenter
                         pointSize: controlButton.iconSize
-                        source: playerService.playState===0?"qrc:/png/play":
-                                (playerService.playState===1?"qrc:/png/play":"qrc:/png/pause")
+                        source: playerService.playState===0?"qrc:/svg/play_pause":
+                                (playerService.playState===1?"qrc:/svg/play_circle":"qrc:/svg/pause_circle")
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {
@@ -255,8 +270,9 @@ Rectangle {
                     }
                     IconButton {
                         id: stopButton
+                        anchors.verticalCenter: parent.verticalCenter
                         pointSize: controlButton.iconSize
-                        source: "qrc:/png/stop"
+                        source: "qrc:/svg/stop"
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {
@@ -265,8 +281,9 @@ Rectangle {
                     }
                     IconButton {
                         id: nextButton
-                        pointSize: controlButton.iconSize
-                        source: "qrc:/png/next"
+                        anchors.verticalCenter: parent.verticalCenter
+                        pointSize: controlButton.iconSize*0.7
+                        source: "qrc:/svg/forward"
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {
@@ -279,8 +296,9 @@ Rectangle {
                     }
                     IconButton {
                         id: skipButton
-                        pointSize: controlButton.iconSize
-                        source: "qrc:/png/skip"
+                        anchors.verticalCenter: parent.verticalCenter
+                        pointSize: controlButton.iconSize*0.7
+                        source: "qrc:/svg/fast_forward"
                         iconColor: root.iconColor
                         bgColor:root.textColor
                         onClicked: {

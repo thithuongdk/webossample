@@ -9,8 +9,8 @@ Slider {
     property string text2Color: "brown"
     property string leftText: ""
     property string rightText: ""
-    property string leftIcon: "qrc:/png/help"
-    property string rightIcon: "qrc:/png/help"
+    property string leftIcon: "qrc:/svg/play"
+    property string rightIcon: "qrc:/svg/play"
 
     snapMode: Slider.SnapOnRelease
     stepSize: 0.1
@@ -33,7 +33,7 @@ Slider {
             }
             Image {
                 id: leftIconImage
-                visible: root.leftIcon !== "qrc:/png/help"
+                visible: root.leftIcon !== "qrc:/svg/play"
                 source: root.leftIcon
                 width: root.iconSize
                 height: root.iconSize
@@ -65,7 +65,7 @@ Slider {
             }
             Image {
                 id: rightIconImage
-                visible: root.rightIcon !== "qrc:/png/help"
+                visible: root.rightIcon !== "qrc:/svg/play"
                 source: root.rightIcon
                 width: root.iconSize
                 height: root.iconSize
