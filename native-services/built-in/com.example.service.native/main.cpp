@@ -19,6 +19,8 @@
 #include <luna-service2/lunaservice.h>
 #include <PmLog.h>
 #include <pbnjson.hpp>
+#include <malloc.h>
+#include <iostream>
 
 static PmLogContext getPmLogContext()
 {
@@ -47,6 +49,100 @@ static std::string convertJsonToString(const pbnjson::JValue json)
     return pbnjson::JGenerator::serialize(json, pbnjson::JSchemaFragment("{}"));
 }
 
+static bool onHello2(LSHandle *sh, LSMessage* message, void* ctx)
+{
+    PmLogInfo(getPmLogContext(), "HANDLE_HELLO2", 0, "hello method called");
+
+    LSError lserror;
+    LSErrorInit(&lserror);
+    std::string key = "hello2";
+    if (!LSSubscriptionAdd(sh, key.c_str(), message, &lserror))
+    {
+        return false;
+    }
+
+    PmLogInfo(getPmLogContext(), "HELLO_COUNT2", 0, std::to_string(LSSubscriptionGetHandleSubscribersCount(sh, key.c_str())).c_str());
+    return true;
+}
+
+static bool onHello3(LSHandle *sh, LSMessage* message, void* ctx)
+{
+    PmLogInfo(getPmLogContext(), "HANDLE_HELLO3", 0, "hello method called");
+
+    LSError lserror;
+    LSErrorInit(&lserror);
+
+    // _HEAPINFO heapInfo;
+    // heapInfo._pentry = nullptr;
+    // PmLogInfo(getPmLogContext(), "HEAPINFO_NOT_RELEASE", 0, "before");
+    // while (_heapwalk(&heapInfo) == _HEAPOK) {
+    //     PmLogInfo(getPmLogContext(), "HEAPINFO", 3,
+    //             PMLOGJSON("Address",std::to_string(heapInfo._pentry).c_str()),
+    //             PMLOGJSON("Size", std::to_string(heapInfo._size).c_str()),
+    //             PMLOGJSON("Use", std::to_string(heapInfo._useflag).c_str()), " ");
+    // }
+    LSMessagePrint(message, stdout);
+    std::cout << "HEAPINFO_NOT_RELEASE before" << std::endl;
+    malloc_stats();
+
+    std::string key = "hello";
+    for(int i0=0; i0<4000; i0++) {
+        for(int i1=0; i1<3; i1++) {
+            if (!LSSubscriptionAdd(sh, key.c_str(), message, &lserror))
+            {
+                return false;
+            }
+        }
+
+        PmLogInfo(getPmLogContext(), "HELLO_COUNT", 0, std::to_string(LSSubscriptionGetHandleSubscribersCount(sh, key.c_str())).c_str());
+        if (LSSubscriptionGetHandleSubscribersCount(sh, key.c_str()))
+        {
+            LSSubscriptionIter *iter = nullptr;
+            if(LSSubscriptionAcquire(sh, key.c_str(), &iter, &lserror))
+            {
+                while(LSSubscriptionHasNext(iter))
+                {
+                    LSMessage *msg = LSSubscriptionNext(iter);
+                    PmLogInfo(getPmLogContext(), "HELLO_LSSubscriptionNext", 0, LSMessageGetSenderServiceName(msg));
+                    std::string sjson = R"({"id":"hahahahahahaahha"})";
+                    LSMessageReply(sh, msg, sjson.c_str(), &lserror);
+                }
+                // LSSubscriptionRelease(iter);
+            }
+        }
+    }
+
+    // heapInfo._pentry = nullptr;
+    // PmLogInfo(getPmLogContext(), "HEAPINFO_NOT_RELEASE", 0, "after");
+    // while (_heapwalk(&heapInfo) == _HEAPOK) {
+    //     PmLogInfo(getPmLogContext(), "HEAPINFO", 3,
+    //             PMLOGJSON("Address",std::to_string(heapInfo._pentry).c_str()),
+    //             PMLOGJSON("Size", std::to_string(heapInfo._size).c_str()),
+    //             PMLOGJSON("Use", std::to_string(heapInfo._useflag).c_str()), " ");
+    // }
+    std::cout << "HEAPINFO_NOT_RELEASE after" << std::endl;
+    malloc_stats();
+
+    PmLogInfo(getPmLogContext(), "HELLO_COUNT3", 0, std::to_string(LSSubscriptionGetHandleSubscribersCount(sh, key.c_str())).c_str());
+    return true;
+}
+
+static bool onHello4(LSHandle *sh, LSMessage* message, void* ctx)
+{
+    PmLogInfo(getPmLogContext(), "HANDLE_HELLO4", 0, "hello method called");
+
+    LSError lserror;
+    LSErrorInit(&lserror);
+    std::string key = "hello";
+    if (!LSSubscriptionAdd(sh, key.c_str(), message, &lserror))
+    {
+        return false;
+    }
+
+    PmLogInfo(getPmLogContext(), "HELLO_COUNT", 0, std::to_string(LSSubscriptionGetHandleSubscribersCount(sh, key.c_str())).c_str());
+    return true;
+}
+
 static bool onHello(LSHandle *sh, LSMessage* message, void* ctx)
 {
     PmLogInfo(getPmLogContext(), "HANDLE_HELLO", 0, "hello method called");
@@ -60,6 +156,57 @@ static bool onHello(LSHandle *sh, LSMessage* message, void* ctx)
 
     LSError lserror;
     LSErrorInit(&lserror);
+
+    // _HEAPINFO heapInfo;
+    // heapInfo._pentry = nullptr;
+    // PmLogInfo(getPmLogContext(), "HEAPINFO_RELEASE", 0, "before");
+    // while (_heapwalk(&heapInfo) == _HEAPOK) {
+    //     PmLogInfo(getPmLogContext(), "HEAPINFO", 3,
+    //             PMLOGJSON("Address",std::to_string(heapInfo._pentry).c_str()),
+    //             PMLOGJSON("Size", std::to_string(heapInfo._size).c_str()),
+    //             PMLOGJSON("Use", std::to_string(heapInfo._useflag).c_str()), " ");
+    // }
+    LSMessagePrint(message, stdout);
+    std::cout << "HEAPINFO_RELEASE before" << std::endl;
+    malloc_stats();
+
+    std::string key = "hello";
+    for(int i0=0; i0<4000; i0++) {
+        for(int i1=0; i1<3; i1++) {
+            if (!LSSubscriptionAdd(sh, key.c_str(), message, &lserror))
+            {
+                return false;
+            }
+        }
+
+        PmLogInfo(getPmLogContext(), "HELLO_COUNT", 0, std::to_string(LSSubscriptionGetHandleSubscribersCount(sh, key.c_str())).c_str());
+        if (LSSubscriptionGetHandleSubscribersCount(sh, key.c_str()))
+        {
+            LSSubscriptionIter *iter = nullptr;
+            if(LSSubscriptionAcquire(sh, key.c_str(), &iter, &lserror))
+            {
+                while(LSSubscriptionHasNext(iter))
+                {
+                    LSMessage *msg = LSSubscriptionNext(iter);
+                    PmLogInfo(getPmLogContext(), "HELLO_LSSubscriptionNext", 0, LSMessageGetSenderServiceName(msg));
+                    std::string sjson = R"({"id":"hahahahahahaahha"})";
+                    LSMessageReply(sh, msg, sjson.c_str(), &lserror);
+                }
+                LSSubscriptionRelease(iter);
+            }
+        }
+    }
+
+    // heapInfo._pentry = nullptr;
+    // PmLogInfo(getPmLogContext(), "HEAPINFO_RELEASE", 0, "after");
+    // while (_heapwalk(&heapInfo) == _HEAPOK) {
+    //     PmLogInfo(getPmLogContext(), "HEAPINFO", 3,
+    //             PMLOGJSON("Address",std::to_string(heapInfo._pentry).c_str()),
+    //             PMLOGJSON("Size", std::to_string(heapInfo._size).c_str()),
+    //             PMLOGJSON("Use", std::to_string(heapInfo._useflag).c_str()), " ");
+    // }
+    std::cout << "HEAPINFO_RELEASE after" << std::endl;
+    malloc_stats();
 
     if (!LSMessageReply(sh, message, reply.stringify().c_str(), &lserror))
     {
@@ -90,7 +237,10 @@ static bool cbGetTime(LSHandle *sh, LSMessage *msg, void *user_data)
 }
 
 static LSMethod serviceMethods[] = {
-    { "hello", onHello }
+    { "hello", onHello },
+    { "hello2", onHello2 },
+    { "hello3", onHello3 },
+    { "hello4", onHello4 }
 };
 
 int main(int argc, char* argv[])
